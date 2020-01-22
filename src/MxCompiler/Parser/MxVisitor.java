@@ -2,6 +2,7 @@
 
 package MxCompiler.Parser;
 
+import MxCompiler.Utilities.CompilationError;
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 
 /**
@@ -35,7 +36,7 @@ public interface MxVisitor<T> extends ParseTreeVisitor<T> {
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitClassDef(MxParser.ClassDefContext ctx);
+	T visitClassDef(MxParser.ClassDefContext ctx) throws CompilationError;
 	/**
 	 * Visit a parse tree produced by {@link MxParser#varDecl}.
 	 * @param ctx the parse tree

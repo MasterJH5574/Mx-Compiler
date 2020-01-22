@@ -5,17 +5,17 @@ import MxCompiler.Utilities.Location;
 import java.util.ArrayList;
 
 public class ProgramNode extends ASTNode {
-    private ArrayList<programUnitNode> programUnits = new ArrayList<>();
+    private ArrayList<ProgramUnitNode> programUnits = new ArrayList<>();
 
     public ProgramNode(Location location) {
         super(location);
     }
 
-    public ArrayList<programUnitNode> getProgramUnits() {
+    public ArrayList<ProgramUnitNode> getProgramUnits() {
         return programUnits;
     }
 
-    public void addObject(programUnitNode programUnit) {
+    public void addObject(ProgramUnitNode programUnit) {
         programUnits.add(programUnit);
     }
 

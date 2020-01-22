@@ -2,7 +2,7 @@ package MxCompiler.AST;
 
 import MxCompiler.Utilities.Location;
 
-public class VarNode extends programUnitNode {
+public class VarNode extends ProgramUnitNode {
     private TypeNode type;
     private String identifier;
     private ExprNode initExpr;

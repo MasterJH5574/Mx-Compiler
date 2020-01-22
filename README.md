@@ -12,12 +12,13 @@
 
 ## AST Structure
 * - [x] ASTNode (location)
-  * - [x] ProgramNode
+  * - [x] ProgramNode (programUnits)
   * - [x] TypeNode (identifier)
     * - [x] PrimitiveTypeNode (identifier = int / bool / String / void)
     * - [x] ClassTypeNode
     * - [x] ArrayTypeNode (baseType = , dims)
-  * - [x] ObjectNode
+  * - [x] ProgramUnitNode
+    * - [x] VarNodeList (varNodes)
     * - [x] VarNode (type, identifier, initExpr)
     * - [x] FunctionNode (type, identifier, parameters, statement)
     * - [x] ClassNode (identifier, varList, funcList)

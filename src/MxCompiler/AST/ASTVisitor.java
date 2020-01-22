@@ -10,6 +10,7 @@ public interface ASTVisitor {
     void visit(ArrayTypeNode node);
 
     // ------ ObjectNode ------
+    void visit(VarNodeList node);
     void visit(VarNode node);
     void visit(FunctionNode node);
     void visit(ClassNode node);

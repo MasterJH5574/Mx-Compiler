@@ -4,7 +4,7 @@ import MxCompiler.Utilities.Location;
 
 import java.util.ArrayList;
 
-public class ClassNode extends programUnitNode {
+public class ClassNode extends ProgramUnitNode {
     private String identifier;
     private ArrayList<VarNode> varList = new ArrayList<>();
     private ArrayList<FunctionNode> funcList = new ArrayList<>();

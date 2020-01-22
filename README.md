@@ -1,6 +1,6 @@
 # Mx-Compiler
 
-### Timeline
+## Timeline
 
 * 2020.1.11	Creating repo.
 * 2020.1.16	Finish Mx.g4 v1.
@@ -10,7 +10,7 @@
 
 
 
-### AST Structure
+## AST Structure
 * - [x] ASTNode (location)
   * - [x] ProgramNode
   * - [x] TypeNode (identifier)

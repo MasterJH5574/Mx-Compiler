@@ -15,7 +15,7 @@ public class ProgramNode extends ASTNode {
         return programUnits;
     }
 
-    public void addObject(ProgramUnitNode programUnit) {
+    public void addProgramUnit(ProgramUnitNode programUnit) {
         programUnits.add(programUnit);
     }
 

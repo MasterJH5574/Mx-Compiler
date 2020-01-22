@@ -12,7 +12,7 @@
 
 ### AST Structure
 * - [x] ASTNode (location)
-  * - [ ] ProgramNode
+  * - [x] ProgramNode
   * - [x] TypeNode (identifier)
     * - [x] PrimitiveTypeNode (identifier = int / bool / String / void)
     * - [x] ClassTypeNode

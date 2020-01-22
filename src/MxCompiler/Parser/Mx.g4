@@ -31,7 +31,7 @@ varDecl
     :   type varDeclList ';'
     ;
 
-constructorDef  // Todo: constructor exists?
+constructorDef
     :   IDENTIFIER '(' parameterList? ')' block
     ;
 

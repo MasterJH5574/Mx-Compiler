@@ -1,4 +1,4 @@
-package MxCompiler.Utils;
+package MxCompiler.Utilities;
 
 import org.antlr.v4.runtime.Token;
 

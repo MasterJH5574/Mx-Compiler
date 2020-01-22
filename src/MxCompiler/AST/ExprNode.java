@@ -2,8 +2,8 @@ package MxCompiler.AST;
 
 import MxCompiler.Utilities.Location;
 
-abstract public class StmtNode extends ASTNode {
-    public StmtNode(Location location) {
+abstract public class ExprNode extends ASTNode {
+    public ExprNode(Location location) {
         super(location);
     }
 }

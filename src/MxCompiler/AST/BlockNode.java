@@ -1,6 +1,6 @@
 package MxCompiler.AST;
 
-import MxCompiler.Utils.Location;
+import MxCompiler.Utilities.Location;
 
 import java.util.ArrayList;
 
@@ -15,7 +15,7 @@ public class BlockNode extends StmtNode {
         return statements;
     }
 
-    public void addStatements(StmtNode stmt) {
+    public void addStatement(StmtNode stmt) {
         statements.add(stmt);
     }
 

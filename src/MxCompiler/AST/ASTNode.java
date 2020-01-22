@@ -1,6 +1,6 @@
 package MxCompiler.AST;
 
-import MxCompiler.Utils.Location;
+import MxCompiler.Utilities.Location;
 
 abstract public class ASTNode {
     private Location location;

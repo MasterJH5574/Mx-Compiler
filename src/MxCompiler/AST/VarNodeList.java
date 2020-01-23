@@ -5,10 +5,11 @@ import MxCompiler.Utilities.Location;
 import java.util.ArrayList;
 
 public class VarNodeList extends ProgramUnitNode {
-    private ArrayList<VarNode> varNodes = new ArrayList<>();
+    private ArrayList<VarNode> varNodes;
 
-    public VarNodeList(Location location) {
+    public VarNodeList(Location location, ArrayList<VarNode> varNodes) {
         super(location);
+        this.varNodes = varNodes;
     }
 
     public ArrayList<VarNode> getVarNodes() {

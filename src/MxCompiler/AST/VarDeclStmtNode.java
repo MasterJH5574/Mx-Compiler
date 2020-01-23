@@ -5,10 +5,11 @@ import MxCompiler.Utilities.Location;
 import java.util.ArrayList;
 
 public class VarDeclStmtNode extends StmtNode {
-    private ArrayList<VarNode> varList = new ArrayList<>();
+    private ArrayList<VarNode> varList;
 
-    public VarDeclStmtNode(Location location) {
+    public VarDeclStmtNode(Location location, ArrayList<VarNode> varList) {
         super(location);
+        this.varList = varList;
     }
 
     public ArrayList<VarNode> getVarList() {

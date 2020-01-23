@@ -7,6 +7,7 @@
 * 2020.1.18	It is said that the assignment will be modified a lot🙃.
 * 2020.1.21	Start building AST.
 * 2020.1.22	Finish code of AST package. Start coding ASTBuilder.java.
+* 2020.1.22	Finish building AST(Finish ASTBuilder.java).
 
 
 

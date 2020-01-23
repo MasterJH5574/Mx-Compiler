@@ -6,13 +6,16 @@ import java.util.ArrayList;
 
 public class ClassNode extends ProgramUnitNode {
     private String identifier;
-    private ArrayList<VarNode> varList = new ArrayList<>();
-    private ArrayList<FunctionNode> funcList = new ArrayList<>();
+    private ArrayList<VarNode> varList;
+    private ArrayList<FunctionNode> funcList;
     // Regard constructor as a method with return-type void.
 
-    public ClassNode(Location location, String identifier) {
+    public ClassNode(Location location, String identifier,
+                     ArrayList<VarNode> varList, ArrayList<FunctionNode> funcList) {
         super(location);
         this.identifier = identifier;
+        this.varList = varList;
+        this.funcList = funcList;
     }
 
     public String getIdentifier() {

@@ -5,10 +5,11 @@ import MxCompiler.Utilities.Location;
 import java.util.ArrayList;
 
 public class ProgramNode extends ASTNode {
-    private ArrayList<ProgramUnitNode> programUnits = new ArrayList<>();
+    private ArrayList<ProgramUnitNode> programUnits;
 
-    public ProgramNode(Location location) {
+    public ProgramNode(Location location, ArrayList<ProgramUnitNode> programUnits) {
         super(location);
+        this.programUnits = programUnits;
     }
 
     public ArrayList<ProgramUnitNode> getProgramUnits() {

@@ -2,7 +2,6 @@
 
 package MxCompiler.Parser;
 
-import MxCompiler.Utilities.CompilationError;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 
 /**
@@ -41,7 +40,7 @@ public class MxBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements MxV
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitClassDef(MxParser.ClassDefContext ctx) throws CompilationError { return visitChildren(ctx); }
+	@Override public T visitClassDef(MxParser.ClassDefContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *

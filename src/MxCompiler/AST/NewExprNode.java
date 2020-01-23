@@ -6,12 +6,13 @@ import java.util.ArrayList;
 
 public class NewExprNode extends ExprNode {
     private String typeName;
-    private ArrayList<ExprNode> exprForDim = new ArrayList<>();
+    private ArrayList<ExprNode> exprForDim;
     private int dim;
 
-    public NewExprNode(Location location, String typeName, int dim) {
+    public NewExprNode(Location location, String typeName, ArrayList<ExprNode> exprForDim, int dim) {
         super(location);
         this.typeName = typeName;
+        this.exprForDim = exprForDim;
         this.dim = dim;
     }
 

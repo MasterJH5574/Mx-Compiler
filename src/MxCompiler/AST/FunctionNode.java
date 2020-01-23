@@ -7,13 +7,15 @@ import java.util.ArrayList;
 public class FunctionNode extends ProgramUnitNode {
     private TypeNode type;
     private String identifier;
-    private ArrayList<VarNode> parameters = new ArrayList<>();
+    private ArrayList<VarNode> parameters;
     private StmtNode statement; // This must be a block statement.
 
-    public FunctionNode(Location location, TypeNode type, String identifier, StmtNode statement) {
+    public FunctionNode(Location location, TypeNode type, String identifier,
+                        ArrayList<VarNode> parameters, StmtNode statement) {
         super(location);
         this.type = type;
         this.identifier = identifier;
+        this.parameters = parameters;
         this.statement = statement;
     }
 

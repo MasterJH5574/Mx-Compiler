@@ -5,10 +5,11 @@ import MxCompiler.Utilities.Location;
 import java.util.ArrayList;
 
 public class BlockNode extends StmtNode {
-    private ArrayList<StmtNode> statements = new ArrayList<>();
+    private ArrayList<StmtNode> statements;
 
-    public BlockNode(Location location) {
+    public BlockNode(Location location, ArrayList<StmtNode> statements) {
         super(location);
+        this.statements = statements;
     }
 
     public ArrayList<StmtNode> getStatements() {

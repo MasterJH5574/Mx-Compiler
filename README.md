@@ -2,7 +2,7 @@
 
 ## Timeline
 
-* 2020.1.11	Creating repo.
+* 2020.1.11	Create repo.
 * 2020.1.16	Finish Mx.g4 v1.
 * 2020.1.18	It is said that the assignment will be modified a lot🙃.
 * 2020.1.21	Start building AST.
@@ -11,13 +11,24 @@
 
 
 
-## AST Structure
+## Parser
+
+Using ANTLR4.
+
+Mx.g4 ===> MxLexer.java, MxParser.java, MxVisitor.java, MxBaseVisitor.java
+
+
+
+## AST
+
+### Structure
+
 * - [x] ASTNode (location)
   * - [x] ProgramNode (programUnits)
   * - [x] TypeNode (identifier)
     * - [x] PrimitiveTypeNode (identifier = int / bool / String / void)
     * - [x] ClassTypeNode
-    * - [x] ArrayTypeNode (baseType = , dims)
+    * - [x] ArrayTypeNode (baseType = primitive type / class type, dims)
   * - [x] ProgramUnitNode
     * - [x] VarNodeList (varNodes)
     * - [x] VarNode (type, identifier, initExpr)
@@ -48,4 +59,27 @@
       * - [x] StringLiteralNode (value)
       * - [x] NullLiteralNode
     * - [x] IdExprNode (identifier)
+
+### Build AST in ASTBuilder.java
+
+```java
+public class ASTBuilder extends MxBaseVisitor<ASTNode> {
+    @Override
+    public ASTNode visitProgram(MxParser.ProgramContext ctx) {
+        // return ProgramNode
+        ArrayList<ProgramUnitNode> programUnits = new ArrayList<>();
+        for (var programUnit : ctx.programUnit()) {
+            ASTNode unit = visit(programUnit);
+            if (unit instanceof VarNodeList)
+                programUnits.addAll(((VarNodeList) unit).getVarNodes());
+            else if (unit != null)
+                programUnits.add((ProgramUnitNode) unit);
+            // else do nothing
+        }
+        return new ProgramNode(new Location(ctx.getStart()), programUnits);
+    }
+    
+    // Override other methods...
+}
+```
 

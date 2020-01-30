@@ -9,7 +9,7 @@
 * 2020.1.22	Finish code of AST package. Start coding ASTBuilder.java.
 * 2020.1.23	Finish building AST(Finish ASTBuilder.java).
 * 2020.1.29	Start semantic analysis(so complexed...).
-* 2020.1.30	Add ErrorHandler.
+* 2020.1.30	Add ErrorHandler. Add Scope, TypeTable, package Type and package Entity. Start coding Resolver.java.
 
 
 
@@ -23,12 +23,12 @@ Mx.g4 ===> MxLexer.java, MxParser.java, MxVisitor.java, MxBaseVisitor.java
 
 ## AST
 
-### Structure
+### class ASTNode Structure
 
 * - [x] ASTNode (location)
   * - [x] ProgramNode (programUnits)
   * - [x] TypeNode (identifier)
-    * - [x] PrimitiveTypeNode (identifier = int / bool / String / void)
+    * - [x] PrimitiveTypeNode (identifier = int / bool / string / void)
     * - [x] ClassTypeNode
     * - [x] ArrayTypeNode (baseType = primitive type / class type, dims)
   * - [x] ProgramUnitNode
@@ -89,9 +89,19 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
 
 ## Semantic Analysis
 
-### Entity Structure
+### class Entity Structure
 
-* - [x] Entity (name, scope, referred)
-  * - [ ] FunctionEntity
-  * - [ ] ClassEntity
-  * - [ ] VariableEntity
+* - [x] Entity (name, referred)
+  * - [x] FunctionEntity (returnType, parameters, bodyStmt, entityType)
+  * - [x] VariableEntity (type, initExpr, entityType)
+
+### class Type Structure
+
+* - [x] Type (name, size)			**Member "size" is to be set later.**
+  * - [x] IntType
+  * - [x] BoolType
+  * - [x] StringType
+  * - [x] VoidType
+  * - [x] ClassType (members, constructor, methods)
+  * - [x] ArrayType (baseType, dims)
+

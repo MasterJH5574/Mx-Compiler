@@ -11,4 +11,9 @@ public class ClassTypeNode extends TypeNode {
     public void accept(ASTVisitor visitor) {
         visitor.visit(this);
     }
+
+    @Override
+    public String toString() {
+        return identifier;
+    }
 }

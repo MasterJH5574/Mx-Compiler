@@ -29,4 +29,9 @@ public class ArrayTypeNode extends TypeNode {
     public void accept(ASTVisitor visitor) {
         visitor.visit(this);
     }
+
+    @Override
+    public String toString() {
+        return baseType.toString() + "[]".repeat(Math.max(0, dims));
+    }
 }

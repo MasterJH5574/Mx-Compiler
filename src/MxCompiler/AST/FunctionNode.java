@@ -1,5 +1,7 @@
 package MxCompiler.AST;
 
+import MxCompiler.Entity.FunctionEntity;
+import MxCompiler.Entity.VariableEntity;
 import MxCompiler.Utilities.Location;
 
 import java.util.ArrayList;
@@ -37,6 +39,13 @@ public class FunctionNode extends ProgramUnitNode {
 
     public StmtNode getStatement() {
         return statement;
+    }
+
+    public FunctionEntity getEntity(FunctionEntity.EntityType entityType) {
+        ArrayList<VariableEntity> parameters = new ArrayList<>();
+        for (VarNode varNode : this.parameters)
+            parameters.add(varNode.getEntity(VariableEntity.EntityType.parameter));
+        return new FunctionEntity(identifier, type, parameters, statement, entityType);
     }
 
     @Override

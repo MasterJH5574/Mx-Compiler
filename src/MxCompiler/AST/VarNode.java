@@ -1,5 +1,6 @@
 package MxCompiler.AST;
 
+import MxCompiler.Entity.VariableEntity;
 import MxCompiler.Utilities.Location;
 
 public class VarNode extends ProgramUnitNode {
@@ -30,12 +31,20 @@ public class VarNode extends ProgramUnitNode {
         this.identifier = identifier;
     }
 
+    public boolean hasInitExpr() {
+        return initExpr != null;
+    }
+
     public ExprNode getInitExpr() {
         return initExpr;
     }
 
     public void setInitExpr(ExprNode initExpr) {
         this.initExpr = initExpr;
+    }
+
+    public VariableEntity getEntity(VariableEntity.EntityType entityType) {
+        return new VariableEntity(identifier, type, initExpr, entityType);
     }
 
     @Override

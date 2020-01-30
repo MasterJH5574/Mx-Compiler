@@ -75,6 +75,7 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
         for (var functionDef : ctx.functionDef())
             funcList.add((FunctionNode) visit(functionDef));
 
+        FunctionNode constructor = null;
         if (ctx.constructorDef().size() > 1)
             errorHandler.error(new Location(ctx.constructorDef(0).getStart()),
                     "Class \"" + identifier + "\" has multiple constructors.");
@@ -82,10 +83,11 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
             if (!constructorDef.IDENTIFIER().getText().equals(identifier))
                 errorHandler.error(new Location(constructorDef.getStart()),
                         "Unknown constructor \"" + identifier + "()\".");
-            funcList.add((FunctionNode) visit(constructorDef));
+            else
+                constructor = (FunctionNode) visit(constructorDef);
         }
 
-        return new ClassNode(new Location(ctx.getStart()), identifier, varList, funcList);
+        return new ClassNode(new Location(ctx.getStart()), identifier, varList, constructor, funcList);
     }
 
     @Override
@@ -101,7 +103,7 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
     @Override
     public ASTNode visitConstructorDef(MxParser.ConstructorDefContext ctx) {
         // return FunctionNode
-        TypeNode type = new PrimitiveTypeNode(new Location(ctx.getStart()), null);
+        TypeNode type = new PrimitiveTypeNode(new Location(ctx.getStart()), "void");
         String identifier = "#constructor#" + ctx.IDENTIFIER().getText();
         ArrayList<VarNode> parameters = null;
         if (ctx.parameterList() != null)

@@ -8,6 +8,8 @@
 * 2020.1.21	Start building AST.
 * 2020.1.22	Finish code of AST package. Start coding ASTBuilder.java.
 * 2020.1.23	Finish building AST(Finish ASTBuilder.java).
+* 2020.1.29	Start semantic analysis(so complexed...).
+* 2020.1.30	Add ErrorHandler.
 
 
 
@@ -83,3 +85,13 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
 }
 ```
 
+
+
+## Semantic Analysis
+
+### Entity Structure
+
+* - [x] Entity (name, scope, referred)
+  * - [ ] FunctionEntity
+  * - [ ] ClassEntity
+  * - [ ] VariableEntity

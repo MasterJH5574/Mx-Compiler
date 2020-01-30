@@ -5,11 +5,18 @@ import MxCompiler.AST.*;
 import MxCompiler.Parser.MxBaseVisitor;
 import MxCompiler.Parser.MxParser;
 import MxCompiler.Utilities.CompilationError;
+import MxCompiler.Utilities.ErrorHandler;
 import MxCompiler.Utilities.Location;
 
 import java.util.ArrayList;
 
 public class ASTBuilder extends MxBaseVisitor<ASTNode> {
+    ErrorHandler errorHandler;
+
+    public ASTBuilder(ErrorHandler errorHandler) {
+        this.errorHandler = errorHandler;
+    }
+
     @Override
     public ASTNode visitProgram(MxParser.ProgramContext ctx) {
         // return ProgramNode
@@ -69,12 +76,12 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
             funcList.add((FunctionNode) visit(functionDef));
 
         if (ctx.constructorDef().size() > 1)
-            throw new CompilationError("Class \"" + identifier + "\" has multiple constructors.",
-                    new Location(ctx.constructorDef(0).getStart()));
+            errorHandler.error(new Location(ctx.constructorDef(0).getStart()),
+                    "Class \"" + identifier + "\" has multiple constructors.");
         for (var constructorDef : ctx.constructorDef()) {
             if (!constructorDef.IDENTIFIER().getText().equals(identifier))
-                throw new CompilationError("Unknown constructor \"" + identifier + "\".",
-                        new Location(constructorDef.getStart()));
+                errorHandler.error(new Location(constructorDef.getStart()),
+                        "Unknown constructor \"" + identifier + "()\".");
             funcList.add((FunctionNode) visit(constructorDef));
         }
 
@@ -433,6 +440,7 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
 
     @Override
     public ASTNode visitWrongCreator(MxParser.WrongCreatorContext ctx) {
+        errorHandler.error(new Location(ctx.getStart()), "Invalid syntax \"" + ctx.getText() + "\".");
         throw new CompilationError("Invalid syntax \"" + ctx.getText() + "\".", new Location(ctx.getStart()));
     }
 

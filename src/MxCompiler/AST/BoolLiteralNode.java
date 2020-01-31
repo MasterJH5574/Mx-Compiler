@@ -5,8 +5,8 @@ import MxCompiler.Utilities.Location;
 public class BoolLiteralNode extends ConstExprNode {
     private boolean value;
 
-    public BoolLiteralNode(Location location, boolean value) {
-        super(location);
+    public BoolLiteralNode(Location location, String text, boolean value) {
+        super(location, text);
         this.value = value;
     }
 

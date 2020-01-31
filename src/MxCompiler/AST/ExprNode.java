@@ -3,7 +3,14 @@ package MxCompiler.AST;
 import MxCompiler.Utilities.Location;
 
 abstract public class ExprNode extends ASTNode {
-    public ExprNode(Location location) {
+    private String text;
+
+    public ExprNode(Location location, String text) {
         super(location);
+        this.text = text;
+    }
+
+    public String getText() {
+        return text;
     }
 }

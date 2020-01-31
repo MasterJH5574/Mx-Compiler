@@ -5,19 +5,19 @@ import MxCompiler.Utilities.Location;
 import java.util.ArrayList;
 
 public class NewExprNode extends ExprNode {
-    private String typeName;
+    private TypeNode baseType;
     private ArrayList<ExprNode> exprForDim;
     private int dim;
 
-    public NewExprNode(Location location, String typeName, ArrayList<ExprNode> exprForDim, int dim) {
-        super(location);
-        this.typeName = typeName;
+    public NewExprNode(Location location, String text, TypeNode baseType, ArrayList<ExprNode> exprForDim, int dim) {
+        super(location, text);
+        this.baseType = baseType;
         this.exprForDim = exprForDim;
         this.dim = dim;
     }
 
-    public String getTypeName() {
-        return typeName;
+    public TypeNode getBaseType() {
+        return baseType;
     }
 
     public ArrayList<ExprNode> getExprForDim() {

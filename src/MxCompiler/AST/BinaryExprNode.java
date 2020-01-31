@@ -17,8 +17,8 @@ public class BinaryExprNode extends ExprNode {
     private Operator op;
     private ExprNode lhs, rhs;
 
-    public BinaryExprNode(Location location, Operator op, ExprNode lhs, ExprNode rhs) {
-        super(location);
+    public BinaryExprNode(Location location, String text, Operator op, ExprNode lhs, ExprNode rhs) {
+        super(location, text);
         this.op = op;
         this.lhs = lhs;
         this.rhs = rhs;

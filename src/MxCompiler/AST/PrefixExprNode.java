@@ -12,8 +12,8 @@ public class PrefixExprNode extends ExprNode {
     private Operator op;
     private ExprNode expr;
 
-    public PrefixExprNode(Location location, Operator op, ExprNode expr) {
-        super(location);
+    public PrefixExprNode(Location location, String text, Operator op, ExprNode expr) {
+        super(location, text);
         this.op = op;
         this.expr = expr;
     }

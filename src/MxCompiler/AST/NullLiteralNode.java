@@ -3,8 +3,8 @@ package MxCompiler.AST;
 import MxCompiler.Utilities.Location;
 
 public class NullLiteralNode extends ConstExprNode {
-    public NullLiteralNode(Location location) {
-        super(location);
+    public NullLiteralNode(Location location, String text) {
+        super(location, text);
     }
 
     @Override

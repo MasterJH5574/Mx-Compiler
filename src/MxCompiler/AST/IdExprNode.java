@@ -5,8 +5,8 @@ import MxCompiler.Utilities.Location;
 public class IdExprNode extends ExprNode {
     private String identifier;
 
-    public IdExprNode(Location location, String identifier) {
-        super(location);
+    public IdExprNode(Location location, String text, String identifier) {
+        super(location, text);
         this.identifier = identifier;
     }
 

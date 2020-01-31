@@ -5,8 +5,8 @@ import MxCompiler.Utilities.Location;
 public class StringLiteralNode extends ConstExprNode {
     private String value;
 
-    public StringLiteralNode(Location location, String value) {
-        super(location);
+    public StringLiteralNode(Location location, String text, String value) {
+        super(location, text);
         this.value = value;
     }
 

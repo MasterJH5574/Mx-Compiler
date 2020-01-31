@@ -286,13 +286,13 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
                 break;
         }
         ExprNode expr = (ExprNode) visit(ctx.expr());
-        return new PrefixExprNode(new Location(ctx.getStart()), op, expr);
+        return new PrefixExprNode(new Location(ctx.getStart()), ctx.getText(), op, expr);
     }
 
     @Override
     public ASTNode visitThisExpr(MxParser.ThisExprContext ctx) {
         // return ThisExprNode
-        return new ThisExprNode(new Location(ctx.getStart()));
+        return new ThisExprNode(new Location(ctx.getStart()), ctx.getText());
     }
 
     @Override
@@ -300,7 +300,7 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
         // return SubscriptExprNode
         ExprNode name = (ExprNode) visit(ctx.expr(0));
         ExprNode index = (ExprNode) visit(ctx.expr(1));
-        return new SubscriptExprNode(new Location(ctx.getStart()), name, index);
+        return new SubscriptExprNode(new Location(ctx.getStart()), ctx.getText(), name, index);
     }
 
     @Override
@@ -308,7 +308,7 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
         // return MemberExprNode
         ExprNode expr = (ExprNode) visit(ctx.expr());
         String identifier = ctx.IDENTIFIER().getText();
-        return new MemberExprNode(new Location(ctx.getStart()), expr, identifier);
+        return new MemberExprNode(new Location(ctx.getStart()), ctx.getText(), expr, identifier);
     }
 
     @Override
@@ -377,7 +377,7 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
         }
         ExprNode lhs = (ExprNode) visit(ctx.src1);
         ExprNode rhs = (ExprNode) visit(ctx.src2);
-        return new BinaryExprNode(new Location(ctx.getStart()), op, lhs, rhs);
+        return new BinaryExprNode(new Location(ctx.getStart()), ctx.getText(), op, lhs, rhs);
     }
 
     @Override
@@ -394,7 +394,7 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
                 break;
         }
         ExprNode expr = (ExprNode) visit(ctx.expr());
-        return new PostfixExprNode(new Location(ctx.getStart()), op, expr);
+        return new PostfixExprNode(new Location(ctx.getStart()), ctx.getText(), op, expr);
     }
 
     @Override
@@ -403,7 +403,7 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
         Location location = new Location(ctx.getStart());
         ExprNode funcName = (ExprNode) visit(ctx.expr());
         if (ctx.exprList() == null)
-            return new FuncCallExprNode(location, funcName, new ArrayList<>());
+            return new FuncCallExprNode(location, ctx.getText(), funcName, new ArrayList<>());
         else {
             FuncCallExprNode funcCallExprNode = (FuncCallExprNode) visit(ctx.exprList());
             funcCallExprNode.setFuncName(funcName);
@@ -428,7 +428,7 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
     public ASTNode visitIdExpr(MxParser.IdExprContext ctx) {
         // return IdExprNode
         String identifier = ctx.IDENTIFIER().getText();
-        return new IdExprNode(new Location(ctx.getStart()), identifier);
+        return new IdExprNode(new Location(ctx.getStart()), ctx.getText(), identifier);
     }
 
     @Override
@@ -437,7 +437,7 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
         ArrayList<ExprNode> parameters = new ArrayList<>();
         for (var expr : ctx.expr())
             parameters.add((ExprNode) visit(expr));
-        return new FuncCallExprNode(new Location(ctx.getStart()), null, parameters);
+        return new FuncCallExprNode(new Location(ctx.getStart()), ctx.getText(), null, parameters);
     }
 
     @Override
@@ -449,7 +449,7 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
     @Override
     public ASTNode visitArrayCreator(MxParser.ArrayCreatorContext ctx) {
         // return NewExprNode
-        String typeName = ctx.nonArrayType().getText();
+        TypeNode baseType = (TypeNode) visit(ctx.nonArrayType());
 
         int dim = 0;
         for (var child : ctx.children)
@@ -460,19 +460,21 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
         for (var expr : ctx.expr())
             exprForDim.add((ExprNode) visit(expr));
 
-        return new NewExprNode(new Location(ctx.getStart()), typeName, exprForDim, dim);
+        return new NewExprNode(new Location(ctx.getStart()), ctx.getText(), baseType, exprForDim, dim);
     }
 
     @Override
     public ASTNode visitClassCreator(MxParser.ClassCreatorContext ctx) {
         // return NewExprNode
-        return new NewExprNode(new Location(ctx.getStart()), ctx.nonArrayType().getText(), new ArrayList<>(), 0);
+        TypeNode baseType = (TypeNode) visit(ctx.nonArrayType());
+        return new NewExprNode(new Location(ctx.getStart()), ctx.getText(), baseType, new ArrayList<>(), 0);
     }
 
     @Override
     public ASTNode visitNaiveCreator(MxParser.NaiveCreatorContext ctx) {
         // return NewExprNode
-        return new NewExprNode(new Location(ctx.getStart()), ctx.nonArrayType().getText(), new ArrayList<>(), 0);
+        TypeNode baseType = (TypeNode) visit(ctx.nonArrayType());
+        return new NewExprNode(new Location(ctx.getStart()), ctx.getText(), baseType, new ArrayList<>(), 0);
     }
 
     @Override
@@ -481,12 +483,12 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
         Location location = new Location(ctx.getStart());
         String value = ctx.getText();
         if (ctx.BoolLITERAL() != null)
-            return new BoolLiteralNode(location, value.equals("true"));
+            return new BoolLiteralNode(location, ctx.getText(), value.equals("true"));
         else if (ctx.IntegerLITERAL() != null)
-            return new IntLiteralNode(location, Integer.parseInt(value));
+            return new IntLiteralNode(location, ctx.getText(), Integer.parseInt(value));
         else if (ctx.StringLITERAL() != null)
-            return new StringLiteralNode(location, value);
+            return new StringLiteralNode(location, ctx.getText(), value);
         else // ctx.NULL != null
-            return new NullLiteralNode(location);
+            return new NullLiteralNode(location, ctx.getText());
     }
 }

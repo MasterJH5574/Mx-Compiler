@@ -6,8 +6,8 @@ public class MemberExprNode extends ExprNode {
     private ExprNode expr;
     private String identifier;
 
-    public MemberExprNode(Location location, ExprNode expr, String identifier) {
-        super(location);
+    public MemberExprNode(Location location, String text, ExprNode expr, String identifier) {
+        super(location, text);
         this.expr = expr;
         this.identifier = identifier;
     }

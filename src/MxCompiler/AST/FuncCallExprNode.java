@@ -1,5 +1,6 @@
 package MxCompiler.AST;
 
+import MxCompiler.Entity.Entity;
 import MxCompiler.Utilities.Location;
 
 import java.util.ArrayList;
@@ -7,9 +8,10 @@ import java.util.ArrayList;
 public class FuncCallExprNode extends ExprNode {
     private ExprNode funcName;
     private ArrayList<ExprNode> parameters;
+    private Entity entity;
 
-    public FuncCallExprNode(Location location, ExprNode funcName, ArrayList<ExprNode> parameters) {
-        super(location);
+    public FuncCallExprNode(Location location, String text, ExprNode funcName, ArrayList<ExprNode> parameters) {
+        super(location, text);
         this.funcName = funcName;
         this.parameters = parameters;
     }
@@ -28,6 +30,14 @@ public class FuncCallExprNode extends ExprNode {
 
     public void addParameter(ExprNode parameter) {
         parameters.add(parameter);
+    }
+
+    public Entity getEntity() {
+        return entity;
+    }
+
+    public void setEntity(Entity entity) {
+        this.entity = entity;
     }
 
     @Override

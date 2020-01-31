@@ -10,8 +10,8 @@ public class PostfixExprNode extends ExprNode {
     private Operator op;
     private ExprNode expr;
 
-    public PostfixExprNode(Location location, Operator op, ExprNode expr) {
-        super(location);
+    public PostfixExprNode(Location location, String text, Operator op, ExprNode expr) {
+        super(location, text);
         this.op = op;
         this.expr = expr;
     }

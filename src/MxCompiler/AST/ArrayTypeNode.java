@@ -32,6 +32,9 @@ public class ArrayTypeNode extends TypeNode {
 
     @Override
     public String toString() {
-        return baseType.toString() + "[]".repeat(Math.max(0, dims));
+        String head = "<ArrayTypeNode>\n";
+        String baseTypeString = "baseType = " + baseType.toString();
+        String dimsString = "dims = " + dims + "\n";
+        return head + baseTypeString + dimsString;
     }
 }

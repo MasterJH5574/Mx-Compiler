@@ -21,6 +21,15 @@ public class BlockNode extends StmtNode {
     }
 
     @Override
+    public String toString() {
+        StringBuilder string = new StringBuilder("<BlockNode>\n");
+        string.append("statements:\n");
+        for (StmtNode statement : statements)
+            string.append(statement.toString());
+        return string.toString();
+    }
+
+    @Override
     public void accept(ASTVisitor visitor) {
         visitor.visit(this);
     }

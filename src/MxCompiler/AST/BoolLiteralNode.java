@@ -10,8 +10,13 @@ public class BoolLiteralNode extends ConstExprNode {
         this.value = value;
     }
 
-    public boolean isValue() {
+    public boolean getValue() {
         return value;
+    }
+
+    @Override
+    public String toString() {
+        return "<BoolLiteralNode>\n" + "value = " + value + "\n";
     }
 
     @Override

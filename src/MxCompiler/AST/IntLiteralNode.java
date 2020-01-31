@@ -15,6 +15,11 @@ public class IntLiteralNode extends ConstExprNode {
     }
 
     @Override
+    public String toString() {
+        return "<IntLiteralNode>\n" + "value = " + value + "\n";
+    }
+
+    @Override
     public void accept(ASTVisitor visitor) {
         visitor.visit(this);
     }

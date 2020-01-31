@@ -21,6 +21,15 @@ public class VarDeclStmtNode extends StmtNode {
     }
 
     @Override
+    public String toString() {
+        StringBuilder string = new StringBuilder("<VarDeclStmtNode>\n");
+        string.append("varList:\n");
+        for (VarNode var : varList)
+            string.append(var.toString());
+        return string.toString();
+    }
+
+    @Override
     public void accept(ASTVisitor visitor) {
         visitor.visit(this);
     }

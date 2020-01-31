@@ -25,6 +25,11 @@ public class PostfixExprNode extends ExprNode {
     }
 
     @Override
+    public String toString() {
+        return "<PostfixExprNode>\n" + "op = " + op + "\nexpr:\n" + expr.toString();
+    }
+
+    @Override
     public void accept(ASTVisitor visitor) {
         visitor.visit(this);
     }

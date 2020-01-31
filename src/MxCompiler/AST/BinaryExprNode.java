@@ -37,6 +37,15 @@ public class BinaryExprNode extends ExprNode {
     }
 
     @Override
+    public String toString() {
+        String headString = "<BinaryExprNode>\n";
+        String opString = "op = " + op.toString();
+        String lhsString = "lhs = " + lhs.toString();
+        String rhsString = "rhs = " + rhs.toString();
+        return headString + opString + lhsString + rhsString;
+    }
+
+    @Override
     public void accept(ASTVisitor visitor) {
         visitor.visit(this);
     }

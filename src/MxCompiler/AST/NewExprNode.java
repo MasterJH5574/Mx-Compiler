@@ -33,6 +33,17 @@ public class NewExprNode extends ExprNode {
     }
 
     @Override
+    public String toString() {
+        StringBuilder string = new StringBuilder("<NewExprNode>\n");
+        string.append("baseType:\n").append(baseType.toString());
+        string.append("exprForDim:\n");
+        for (ExprNode expr : exprForDim)
+            string.append(expr.toString());
+        string.append("dim = ").append(dim).append("\n");
+        return string.toString();
+    }
+
+    @Override
     public void accept(ASTVisitor visitor) {
         visitor.visit(this);
     }

@@ -31,12 +31,18 @@ abstract public class ASTNode {
     abstract public void accept(ASTVisitor visitor);
 
     @Override
+    abstract public String toString();
+
+    @Override
     public int hashCode() {
-        return super.hashCode();
+        return toString().hashCode();
     }
 
     @Override
     public boolean equals(Object obj) {
-        return super.equals(obj);
+        if (obj instanceof ASTNode)
+            return toString().equals(obj.toString());
+        else
+            return false;
     }
 }

@@ -15,6 +15,11 @@ public class ExprStmtNode extends StmtNode {
     }
 
     @Override
+    public String toString() {
+        return "<ExprStmtNode>\n" + expr.toString();
+    }
+
+    @Override
     public void accept(ASTVisitor visitor) {
         visitor.visit(this);
     }

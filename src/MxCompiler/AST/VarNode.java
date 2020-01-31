@@ -48,6 +48,16 @@ public class VarNode extends ProgramUnitNode {
     }
 
     @Override
+    public String toString() {
+        StringBuilder string = new StringBuilder("<VarNode>\n");
+        string.append("type:\n").append(type.toString());
+        string.append("identifier = ").append(identifier).append("\n");
+        if (hasInitExpr())
+            string.append("initExpr:\n").append(initExpr.toString());
+        return string.toString();
+    }
+
+    @Override
     public void accept(ASTVisitor visitor) {
         visitor.visit(this);
     }

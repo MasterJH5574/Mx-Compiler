@@ -8,6 +8,11 @@ public class NullLiteralNode extends ConstExprNode {
     }
 
     @Override
+    public String toString() {
+        return "<NullLiteralNode>\n";
+    }
+
+    @Override
     public void accept(ASTVisitor visitor) {
         visitor.visit(this);
     }

@@ -8,6 +8,11 @@ public class ThisExprNode extends ExprNode {
     }
 
     @Override
+    public String toString() {
+        return "<ThisExprNode>\n";
+    }
+
+    @Override
     public void accept(ASTVisitor visitor) {
         visitor.visit(this);
     }

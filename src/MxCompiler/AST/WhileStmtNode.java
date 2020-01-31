@@ -21,6 +21,11 @@ public class WhileStmtNode extends StmtNode {
     }
 
     @Override
+    public String toString() {
+        return "<WhileStmtNode>\n" + "cond:\n" + cond.toString() + "body:\n" + body.toString();
+    }
+
+    @Override
     public void accept(ASTVisitor visitor) {
         visitor.visit(this);
     }

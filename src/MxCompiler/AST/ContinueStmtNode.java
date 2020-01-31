@@ -8,6 +8,11 @@ public class ContinueStmtNode extends StmtNode {
     }
 
     @Override
+    public String toString() {
+        return "<ContinueStmtNode>\n";
+    }
+
+    @Override
     public void accept(ASTVisitor visitor) {
         visitor.visit(this);
     }

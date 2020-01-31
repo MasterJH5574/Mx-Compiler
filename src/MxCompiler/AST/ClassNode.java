@@ -67,6 +67,21 @@ public class ClassNode extends ProgramUnitNode {
     }
 
     @Override
+    public String toString() {
+        StringBuilder string = new StringBuilder("<ClassNode>\n");
+        string.append("identifier = ").append(identifier).append("\n");
+        string.append("members:\n");
+        for (VarNode var : varList)
+            string.append(var.toString());
+        if (hasConstructor())
+            string.append("constructor = ").append(constructor.toString());
+        string.append("methods:\n");
+        for (FunctionNode method : funcList)
+            string.append(method.toString());
+        return string.toString();
+    }
+
+    @Override
     public void accept(ASTVisitor visitor) {
         visitor.visit(this);
     }

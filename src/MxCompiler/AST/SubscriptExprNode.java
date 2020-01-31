@@ -20,6 +20,11 @@ public class SubscriptExprNode extends ExprNode {
     }
 
     @Override
+    public String toString() {
+        return "<SubscriptExprNode>\n" + "name:\n" + name.toString() + "index:\n" + index.toString();
+    }
+
+    @Override
     public void accept(ASTVisitor visitor) {
         visitor.visit(this);
     }

@@ -21,6 +21,15 @@ public class VarNodeList extends ProgramUnitNode {
     }
 
     @Override
+    public String toString() {
+        StringBuilder string = new StringBuilder("<VarNodeList>\n");
+        string.append("varNodes:\n");
+        for (VarNode var : varNodes)
+            string.append(var.toString());
+        return string.toString();
+    }
+
+    @Override
     public void accept(ASTVisitor visitor) {
         visitor.visit(this);
     }

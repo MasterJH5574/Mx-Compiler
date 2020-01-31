@@ -41,6 +41,16 @@ public class FuncCallExprNode extends ExprNode {
     }
 
     @Override
+    public String toString() {
+        StringBuilder string = new StringBuilder("<FuncCallExprNode>\n");
+        string.append("funcName:\n").append(funcName.toString());
+        string.append("parameters:\n");
+        for (ExprNode parameter : parameters)
+            string.append(parameter.toString());
+        return string.toString();
+    }
+
+    @Override
     public void accept(ASTVisitor visitor) {
         visitor.visit(this);
     }

@@ -14,6 +14,6 @@ public class ClassTypeNode extends TypeNode {
 
     @Override
     public String toString() {
-        return identifier;
+        return "<ClassTypeNode>\n" + "identifier = " + identifier + "\n";
     }
 }

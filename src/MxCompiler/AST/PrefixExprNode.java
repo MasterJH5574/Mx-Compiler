@@ -27,6 +27,11 @@ public class PrefixExprNode extends ExprNode {
     }
 
     @Override
+    public String toString() {
+        return "<PrefixExprNode>\nop = " + op + "\nexpr:\n" + expr.toString();
+    }
+
+    @Override
     public void accept(ASTVisitor visitor) {
         visitor.visit(this);
     }

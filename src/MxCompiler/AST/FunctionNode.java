@@ -49,6 +49,18 @@ public class FunctionNode extends ProgramUnitNode {
     }
 
     @Override
+    public String toString() {
+        StringBuilder string = new StringBuilder("<FunctionNode>\n");
+        string.append("returnType:\n").append(type.toString());
+        string.append("identifier = ").append(identifier);
+        string.append("parameter:\n");
+        for (VarNode parameter : parameters)
+            string.append(parameter.toString());
+        string.append("statements:\n").append(statement.toString());
+        return string.toString();
+    }
+
+    @Override
     public void accept(ASTVisitor visitor) {
         visitor.visit(this);
     }

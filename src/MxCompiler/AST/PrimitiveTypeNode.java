@@ -16,6 +16,6 @@ public class PrimitiveTypeNode extends TypeNode {
 
     @Override
     public String toString() {
-        return identifier;
+        return "<PrimitiveTypeNode>\nidentifier = " + identifier + "\n";
     }
 }

@@ -14,12 +14,24 @@ public class ForStmtNode extends StmtNode {
         this.body = body;
     }
 
+    public boolean hasInit() {
+        return init != null;
+    }
+
     public ExprNode getInit() {
         return init;
     }
 
+    public boolean hasCond() {
+        return cond != null;
+    }
+
     public ExprNode getCond() {
         return cond;
+    }
+
+    public boolean hasStep() {
+        return step != null;
     }
 
     public ExprNode getStep() {
@@ -28,6 +40,19 @@ public class ForStmtNode extends StmtNode {
 
     public StmtNode getBody() {
         return body;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder string = new StringBuilder("<ForStmtNode>\n");
+        if (hasInit())
+            string.append("init = ").append(init.toString());
+        if (hasCond())
+            string.append("cond = ").append(cond.toString());
+        if (hasStep())
+            string.append("step = ").append(step.toString());
+        string.append("body = ").append(body.toString());
+        return string.toString();
     }
 
     @Override

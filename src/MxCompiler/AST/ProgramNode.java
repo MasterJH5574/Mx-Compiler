@@ -21,6 +21,15 @@ public class ProgramNode extends ASTNode {
     }
 
     @Override
+    public String toString() {
+        StringBuilder string = new StringBuilder("<ProgramNode>\n");
+        string.append("programUnits:\n");
+        for (ProgramUnitNode unit : programUnits)
+            string.append(unit.toString());
+        return string.toString();
+    }
+
+    @Override
     public void accept(ASTVisitor visitor) {
         visitor.visit(this);
     }

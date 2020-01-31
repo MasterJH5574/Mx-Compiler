@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class TypeTable {
-    private Map<TypeNode, Type> typeTable; // Question: Location influences the hash code?
+    private Map<TypeNode, Type> typeTable;
 
     public TypeTable() {
         typeTable = new HashMap<>();
@@ -34,7 +34,7 @@ public class TypeTable {
     }
 
     public Type get(TypeNode typeNode) {
-        // Todo:
-        return null;
+        // Question: if typeNode instance of ArrayTypeNode?
+        return typeTable.get(typeNode);
     }
 }

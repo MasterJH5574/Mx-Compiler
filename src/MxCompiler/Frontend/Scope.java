@@ -50,4 +50,13 @@ public class Scope {
         else
             entities.put(entity.getName(), entity);
     }
+
+    public Entity getEntity(String name) {
+        if (entities.containsKey(name))
+            return entities.get(name);
+        else if (parentScope != null)
+            return parentScope.getEntity(name);
+        else
+            return null;
+    }
 }

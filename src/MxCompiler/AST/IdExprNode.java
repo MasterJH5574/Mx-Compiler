@@ -1,11 +1,9 @@
 package MxCompiler.AST;
 
-import MxCompiler.Entity.Entity;
 import MxCompiler.Utilities.Location;
 
 public class IdExprNode extends ExprNode {
     private String identifier;
-    private Entity entity;
 
     public IdExprNode(Location location, String text, String identifier) {
         super(location, text);
@@ -14,14 +12,6 @@ public class IdExprNode extends ExprNode {
 
     public String getIdentifier() {
         return identifier;
-    }
-
-    public Entity getEntity() {
-        return entity;
-    }
-
-    public void setEntity(Entity entity) {
-        this.entity = entity;
     }
 
     @Override

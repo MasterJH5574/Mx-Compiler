@@ -9,7 +9,8 @@
 * 2020.1.22	Finish code of AST package. Start coding ASTBuilder.java.
 * 2020.1.23	Finish building AST(Finish ASTBuilder.java).
 * 2020.1.29	Start semantic analysis(so complexed...).
-* 2020.1.30	Add ErrorHandler. Add Scope, TypeTable, package Type and package Entity. Start coding Resolver.java.
+* 2020.1.30	Add ErrorHandler. Add Scope, TypeTable, package Type and package Entity. Start coding Checker.java.
+* 2020.1.31	Continue semantic analysis. Finish variable resolver, type resolver and "void" checker in Checker.java.
 
 
 

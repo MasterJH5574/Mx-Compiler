@@ -7,13 +7,14 @@ import MxCompiler.Utilities.Location;
 abstract public class ExprNode extends ASTNode {
     private String text;
     private Entity entity;
-    private boolean lValue;
+    private Boolean lvalue;
     private Type type;
 
     public ExprNode(Location location, String text) {
         super(location);
         this.text = text;
-        lValue = false;
+        lvalue = null;
+        entity = null;
     }
 
     public Entity getEntity() {
@@ -24,12 +25,12 @@ abstract public class ExprNode extends ASTNode {
         this.entity = entity;
     }
 
-    public boolean isLValue() {
-        return lValue;
+    public Boolean getLvalue() {
+        return lvalue;
     }
 
-    public void setLValue(boolean lValue) {
-        this.lValue = lValue;
+    public void setLvalue(boolean lValue) {
+        this.lvalue = lValue;
     }
 
     public Type getType() {

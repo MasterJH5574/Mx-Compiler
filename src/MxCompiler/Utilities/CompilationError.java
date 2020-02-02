@@ -1,7 +1,10 @@
 package MxCompiler.Utilities;
 
-public class CompilationError extends RuntimeException {
+public class CompilationError extends Exception {
     private Location location;
+
+    public CompilationError() {
+    }
 
     public CompilationError(String message, Location location) {
         super(message);

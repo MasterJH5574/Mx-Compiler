@@ -1,5 +1,6 @@
 package MxCompiler.AST;
 
+import MxCompiler.Utilities.CompilationError;
 import MxCompiler.Utilities.Location;
 
 import java.util.ArrayList;
@@ -30,7 +31,7 @@ public class BlockNode extends StmtNode {
     }
 
     @Override
-    public void accept(ASTVisitor visitor) {
+    public void accept(ASTVisitor visitor) throws CompilationError {
         visitor.visit(this);
     }
 }

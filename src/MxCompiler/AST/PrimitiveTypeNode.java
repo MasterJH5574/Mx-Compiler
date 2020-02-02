@@ -1,5 +1,6 @@
 package MxCompiler.AST;
 
+import MxCompiler.Utilities.CompilationError;
 import MxCompiler.Utilities.Location;
 
 public class PrimitiveTypeNode extends TypeNode {
@@ -10,7 +11,7 @@ public class PrimitiveTypeNode extends TypeNode {
     }
 
     @Override
-    public void accept(ASTVisitor visitor) {
+    public void accept(ASTVisitor visitor) throws CompilationError {
         visitor.visit(this);
     }
 

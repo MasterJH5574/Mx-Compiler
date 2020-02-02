@@ -5,8 +5,8 @@ public class ArrayType extends Type {
     private int dims;
 
 
-    public ArrayType(String name, Type baseType, int dims) {
-        super(name, 0);
+    public ArrayType(Type baseType, int dims) {
+        super(baseType.getName(), 0);
         this.baseType = baseType;
         this.dims = dims;
     }
@@ -17,5 +17,18 @@ public class ArrayType extends Type {
 
     public int getDims() {
         return dims;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof ArrayType)
+            return baseType.equals(((ArrayType) obj).baseType) && dims == ((ArrayType) obj).dims;
+        else
+            return false;
+    }
+
+    @Override
+    public String toString() {
+        return getName() + "[]".repeat(dims);
     }
 }

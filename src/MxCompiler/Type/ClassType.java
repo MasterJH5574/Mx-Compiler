@@ -29,4 +29,36 @@ public class ClassType extends Type {
     public ArrayList<FunctionEntity> getMethods() {
         return methods;
     }
+
+    public boolean hasMember(String name) {
+        for (VariableEntity member : members)
+            if (member.getName().equals(name))
+                return true;
+        return false;
+    }
+
+    public VariableEntity getMember(String name) {
+        for (VariableEntity member : members)
+            if (member.getName().equals(name))
+                return member;
+        return null;
+    }
+
+    public boolean hasMethod(String name) {
+        for (FunctionEntity method : methods)
+            if (method.getName().equals(name))
+                return true;
+        return false;
+    }
+
+    public FunctionEntity getMethod(String name) {
+        for (FunctionEntity method : methods)
+            if (method.getName().equals(name))
+                return method;
+        return null;
+    }
+
+    public boolean hasMemberOrMethod(String name) {
+        return hasMember(name) || hasMethod(name);
+    }
 }

@@ -11,17 +11,25 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Scope {
+    public enum ScopeType {
+        programScope, classScope, functionScope, blockScope, loopScope
+    }
+
     private Scope parentScope;
     private ArrayList<Scope> childrenScope;
 
     private Map<String, Entity> entities;
+    private ScopeType scopeType;
+    private TypeNode functionReturnType;
 
-    public Scope(Scope parentScope) {
+    public Scope(Scope parentScope, ScopeType scopeType, TypeNode functionReturnType) {
         this.parentScope = parentScope;
         if (parentScope != null)
             parentScope.childrenScope.add(this);
         this.childrenScope = new ArrayList<>();
         this.entities = new HashMap<>();
+        this.scopeType = scopeType;
+        this.functionReturnType = functionReturnType;
     }
 
     public Scope getParentScope() {
@@ -34,6 +42,14 @@ public class Scope {
 
     public Map<String, Entity> getEntities() {
         return entities;
+    }
+
+    public ScopeType getScopeType() {
+        return scopeType;
+    }
+
+    public TypeNode getFunctionReturnType() {
+        return functionReturnType;
     }
 
     public void declareEntity(ProgramUnitNode unit, ErrorHandler errorHandler,
@@ -58,5 +74,36 @@ public class Scope {
             return parentScope.getEntity(name);
         else
             return null;
+    }
+
+    public boolean inClassScope() {
+        if (scopeType == ScopeType.classScope)
+            return true;
+        else if (scopeType == ScopeType.programScope)
+            return false;
+        else
+            return parentScope.inClassScope();
+    }
+
+    public boolean inFunctionScope() {
+        if (scopeType == ScopeType.functionScope)
+            return true;
+        else if (scopeType == ScopeType.programScope)
+            return false;
+        else
+            return parentScope.inFunctionScope();
+    }
+
+    public boolean inLoopScope() {
+        if (scopeType == ScopeType.loopScope)
+            return true;
+        else if (scopeType == ScopeType.programScope)
+            return false;
+        else
+            return parentScope.inLoopScope();
+    }
+
+    public boolean inMethodScope() {
+        return inClassScope() && inFunctionScope();
     }
 }

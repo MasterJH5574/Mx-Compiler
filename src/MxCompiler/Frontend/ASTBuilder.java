@@ -442,8 +442,10 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
 
     @Override
     public ASTNode visitWrongCreator(MxParser.WrongCreatorContext ctx) {
+        // return NewExprNode
+        TypeNode baseType = (TypeNode) visit(ctx.nonArrayType());
         errorHandler.error(new Location(ctx.getStart()), "Invalid syntax \"" + ctx.getText() + "\".");
-        throw new CompilationError("Invalid syntax \"" + ctx.getText() + "\".", new Location(ctx.getStart()));
+        return new NewExprNode(new Location(ctx.getStart()), ctx.getText(), baseType, null, -1);
     }
 
     @Override

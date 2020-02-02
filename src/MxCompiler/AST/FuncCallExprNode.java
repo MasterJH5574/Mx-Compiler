@@ -1,5 +1,6 @@
 package MxCompiler.AST;
 
+import MxCompiler.Utilities.CompilationError;
 import MxCompiler.Utilities.Location;
 
 import java.util.ArrayList;
@@ -41,7 +42,7 @@ public class FuncCallExprNode extends ExprNode {
     }
 
     @Override
-    public void accept(ASTVisitor visitor) {
+    public void accept(ASTVisitor visitor) throws CompilationError {
         visitor.visit(this);
     }
 }

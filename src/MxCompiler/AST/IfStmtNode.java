@@ -1,5 +1,6 @@
 package MxCompiler.AST;
 
+import MxCompiler.Utilities.CompilationError;
 import MxCompiler.Utilities.Location;
 
 public class IfStmtNode extends StmtNode {
@@ -40,7 +41,7 @@ public class IfStmtNode extends StmtNode {
     }
 
     @Override
-    public void accept(ASTVisitor visitor) {
+    public void accept(ASTVisitor visitor) throws CompilationError {
         visitor.visit(this);
     }
 }

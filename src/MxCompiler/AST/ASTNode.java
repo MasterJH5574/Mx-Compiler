@@ -1,6 +1,7 @@
 package MxCompiler.AST;
 
 import MxCompiler.Frontend.Scope;
+import MxCompiler.Utilities.CompilationError;
 import MxCompiler.Utilities.Location;
 
 abstract public class ASTNode {
@@ -28,7 +29,7 @@ abstract public class ASTNode {
         this.scope = scope;
     }
 
-    abstract public void accept(ASTVisitor visitor);
+    abstract public void accept(ASTVisitor visitor) throws CompilationError;
 
     @Override
     abstract public String toString();

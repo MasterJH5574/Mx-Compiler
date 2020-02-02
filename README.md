@@ -11,6 +11,8 @@
 * 2020.1.29	Start semantic analysis(so complexed...).
 * 2020.1.30	Add ErrorHandler. Add Scope, TypeTable, package Type and package Entity. Start coding Checker.java.
 * 2020.1.31	Continue semantic analysis. Finish variable resolver, type resolver and "void" checker in Checker.java.
+* 2020.2.1	Continue semantic analysis(type check stage).
+* 2020.2.2	Finish the code of semantic analysis(built-in method of string unhandled, to be debugged).
 
 
 
@@ -54,7 +56,7 @@ Mx.g4 ===> MxLexer.java, MxParser.java, MxVisitor.java, MxBaseVisitor.java
     * - [x] NewExprNode (typeName, exprForDim, dim)
     * - [x] MemberExprNode (expr, identifier)
     * - [x] FuncCallExprNode (funcName, parameters)
-    * - [x] SubscriptExprNode (name, index)
+    * - [x] SubscriptExprNode (name, index, dim)
     * - [x] ThisExprNode
     * - [x] ConstExprNode
       * - [x] BoolLiteralNode (value)
@@ -90,19 +92,64 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
 
 ## Semantic Analysis
 
-### class Entity Structure
+### Scope and Entity
+
+#### class Entity Structure
 
 * - [x] Entity (name, referred)
   * - [x] FunctionEntity (returnType, parameters, bodyStmt, entityType)
   * - [x] VariableEntity (type, initExpr, entityType)
 
-### class Type Structure
+#### Scope
+
+```java
+public class Scope {
+    public enum ScopeType {
+        programScope, classScope, functionScope, blockScope, loopScope
+    }
+
+    private Scope parentScope;
+    private ArrayList<Scope> childrenScope;
+
+    private Map<String, Entity> entities;
+    private ScopeType scopeType;
+    private TypeNode functionReturnType;
+    
+    // methods such as "declareEntity()"...
+}
+```
+
+
+
+### Type and TypeTable
+
+#### class Type Structure
 
 * - [x] Type (name, size)			**Member "size" is to be set later.**
   * - [x] IntType
   * - [x] BoolType
   * - [x] StringType
   * - [x] VoidType
+  * - [x] NullType
   * - [x] ClassType (members, constructor, methods)
   * - [x] ArrayType (baseType, dims)
+  * - [x] MethodType (classType)(Only used for method call such as `obj.method(a, b, c)`)
+
+#### TypeTable
+
+```java
+public class TypeTable {
+    private Map<TypeNode, Type> typeTable;
+
+    public void put(TypeNode typeNode, Type type) {
+        // put baseType in typeTable
+        // check duplicate type
+    }
+    
+    public Type get(TypeNode typeNode) {
+        // if typeNode instance of ArrayTypeNode...
+        // else...
+    }
+}
+```
 

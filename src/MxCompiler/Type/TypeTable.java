@@ -1,8 +1,8 @@
-package MxCompiler.Frontend;
+package MxCompiler.Type;
 
+import MxCompiler.AST.ArrayTypeNode;
 import MxCompiler.AST.PrimitiveTypeNode;
 import MxCompiler.AST.TypeNode;
-import MxCompiler.Type.*;
 import MxCompiler.Utilities.ErrorHandler;
 import MxCompiler.Utilities.Location;
 
@@ -34,7 +34,11 @@ public class TypeTable {
     }
 
     public Type get(TypeNode typeNode) {
-        // Question: if typeNode instance of ArrayTypeNode?
-        return typeTable.get(typeNode);
+        if (typeNode instanceof ArrayTypeNode) {
+            TypeNode baseType = ((ArrayTypeNode) typeNode).getBaseType();
+            int dims = ((ArrayTypeNode) typeNode).getDims();
+            return new ArrayType(typeTable.get(baseType), dims);
+        } else
+            return typeTable.get(typeNode);
     }
 }

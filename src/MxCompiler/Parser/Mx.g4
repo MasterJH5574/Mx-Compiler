@@ -23,8 +23,8 @@ functionDef
     ;
 
 classDef
-    :   CLASS IDENTIFIER '{' (varDecl | functionDef | constructorDef)* '}'  // check numbers and names of
-                                                                            // construcor in the semantic stage
+    :   CLASS IDENTIFIER '{' (varDecl | functionDef | constructorDef)* '}' ';'  // check numbers and names of
+                                                                                // construcor in the semantic stage
     ;
 
 varDecl

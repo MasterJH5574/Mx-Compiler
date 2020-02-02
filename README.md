@@ -12,7 +12,7 @@
 * 2020.1.30	Add ErrorHandler. Add Scope, TypeTable, package Type and package Entity. Start coding Checker.java.
 * 2020.1.31	Continue semantic analysis. Finish variable resolver, type resolver and "void" checker in Checker.java.
 * 2020.2.1	Continue semantic analysis(type check stage).
-* 2020.2.2	Finish the code of semantic analysis(built-in method of string unhandled, to be debugged).
+* 2020.2.2	Finish the code of semantic analysis(built-in method of string unhandled, to be debugged). Update Mx.g4 and package Parser since ";" is required at the end of class definition.
 
 
 

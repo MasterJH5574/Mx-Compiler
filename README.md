@@ -12,7 +12,12 @@
 * 2020.1.30	Add ErrorHandler. Add Scope, TypeTable, package Type and package Entity. Start coding Checker.java.
 * 2020.1.31	Continue semantic analysis. Finish variable resolver, type resolver and "void" checker in Checker.java.
 * 2020.2.1	Continue semantic analysis(type check stage).
-* 2020.2.2	Finish the code of semantic analysis(built-in method of string unhandled, to be debugged). Update Mx.g4 and package Parser since ";" is required at the end of class definition.
+* 2020.2.2	Finish the basic code of semantic analysis(built-in method of string unhandled, to be debugged). Update Mx.g4 and package Parser since ";" is required at the end of class definition.
+* 2020.2.2	Continue semantic analysis.
+  * Check return statement in functions with non-void return value type.
+  * Check "int main()" and its return statement.
+  * Handle built-in functions and methods.
+  * Update rules of naming a class or entity.
 
 
 
@@ -119,6 +124,10 @@ public class Scope {
 }
 ```
 
+#### Rules of Naming
+
+Name of global/local variables, parameters, members and methods can't be the same with name of functions and classes.
+
 
 
 ### Type and TypeTable
@@ -128,11 +137,11 @@ public class Scope {
 * - [x] Type (name, size)			**Member "size" is to be set later.**
   * - [x] IntType
   * - [x] BoolType
-  * - [x] StringType
+  * - [x] StringType (methods)
   * - [x] VoidType
   * - [x] NullType
   * - [x] ClassType (members, constructor, methods)
-  * - [x] ArrayType (baseType, dims)
+  * - [x] ArrayType (baseType, dims, methods)
   * - [x] MethodType (classType)(Only used for method call such as `obj.method(a, b, c)`)
 
 #### TypeTable

@@ -38,24 +38,37 @@ public class Checker implements ASTVisitor {
         scopeStack.add(globalScope);
         node.setScope(globalScope);
 
+        globalScope.addBuiltInFunction();
+
+        boolean error = false;
         ArrayList<ProgramUnitNode> programUnitNodes = node.getProgramUnits();
-        for (ProgramUnitNode unit : programUnitNodes)   // Step 1: define classes and functions
+        for (ProgramUnitNode unit : programUnitNodes)   // Step 1: define classes
             if (unit instanceof ClassNode) {
                 ClassTypeNode classTypeNode = new ClassTypeNode(unit.getLocation(),
                         ((ClassNode) unit).getIdentifier());
                 ClassType classType = ((ClassNode) unit).getClassType();
-                typeTable.put(classTypeNode, classType, errorHandler);
-            } else if (unit instanceof FunctionNode)
-                globalScope.declareEntity(unit, errorHandler,
-                        VariableEntity.EntityType.global, FunctionEntity.EntityType.function);
+                try {
+                    typeTable.put(classTypeNode, classType, errorHandler);
+                } catch (CompilationError ignored) {
+                    error = true;
+                }
+            }
 
-        boolean error = false;
+        for (ProgramUnitNode unit : programUnitNodes)   // Step 2: define functions
+            if (unit instanceof FunctionNode)
+                try {
+                    globalScope.declareEntity(unit, errorHandler, VariableEntity.EntityType.global,
+                            FunctionEntity.EntityType.function, globalScope, typeTable);
+                } catch (CompilationError ignored) {
+                    error = true;
+                }
+
         for (ProgramUnitNode unit : programUnitNodes)   // Step 2: resolve in order.
             try {
                 if (unit instanceof VarNode) {
                     unit.accept(this); // visit VarNode
-                    globalScope.declareEntity(unit, errorHandler,
-                            VariableEntity.EntityType.global, FunctionEntity.EntityType.function);
+                    globalScope.declareEntity(unit, errorHandler, VariableEntity.EntityType.global,
+                            FunctionEntity.EntityType.function, globalScope, typeTable);
                 } else if (unit instanceof FunctionNode)
                     unit.accept(this); // visit FunctionNode
                 else if (unit instanceof ClassNode)
@@ -64,6 +77,18 @@ public class Checker implements ASTVisitor {
             } catch (CompilationError ignored) {
                 error = true;
             }
+
+        // Step 3: check "int main()"
+        Entity mainFunction = currentScope().getEntity("main");
+        if (!(mainFunction instanceof FunctionEntity)) {
+            errorHandler.error("Function \"main\" not found.");
+            error = true;
+        } else {
+            if (!typeTable.get(((FunctionEntity) mainFunction).getReturnType()).equals(new IntType())) {
+                errorHandler.error("Return value type of function \"main()\" is not int.");
+                error = true;
+            }
+        }
 
         scopeStack.pop();
 
@@ -148,8 +173,8 @@ public class Checker implements ASTVisitor {
         for (VarNode parameter : parameters)
             try {
                 parameter.accept(this); // visit VarNode
-                scope.declareEntity(parameter, errorHandler,
-                        VariableEntity.EntityType.parameter, FunctionEntity.EntityType.function);
+                scope.declareEntity(parameter, errorHandler, VariableEntity.EntityType.parameter,
+                        FunctionEntity.EntityType.function, globalScope, typeTable);
             } catch (CompilationError ignored) {
                 error = true;
             }
@@ -158,6 +183,23 @@ public class Checker implements ASTVisitor {
             node.getStatement().accept(this); // visit StmtNode
         } catch (CompilationError ignored) {
             error = true;
+        }
+
+        // check whether there is at least a return statement
+        if (!typeTable.get(node.getType()).equals(new VoidType())) {
+            assert node.getStatement() instanceof BlockNode;
+            BlockNode block = (BlockNode) node.getStatement();
+            ArrayList<StmtNode> statements = block.getStatements();
+            boolean returnOccur = false;
+            for (StmtNode statement : statements)
+                if (statement instanceof ReturnStmtNode) {
+                    returnOccur = true;
+                    break;
+                }
+            if (!returnOccur) {
+                errorHandler.error(node.getLocation(), "Function has no return statement.");
+                error = true;
+            }
         }
 
         scopeStack.pop();
@@ -177,8 +219,8 @@ public class Checker implements ASTVisitor {
         for (VarNode member : varList)
             try {
                 member.accept(this); // visit VarNode
-                scope.declareEntity(member, errorHandler,
-                        VariableEntity.EntityType.member, FunctionEntity.EntityType.function);
+                scope.declareEntity(member, errorHandler, VariableEntity.EntityType.member,
+                        FunctionEntity.EntityType.function, globalScope, typeTable);
             } catch (CompilationError ignored) {
                 error = true;
             }
@@ -192,8 +234,12 @@ public class Checker implements ASTVisitor {
 
         ArrayList<FunctionNode> funcList = node.getFuncList();
         for (FunctionNode method : funcList) // Step 1: define methods
-            scope.declareEntity(method, errorHandler,
-                    VariableEntity.EntityType.global, FunctionEntity.EntityType.method);
+            try {
+                scope.declareEntity(method, errorHandler, VariableEntity.EntityType.global,
+                        FunctionEntity.EntityType.method, globalScope, typeTable);
+            } catch (CompilationError ignored) {
+                error = true;
+            }
         for (FunctionNode method : funcList) // Step 2: resolve functions
             try {
                 method.accept(this); // visit FunctionNode
@@ -232,12 +278,20 @@ public class Checker implements ASTVisitor {
     public void visit(VarDeclStmtNode node) throws CompilationError {
         node.setScope(currentScope());
 
+        boolean error = false;
         ArrayList<VarNode> varList = node.getVarList();
         for (VarNode var : varList) {
             var.accept(this); // visit VarNode
-            currentScope().declareEntity(var, errorHandler,
-                    VariableEntity.EntityType.local, FunctionEntity.EntityType.function);
+            try {
+                currentScope().declareEntity(var, errorHandler, VariableEntity.EntityType.local,
+                        FunctionEntity.EntityType.function, globalScope, typeTable);
+            } catch (CompilationError ignored) {
+                error = true;
+            }
         }
+
+        if (error)
+            throw new CompilationError();
     }
 
     @Override
@@ -593,7 +647,8 @@ public class Checker implements ASTVisitor {
     public void visit(NewExprNode node) throws CompilationError {
         node.setScope(currentScope());
 
-        if (node.getDim() == -1) { // wrong creator
+        if (node.getDim() == -1) {
+            // wrong creator
             assert node.getExprForDim() == null;
             // The error has already been added to errorHandler.
             throw new CompilationError();
@@ -645,25 +700,40 @@ public class Checker implements ASTVisitor {
         ExprNode expr = node.getExpr();
         Type type = expr.getType();
         String name = node.getIdentifier();
-        if (!(type instanceof ClassType)) {
-            errorHandler.error(expr.getLocation(),
-                    "\"" + expr.getText() + "\" is not an object of some class.");
-            throw new CompilationError();
-        }
-        if (!((ClassType) type).hasMemberOrMethod(name)) {
-            errorHandler.error(expr.getLocation(),
-                    "\"" + name + "\" is not defined in class \"" + type.getName() + "\".");
-            throw new CompilationError();
-        }
-        if (((ClassType) type).hasMember(name)) {
-            VariableEntity member = ((ClassType) type).getMember(name);
-            TypeNode memberType = member.getType();
-            node.setLvalue(expr.getLvalue());
-            node.setType(typeTable.get(memberType));
-        } else {
-            assert ((ClassType) type).hasMethod(name);
+
+        String errorMessage = "\"" + expr.getText() + "\" has no member or method named \"" + name + "\".";
+        if (type instanceof ArrayType) {
+            if (!((ArrayType) type).hasMethod(name)) {
+                errorHandler.error(expr.getLocation(), errorMessage);
+                throw new CompilationError();
+            }
             node.setLvalue(false);
-            node.setType(new MethodType(name, (ClassType) type));
+            node.setType(new MethodType(name, type));
+        } else if (type instanceof StringType) {
+            if (!((StringType) type).hasMethod(name)) {
+                errorHandler.error(expr.getLocation(), errorMessage);
+                throw new CompilationError();
+            }
+            node.setLvalue(false);
+            node.setType(new MethodType(name, type));
+        } else if (type instanceof ClassType) {
+            if (!((ClassType) type).hasMemberOrMethod(name)) {
+                errorHandler.error(expr.getLocation(), errorMessage);
+                throw new CompilationError();
+            }
+            if (((ClassType) type).hasMember(name)) {
+                VariableEntity member = ((ClassType) type).getMember(name);
+                TypeNode memberType = member.getType();
+                node.setLvalue(expr.getLvalue());
+                node.setType(typeTable.get(memberType));
+            } else {
+                assert ((ClassType) type).hasMethod(name);
+                node.setLvalue(false);
+                node.setType(new MethodType(name, type));
+            }
+        } else {
+            errorHandler.error(expr.getLocation(), errorMessage);
+            throw new CompilationError();
         }
     }
 
@@ -705,10 +775,18 @@ public class Checker implements ASTVisitor {
         if (funcName instanceof MemberExprNode) {
             assert funcName.getType() instanceof MethodType;
             MethodType methodType = (MethodType) funcName.getType();
-            function = methodType.getClassType().getMethod(methodType.getName());
+            if (methodType.getType() instanceof ArrayType) {
+                function = ((ArrayType) methodType.getType()).getMethod(methodType.getName());
+            } else if (methodType.getType() instanceof StringType) {
+                function = ((StringType) methodType.getType()).getMethod(methodType.getName());
+            } else {
+                assert methodType.getType() instanceof ClassType;
+                function = ((ClassType) methodType.getType()).getMethod(methodType.getName());
+            }
         } else // funcName instanceof IdExprNode
             function = (FunctionEntity) currentScope().getEntity(((IdExprNode) funcName).getIdentifier());
 
+        // Check parameters.
         funcParameters = (function).getParameters();
         if (parameters.size() != funcParameters.size()) {
             errorHandler.error(node.getLocation(), "Number of parameters is not consistent.");

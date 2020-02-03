@@ -54,7 +54,7 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
         else // void type
             type = new PrimitiveTypeNode(new Location(ctx.VOID().getSymbol()), "void");
         String identifier = ctx.IDENTIFIER().getText();
-        ArrayList<VarNode> parameters = null;
+        ArrayList<VarNode> parameters = new ArrayList<>();
         if (ctx.parameterList() != null)
             parameters = ((VarNodeList) visit(ctx.parameterList())).getVarNodes();
         StmtNode statement = (StmtNode) visit(ctx.block());
@@ -105,7 +105,7 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
         // return FunctionNode
         TypeNode type = new PrimitiveTypeNode(new Location(ctx.getStart()), "void");
         String identifier = "#constructor#" + ctx.IDENTIFIER().getText();
-        ArrayList<VarNode> parameters = null;
+        ArrayList<VarNode> parameters = new ArrayList<>();
         if (ctx.parameterList() != null)
             parameters = ((VarNodeList) visit(ctx.parameterList())).getVarNodes();
         StmtNode statement = (StmtNode) visit(ctx.block());

@@ -3,15 +3,15 @@ package MxCompiler.Type;
 // Only used for method call.
 
 public class MethodType extends Type {
-    private ClassType classType;
+    private Type type;
 
-    public MethodType(String name, ClassType classType) {
+    public MethodType(String name, Type type) {
         super(name, 0);
-        this.classType = classType;
+        this.type = type;
     }
 
-    public ClassType getClassType() {
-        return classType;
+    public Type getType() {
+        return type;
     }
 
     @Override

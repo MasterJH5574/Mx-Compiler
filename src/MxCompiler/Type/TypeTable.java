@@ -3,6 +3,7 @@ package MxCompiler.Type;
 import MxCompiler.AST.ArrayTypeNode;
 import MxCompiler.AST.PrimitiveTypeNode;
 import MxCompiler.AST.TypeNode;
+import MxCompiler.Utilities.CompilationError;
 import MxCompiler.Utilities.ErrorHandler;
 import MxCompiler.Utilities.Location;
 
@@ -26,10 +27,11 @@ public class TypeTable {
         return typeTable.containsKey(typeNode);
     }
 
-    public void put(TypeNode typeNode, Type type, ErrorHandler errorHandler) {
-        if (hasType(typeNode))
+    public void put(TypeNode typeNode, Type type, ErrorHandler errorHandler) throws CompilationError {
+        if (hasType(typeNode)) {
             errorHandler.error("Duplicate definition of type \"" + typeNode.toString() + "\".");
-        else
+            throw new CompilationError();
+        } else
             typeTable.put(typeNode, type);
     }
 

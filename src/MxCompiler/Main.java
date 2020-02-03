@@ -2,8 +2,10 @@ package MxCompiler;
 
 import MxCompiler.AST.ProgramNode;
 import MxCompiler.Frontend.ASTBuilder;
+import MxCompiler.Frontend.Checker;
 import MxCompiler.Parser.MxLexer;
 import MxCompiler.Parser.MxParser;
+import MxCompiler.Utilities.CompilationError;
 import MxCompiler.Utilities.ErrorHandler;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
@@ -19,6 +21,10 @@ public class Main {
 
         InputStream inputStream;
         CharStream input;
+        MxLexer lexer;
+        CommonTokenStream tokens;
+        MxParser parser;
+        ParseTree parseTreeEntrance;
         try {
             inputStream = new FileInputStream("code.txt");
             input = CharStreams.fromStream(inputStream);
@@ -27,25 +33,33 @@ public class Main {
             return;
         }
 
-        MxLexer lexer = new MxLexer(input);
-        CommonTokenStream tokens = new CommonTokenStream(lexer);
-        MxParser parser = new MxParser(tokens);
-        ParseTree parseTreeEntrance = parser.program();
-
-        ASTBuilder astBuilder = new ASTBuilder(errorHandler);
-        ProgramNode astRoot = null;
         try {
-            astRoot = (ProgramNode) astBuilder.visit(parseTreeEntrance);
-        } catch (Exception exception) {
-            System.out.println("Compilation error.");
-            errorHandler.print();
+            lexer = new MxLexer(input);
+            tokens = new CommonTokenStream(lexer);
+            parser = new MxParser(tokens);
+            parseTreeEntrance = parser.program();
+        } catch (Exception e) {
+            System.out.println(1 + e.getMessage());
             return;
         }
 
-        if (errorHandler.hasError())
+        ASTBuilder astBuilder = new ASTBuilder(errorHandler);
+        ProgramNode astRoot;
+        astRoot = (ProgramNode) astBuilder.visit(parseTreeEntrance); // throws no error
+
+        boolean error = false;
+        Checker semanticChecker = new Checker(errorHandler);
+        try {
+            astRoot.accept(semanticChecker);
+        } catch (CompilationError e) {
+            error = true;
+        }
+
+        if (error)
             System.out.println("Compilation Error.");
         else
-            System.out.println("Build AST successfully!");
+            System.out.println("Conpilation Success!");
         errorHandler.print();
+
     }
 }

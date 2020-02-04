@@ -34,7 +34,8 @@ public class Checker implements ASTVisitor {
 
     @Override
     public void visit(ProgramNode node) throws CompilationError {
-        globalScope = new Scope(null, Scope.ScopeType.programScope, null);
+        globalScope = new Scope(null, Scope.ScopeType.programScope,
+                null, null);
         scopeStack.add(globalScope);
         node.setScope(globalScope);
 
@@ -63,7 +64,7 @@ public class Checker implements ASTVisitor {
                     error = true;
                 }
 
-        for (ProgramUnitNode unit : programUnitNodes)   // Step 2: resolve in order.
+        for (ProgramUnitNode unit : programUnitNodes)   // Step 3: resolve in order.
             try {
                 if (unit instanceof VarNode) {
                     unit.accept(this); // visit VarNode
@@ -78,14 +79,20 @@ public class Checker implements ASTVisitor {
                 error = true;
             }
 
-        // Step 3: check "int main()"
+        // Step 4: check "int main()"
         Entity mainFunction = currentScope().getEntity("main");
         if (!(mainFunction instanceof FunctionEntity)) {
-            errorHandler.error("Function \"main\" not found.");
+            errorHandler.error("Main function not found.");
             error = true;
         } else {
             if (!typeTable.get(((FunctionEntity) mainFunction).getReturnType()).equals(new IntType())) {
-                errorHandler.error("Return value type of function \"main()\" is not int.");
+                errorHandler.error(mainFunction.getLocation(),
+                        "Return value type of function \"main()\" is not int.");
+                error = true;
+            }
+            if (((FunctionEntity) mainFunction).getParameters().size() != 0) {
+                errorHandler.error(mainFunction.getLocation(),
+                        "Main function should have no parameter.");
                 error = true;
             }
         }
@@ -149,7 +156,7 @@ public class Checker implements ASTVisitor {
             Type rType = node.getInitExpr().getType();
             if (Type.canNotAssign(lType, rType)) {
                 errorHandler.error(node.getLocation(), "Type of rhs \"" +
-                        rType.toString() + "\" is different from type of lhs \"" + lType.toString() + "\".");
+                        rType.toString() + "\" is not \"" + lType.toString() + "\".");
                 throw new CompilationError();
             }
         }
@@ -157,7 +164,8 @@ public class Checker implements ASTVisitor {
 
     @Override
     public void visit(FunctionNode node) throws CompilationError {
-        Scope scope = new Scope(currentScope(), Scope.ScopeType.functionScope, node.getType());
+        Scope scope = new Scope(currentScope(), Scope.ScopeType.functionScope,
+                node.getType(), currentScope().getClassType());
         scopeStack.add(scope);
         node.setScope(scope);
 
@@ -186,7 +194,8 @@ public class Checker implements ASTVisitor {
         }
 
         // check whether there is at least a return statement
-        if (!typeTable.get(node.getType()).equals(new VoidType())) {
+        // Question: Maybe in IR stage?
+        if (!typeTable.get(node.getType()).equals(new VoidType()) && !node.getIdentifier().equals("main")) {
             assert node.getStatement() instanceof BlockNode;
             BlockNode block = (BlockNode) node.getStatement();
             ArrayList<StmtNode> statements = block.getStatements();
@@ -210,7 +219,8 @@ public class Checker implements ASTVisitor {
 
     @Override
     public void visit(ClassNode node) throws CompilationError {
-        Scope scope = new Scope(currentScope(), Scope.ScopeType.classScope, null);
+        Scope scope = new Scope(currentScope(), Scope.ScopeType.classScope, null,
+                typeTable.get(new ClassTypeNode(new Location(0, 0), node.getIdentifier())));
         scopeStack.add(scope);
         node.setScope(scope);
 
@@ -225,27 +235,37 @@ public class Checker implements ASTVisitor {
                 error = true;
             }
 
-        if (node.hasConstructor())
-            try {
-                node.getConstructor().accept(this); // visit FunctionNode
-            } catch (CompilationError ignored) {
-                error = true;
-            }
-
         ArrayList<FunctionNode> funcList = node.getFuncList();
-        for (FunctionNode method : funcList) // Step 1: define methods
+        for (FunctionNode method : funcList) { // Step 1: define methods
+            if (method.getIdentifier().equals(node.getIdentifier())) {
+                errorHandler.error(method.getLocation(),
+                        "Return type specification for constructor is invalid.");
+                error = true;
+                continue;
+            }
             try {
                 scope.declareEntity(method, errorHandler, VariableEntity.EntityType.global,
                         FunctionEntity.EntityType.method, globalScope, typeTable);
             } catch (CompilationError ignored) {
                 error = true;
             }
-        for (FunctionNode method : funcList) // Step 2: resolve functions
+        }
+
+        if (node.hasConstructor()) // Step 2: resolve constructor
             try {
-                method.accept(this); // visit FunctionNode
+                node.getConstructor().accept(this); // visit FunctionNode
             } catch (CompilationError ignored) {
                 error = true;
             }
+
+        for (FunctionNode method : funcList) { // Step 3: resolve functions
+            if (!method.getIdentifier().equals(node.getIdentifier()))
+                try {
+                    method.accept(this); // visit FunctionNode
+                } catch (CompilationError ignored) {
+                    error = true;
+                }
+        }
 
         scopeStack.pop();
 
@@ -255,7 +275,8 @@ public class Checker implements ASTVisitor {
 
     @Override
     public void visit(BlockNode node) throws CompilationError {
-        Scope scope = new Scope(currentScope(), Scope.ScopeType.blockScope, currentScope().getFunctionReturnType());
+        Scope scope = new Scope(currentScope(), Scope.ScopeType.blockScope,
+                currentScope().getFunctionReturnType(), currentScope().getClassType());
         scopeStack.add(scope);
         node.setScope(scope);
 
@@ -302,23 +323,29 @@ public class Checker implements ASTVisitor {
 
         try {
             node.getCond().accept(this); // visit ExprNode
+            if (!node.getCond().getType().equals(new BoolType())) {
+                errorHandler.error(node.getCond().getLocation(), "The condition should be bool type.");
+                throw new CompilationError();
+            }
         } catch (CompilationError ignored) {
             error = true;
         }
 
-        try {
-            if (node.getThenBody() instanceof BlockNode)
-                node.getThenBody().accept(this); // visit StmtNode
-            else {
-                Scope scope = new Scope(currentScope(),
-                        Scope.ScopeType.blockScope, currentScope().getFunctionReturnType());
-                scopeStack.add(scope);
+        if (node.hasThenBody()) {
+            try {
+                if (node.getThenBody() instanceof BlockNode)
+                    node.getThenBody().accept(this); // visit StmtNode
+                else {
+                    Scope scope = new Scope(currentScope(), Scope.ScopeType.blockScope,
+                            currentScope().getFunctionReturnType(), currentScope().getClassType());
+                    scopeStack.add(scope);
 
-                node.getThenBody().accept(this); // visit StmtNode
-                scopeStack.pop();
+                    node.getThenBody().accept(this); // visit StmtNode
+                    scopeStack.pop();
+                }
+            } catch (CompilationError ignored) {
+                error = true;
             }
-        } catch (CompilationError ignored) {
-            error = true;
         }
 
         if (node.hasElseBody()) {
@@ -326,8 +353,8 @@ public class Checker implements ASTVisitor {
                 if (node.getElseBody() instanceof BlockNode)
                     node.getElseBody().accept(this); // visit StmtNode
                 else {
-                    Scope scope = new Scope(currentScope(),
-                            Scope.ScopeType.blockScope, currentScope().getFunctionReturnType());
+                    Scope scope = new Scope(currentScope(), Scope.ScopeType.blockScope,
+                            currentScope().getFunctionReturnType(), currentScope().getClassType());
                     scopeStack.add(scope);
 
                     node.getElseBody().accept(this); // visit StmtNode
@@ -350,19 +377,26 @@ public class Checker implements ASTVisitor {
 
         try {
             node.getCond().accept(this); // visit ExprNode
+            if (!node.getCond().getType().equals(new BoolType())) {
+                errorHandler.error(node.getCond().getLocation(), "The condition should be bool type.");
+                throw new CompilationError();
+            }
         } catch (CompilationError ignored) {
             error = true;
         }
 
-        Scope scope = new Scope(currentScope(), Scope.ScopeType.loopScope, currentScope().getFunctionReturnType());
-        scopeStack.add(scope);
+        if (node.hasBody()) {
+            Scope scope = new Scope(currentScope(), Scope.ScopeType.loopScope,
+                    currentScope().getFunctionReturnType(), currentScope().getClassType());
+            scopeStack.add(scope);
 
-        try {
-            node.getBody().accept(this); // visit StmtNode
-        } catch (CompilationError ignored) {
-            error = true;
+            try {
+                node.getBody().accept(this); // visit StmtNode
+            } catch (CompilationError ignored) {
+                error = true;
+            }
+            scopeStack.pop();
         }
-        scopeStack.pop();
 
         if (error)
             throw new CompilationError();
@@ -379,12 +413,17 @@ public class Checker implements ASTVisitor {
             } catch (CompilationError ignored) {
                 error = true;
             }
-        if (node.hasCond())
+        if (node.hasCond()) {
             try {
                 node.getCond().accept(this); // visit ExprNode
+                if (!node.getCond().getType().equals(new BoolType())) {
+                    errorHandler.error(node.getCond().getLocation(), "The condition should be bool type.");
+                    throw new CompilationError();
+                }
             } catch (CompilationError ignored) {
                 error = true;
             }
+        }
         if (node.hasStep())
             try {
                 node.getStep().accept(this); // visit ExprNode
@@ -392,15 +431,18 @@ public class Checker implements ASTVisitor {
                 error = true;
             }
 
-        Scope scope = new Scope(currentScope(), Scope.ScopeType.loopScope, currentScope().getFunctionReturnType());
-        scopeStack.add(scope);
+        if (node.hasBody()) {
+            Scope scope = new Scope(currentScope(), Scope.ScopeType.loopScope,
+                    currentScope().getFunctionReturnType(), currentScope().getClassType());
+            scopeStack.add(scope);
 
-        try {
-            node.getBody().accept(this); // visit StmtNode
-        } catch (CompilationError ignored) {
-            error = true;
+            try {
+                node.getBody().accept(this); // visit StmtNode
+            } catch (CompilationError ignored) {
+                error = true;
+            }
+            scopeStack.pop();
         }
-        scopeStack.pop();
 
         if (error)
             throw new CompilationError();
@@ -414,22 +456,22 @@ public class Checker implements ASTVisitor {
             errorHandler.error(node.getLocation(), "The return statement is not in a function scope.");
             throw new CompilationError();
         }
-        Type functionReturnType = typeTable.get(currentScope().getFunctionReturnType());
+        Type lType = typeTable.get(currentScope().getFunctionReturnType());
         if (node.hasReturnValue()) {
             node.getReturnValue().accept(this); // visit ExprNode
             ExprNode returnValue = node.getReturnValue();
-            if (functionReturnType.equals(new VoidType())) {
+            if (lType.equals(new VoidType())) {
                 errorHandler.error(returnValue.getLocation(), "The function requires void return type.");
                 throw new CompilationError();
             }
-            Type realReturnType = returnValue.getType();
-            if (!functionReturnType.equals(realReturnType)) {
+            Type rType = returnValue.getType();
+            if (Type.canNotAssign(lType, rType)) {
                 errorHandler.error(returnValue.getLocation(),
-                        "\"" + returnValue.getText() + "\" is not " + functionReturnType.toString() + "type.");
+                        "\"" + returnValue.getText() + "\" is not " + lType.toString() + " type.");
                 throw new CompilationError();
             }
         } else {
-            if (!functionReturnType.equals(new VoidType())) {
+            if (!lType.equals(new VoidType())) {
                 errorHandler.error(node.getLocation(), "The function should have no return value.");
                 throw new CompilationError();
             }
@@ -451,7 +493,7 @@ public class Checker implements ASTVisitor {
         node.setScope(currentScope());
 
         if (!currentScope().inLoopScope()) {
-            errorHandler.error(node.getLocation(), "The break statement is not in a loop scope.");
+            errorHandler.error(node.getLocation(), "The continue statement is not in a loop scope.");
             throw new CompilationError();
         }
     }
@@ -481,7 +523,7 @@ public class Checker implements ASTVisitor {
             throw new CompilationError();
         }
         node.setLvalue(false);
-        node.setType(new VoidType()); // Special attention!
+        node.setType(new IntType());
     }
 
     @Override
@@ -507,7 +549,7 @@ public class Checker implements ASTVisitor {
                 errorHandler.error(location, "\"" + text + "\" is not lvalue.");
                 throw new CompilationError();
             }
-            node.setLvalue(false);
+            node.setLvalue(true);
             node.setType(new IntType());
         } else if (op == PrefixExprNode.Operator.signPos || op == PrefixExprNode.Operator.signNeg) {
             // +a, -a
@@ -602,12 +644,15 @@ public class Checker implements ASTVisitor {
             }
         } else if (op == BinaryExprNode.Operator.equal
                 || op == BinaryExprNode.Operator.notEqual) {
-            // ==  !=  for int, bool, string and ArrayType
+            // ==  !=  for int, bool, string, ArrayType and ClassType
             if (((lType instanceof IntType) && (rType instanceof IntType)) ||
                     ((lType instanceof BoolType) && (rType instanceof BoolType)) ||
                     ((lType instanceof StringType) && (rType instanceof StringType)) ||
                     ((lType instanceof ArrayType) && (rType instanceof NullType)) ||
-                    ((lType instanceof NullType) && (rType instanceof ArrayType))) {
+                    ((lType instanceof NullType) && (rType instanceof ArrayType)) ||
+                    ((lType instanceof ClassType) && (rType instanceof NullType)) ||
+                    ((lType instanceof NullType) && (rType instanceof ClassType)) ||
+                    ((lType instanceof NullType) && (rType instanceof NullType))) {
                 node.setLvalue(false);
                 node.setType(new BoolType());
             } else {
@@ -635,7 +680,7 @@ public class Checker implements ASTVisitor {
             }
             if (Type.canNotAssign(lType, rType)) {
                 errorHandler.error(node.getLocation(), "Type of rhs \"" +
-                        rType.toString() + "\" is different from type of lhs \"" + lType.toString() + "\".");
+                        rType.toString() + "\" is not \"" + lType.toString() + "\".");
                 throw new CompilationError();
             }
             node.setLvalue(false);
@@ -670,7 +715,7 @@ public class Checker implements ASTVisitor {
                         "Cannot create an instance of type " + type.toString() + ".");
                 throw new CompilationError();
             }
-            node.setLvalue(false);
+            node.setLvalue(true);
             node.setType(type);
         } else {
             // array creator
@@ -686,7 +731,7 @@ public class Checker implements ASTVisitor {
             }
 
             Type baseType = typeTable.get(node.getBaseType());
-            node.setLvalue(false);
+            node.setLvalue(true); // Question: to be check
             node.setType(new ArrayType(baseType, node.getDim()));
         }
     }
@@ -724,7 +769,7 @@ public class Checker implements ASTVisitor {
             if (((ClassType) type).hasMember(name)) {
                 VariableEntity member = ((ClassType) type).getMember(name);
                 TypeNode memberType = member.getType();
-                node.setLvalue(expr.getLvalue());
+                node.setLvalue(true);
                 node.setType(typeTable.get(memberType));
             } else {
                 assert ((ClassType) type).hasMethod(name);
@@ -799,7 +844,7 @@ public class Checker implements ASTVisitor {
             Type lType = typeTable.get(lhs.getType());
             if (Type.canNotAssign(lType, rType)) {
                 errorHandler.error(rhs.getLocation(), "Type of \"" + rhs.getText()
-                        + "\" is different from type of \"" + lhs.getName() + "\".");
+                        + "\" is not \"" + lType.toString() + "\".");
                 throw new CompilationError();
             }
         }
@@ -847,6 +892,8 @@ public class Checker implements ASTVisitor {
             errorHandler.error(node.getLocation(), "The \"this\" is not in a method.");
             throw new CompilationError();
         }
+        node.setLvalue(true);
+        node.setType(currentScope().getClassType());
     }
 
     @Override

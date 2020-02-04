@@ -29,7 +29,7 @@ public class TypeTable {
 
     public void put(TypeNode typeNode, Type type, ErrorHandler errorHandler) throws CompilationError {
         if (hasType(typeNode)) {
-            errorHandler.error("Duplicate definition of type \"" + typeNode.toString() + "\".");
+            errorHandler.error("Duplicate definition of type \"" + typeNode.getIdentifier() + "\".");
             throw new CompilationError();
         } else
             typeTable.put(typeNode, type);

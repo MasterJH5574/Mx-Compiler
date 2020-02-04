@@ -18,6 +18,10 @@ public class IfStmtNode extends StmtNode {
         return cond;
     }
 
+    public boolean hasThenBody() {
+        return thenBody != null;
+    }
+
     public StmtNode getThenBody() {
         return thenBody;
     }

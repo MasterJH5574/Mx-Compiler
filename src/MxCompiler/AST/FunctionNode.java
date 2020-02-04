@@ -46,7 +46,7 @@ public class FunctionNode extends ProgramUnitNode {
         ArrayList<VariableEntity> parameters = new ArrayList<>();
         for (VarNode varNode : this.parameters)
             parameters.add(varNode.getEntity(VariableEntity.EntityType.parameter));
-        return new FunctionEntity(identifier, type, parameters, statement, entityType);
+        return new FunctionEntity(identifier, getLocation(), type, parameters, statement, entityType);
     }
 
     @Override

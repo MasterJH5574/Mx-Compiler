@@ -4,6 +4,7 @@ import MxCompiler.AST.*;
 import MxCompiler.Entity.Entity;
 import MxCompiler.Entity.FunctionEntity;
 import MxCompiler.Entity.VariableEntity;
+import MxCompiler.Type.Type;
 import MxCompiler.Type.TypeTable;
 import MxCompiler.Utilities.CompilationError;
 import MxCompiler.Utilities.ErrorHandler;
@@ -24,8 +25,9 @@ public class Scope {
     private Map<String, Entity> entities;
     private ScopeType scopeType;
     private TypeNode functionReturnType;
+    private Type classType;
 
-    public Scope(Scope parentScope, ScopeType scopeType, TypeNode functionReturnType) {
+    public Scope(Scope parentScope, ScopeType scopeType, TypeNode functionReturnType, Type classType) {
         this.parentScope = parentScope;
         if (parentScope != null)
             parentScope.childrenScope.add(this);
@@ -33,6 +35,7 @@ public class Scope {
         this.entities = new HashMap<>();
         this.scopeType = scopeType;
         this.functionReturnType = functionReturnType;
+        this.classType = classType;
     }
 
     public Scope getParentScope() {
@@ -55,6 +58,10 @@ public class Scope {
         return functionReturnType;
     }
 
+    public Type getClassType() {
+        return classType;
+    }
+
     public void addBuiltInFunction() {
         Location location = new Location(0, 0);
         ArrayList<VariableEntity> parameters;
@@ -63,7 +70,7 @@ public class Scope {
         // void print(string str);
         parameters = new ArrayList<>();
         parameters.add(VariableEntity.newEntity("str", "string"));
-        function = new FunctionEntity("print",
+        function = new FunctionEntity("print", location,
                 new PrimitiveTypeNode(location, "void"), parameters, null,
                 FunctionEntity.EntityType.function);
         entities.put("print", function);
@@ -71,7 +78,7 @@ public class Scope {
         // void println(string str);
         parameters = new ArrayList<>();
         parameters.add(VariableEntity.newEntity("str", "string"));
-        function = new FunctionEntity("println",
+        function = new FunctionEntity("println", location,
                 new PrimitiveTypeNode(location, "void"), parameters, null,
                 FunctionEntity.EntityType.function);
         entities.put("println", function);
@@ -79,7 +86,7 @@ public class Scope {
         // void printInt(int n);
         parameters = new ArrayList<>();
         parameters.add(VariableEntity.newEntity("n", "int"));
-        function = new FunctionEntity("printInt",
+        function = new FunctionEntity("printInt", location,
                 new PrimitiveTypeNode(location, "void"), parameters, null,
                 FunctionEntity.EntityType.function);
         entities.put("printInt", function);
@@ -87,21 +94,21 @@ public class Scope {
         // void printlnInt(int n);
         parameters = new ArrayList<>();
         parameters.add(VariableEntity.newEntity("n", "int"));
-        function = new FunctionEntity("printlnInt",
+        function = new FunctionEntity("printlnInt", location,
                 new PrimitiveTypeNode(location, "void"), parameters, null,
                 FunctionEntity.EntityType.function);
         entities.put("printlnInt", function);
 
         // string getString();
         parameters = new ArrayList<>();
-        function = new FunctionEntity("getString",
+        function = new FunctionEntity("getString", location,
                 new PrimitiveTypeNode(location, "string"), parameters, null,
                 FunctionEntity.EntityType.function);
         entities.put("getString", function);
 
         // int getInt();
         parameters = new ArrayList<>();
-        function = new FunctionEntity("getInt",
+        function = new FunctionEntity("getInt", location,
                 new PrimitiveTypeNode(location, "int"), parameters, null,
                 FunctionEntity.EntityType.function);
         entities.put("getInt", function);
@@ -109,7 +116,7 @@ public class Scope {
         // string toString(int i);
         parameters = new ArrayList<>();
         parameters.add(VariableEntity.newEntity("i", "int"));
-        function = new FunctionEntity("toString",
+        function = new FunctionEntity("toString", location,
                 new PrimitiveTypeNode(location, "string"), parameters, null,
                 FunctionEntity.EntityType.function);
         entities.put("toString", function);
@@ -137,14 +144,14 @@ public class Scope {
         //    Name of global/local variables, parameters, members and methods
         //    can't be the same with name of functions and classes.
         if (unit instanceof VarNode) {
-            String name = ((VarNode) unit).getIdentifier();
-            definedFunctionOrClass(name, unit.getLocation(), globalScope, typeTable, errorHandler);
+//            String name = ((VarNode) unit).getIdentifier();
+//            definedFunctionOrClass(name, unit.getLocation(), globalScope, typeTable, errorHandler);
             // It may throw an error.
 
             entity = ((VarNode) unit).getEntity(varType);
         } else if (unit instanceof FunctionNode) {
-            String name = ((FunctionNode) unit).getIdentifier();
-            definedFunctionOrClass(name, unit.getLocation(), globalScope, typeTable, errorHandler);
+//            String name = ((FunctionNode) unit).getIdentifier();
+//            definedFunctionOrClass(name, unit.getLocation(), globalScope, typeTable, errorHandler);
             entity = ((FunctionNode) unit).getEntity(funcType);
         }
 

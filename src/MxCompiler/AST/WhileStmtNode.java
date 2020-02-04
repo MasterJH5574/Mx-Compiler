@@ -17,6 +17,10 @@ public class WhileStmtNode extends StmtNode {
         return cond;
     }
 
+    public boolean hasBody() {
+        return body != null;
+    }
+
     public StmtNode getBody() {
         return body;
     }

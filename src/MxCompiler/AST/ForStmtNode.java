@@ -39,6 +39,10 @@ public class ForStmtNode extends StmtNode {
         return step;
     }
 
+    public boolean hasBody() {
+        return body != null;
+    }
+
     public StmtNode getBody() {
         return body;
     }

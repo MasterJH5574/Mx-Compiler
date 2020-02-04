@@ -257,7 +257,9 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
     @Override
     public ASTNode visitNewExpr(MxParser.NewExprContext ctx) {
         // return NewExprNode
-        return visit(ctx.creator());
+        NewExprNode newExprNode = (NewExprNode) visit(ctx.creator());
+        return new NewExprNode(newExprNode.getLocation(), ctx.getText(),
+                newExprNode.getBaseType(), newExprNode.getExprForDim(), newExprNode.getDim());
     }
 
     @Override
@@ -406,9 +408,7 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
             return new FuncCallExprNode(location, ctx.getText(), funcName, new ArrayList<>());
         else {
             FuncCallExprNode funcCallExprNode = (FuncCallExprNode) visit(ctx.exprList());
-            funcCallExprNode.setFuncName(funcName);
-            funcCallExprNode.setLocation(location);
-            return funcCallExprNode;
+            return new FuncCallExprNode(location, ctx.getText(), funcName, funcCallExprNode.getParameters());
         }
     }
 
@@ -487,7 +487,7 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
         if (ctx.BoolLITERAL() != null)
             return new BoolLiteralNode(location, ctx.getText(), value.equals("true"));
         else if (ctx.IntegerLITERAL() != null)
-            return new IntLiteralNode(location, ctx.getText(), Integer.parseInt(value));
+            return new IntLiteralNode(location, ctx.getText(), Long.parseLong(value));
         else if (ctx.StringLITERAL() != null)
             return new StringLiteralNode(location, ctx.getText(), value);
         else // ctx.NULL != null

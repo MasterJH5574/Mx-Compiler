@@ -2,6 +2,7 @@ package MxCompiler.Entity;
 
 import MxCompiler.AST.StmtNode;
 import MxCompiler.AST.TypeNode;
+import MxCompiler.Utilities.Location;
 
 import java.util.ArrayList;
 
@@ -15,9 +16,9 @@ public class FunctionEntity extends Entity {
     private StmtNode bodyStmt;
     private EntityType entityType;
 
-    public FunctionEntity(String name, TypeNode returnType,
+    public FunctionEntity(String name, Location location, TypeNode returnType,
                           ArrayList<VariableEntity> parameters, StmtNode bodyStmt, EntityType entityType) {
-        super(name);
+        super(name, location);
         this.returnType = returnType;
         this.parameters = parameters;
         this.bodyStmt = bodyStmt;

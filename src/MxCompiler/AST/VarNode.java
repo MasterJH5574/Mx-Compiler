@@ -45,7 +45,7 @@ public class VarNode extends ProgramUnitNode {
     }
 
     public VariableEntity getEntity(VariableEntity.EntityType entityType) {
-        return new VariableEntity(identifier, type, initExpr, entityType);
+        return new VariableEntity(identifier, getLocation(), type, initExpr, entityType);
     }
 
     @Override

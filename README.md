@@ -18,6 +18,9 @@
   * Check "int main()" and its return statement.
   * Handle built-in functions and methods.
   * Update rules of naming a class or entity.
+* 2020.2.4	Debug. Finish semantic analysis.
+  * Add MxErrorListener to lexer and parser.
+  * Almost pass all the semantic test cases(90.56%). See [Pitfalls](#pitfalls) for detail.
 
 
 
@@ -33,7 +36,7 @@ Mx.g4 ===> MxLexer.java, MxParser.java, MxVisitor.java, MxBaseVisitor.java
 
 ### class ASTNode Structure
 
-* - [x] ASTNode (location)
+* - [x] ASTNode (location, scope)
   * - [x] ProgramNode (programUnits)
   * - [x] TypeNode (identifier)
     * - [x] PrimitiveTypeNode (identifier = int / bool / string / void)
@@ -43,7 +46,7 @@ Mx.g4 ===> MxLexer.java, MxParser.java, MxVisitor.java, MxBaseVisitor.java
     * - [x] VarNodeList (varNodes)
     * - [x] VarNode (type, identifier, initExpr)
     * - [x] FunctionNode (type, identifier, parameters, statement)
-    * - [x] ClassNode (identifier, varList, funcList)
+    * - [x] ClassNode (identifier, varList, constructor, funcList)
   * - [x] StmtNode
     * - [x] BlockNode (statements)
     * - [x] VarDeclStmtNode (varList)
@@ -54,7 +57,7 @@ Mx.g4 ===> MxLexer.java, MxParser.java, MxVisitor.java, MxBaseVisitor.java
     * - [x] BreakStmtNode
     * - [x] ContinueStmtNode
     * - [x] ExprStmtNode (expr)
-  * - [x] ExprNode
+  * - [x] ExprNode (text, entity, lvalue, type)
     * - [x] PostfixExprNode (op, expr)
     * - [x] PrefixExprNode (op, expr)
     * - [x] BinaryExprNode (op, lhs, rhs)
@@ -65,7 +68,7 @@ Mx.g4 ===> MxLexer.java, MxParser.java, MxVisitor.java, MxBaseVisitor.java
     * - [x] ThisExprNode
     * - [x] ConstExprNode
       * - [x] BoolLiteralNode (value)
-      * - [x] IntLiteralNode (value)
+      * - [x] IntLiteralNode (**Long** value)
       * - [x] StringLiteralNode (value)
       * - [x] NullLiteralNode
     * - [x] IdExprNode (identifier)
@@ -119,16 +122,15 @@ public class Scope {
     private Map<String, Entity> entities;
     private ScopeType scopeType;
     private TypeNode functionReturnType;
+    private Type classType;
     
     // methods such as "declareEntity()"...
 }
 ```
 
-#### Rules of Naming
+#### ~~Rules of Naming~~
 
-Name of global/local variables, parameters, members and methods can't be the same with name of functions and classes.
-
-
+~~Name of global/local variables, parameters, members and methods can't be the same with name of functions and classes.~~
 
 ### Type and TypeTable
 
@@ -142,7 +144,8 @@ Name of global/local variables, parameters, members and methods can't be the sam
   * - [x] NullType
   * - [x] ClassType (members, constructor, methods)
   * - [x] ArrayType (baseType, dims, methods)
-  * - [x] MethodType (classType)(Only used for method call such as `obj.method(a, b, c)`)
+  * - [x] MethodType (Type)
+    * Used for method call such as `obj.method(a, b, c)`, `str.substring(l, r)`, `arr.size()`.
 
 #### TypeTable
 
@@ -162,3 +165,90 @@ public class TypeTable {
 }
 ```
 
+### Checker
+
+```java
+// Semantic checker
+
+public class Checker implements ASTVisitor {
+    private Scope globalScope;
+    private Stack<Scope> scopeStack;
+    private TypeTable typeTable;
+    private ErrorHandler errorHandler;
+    
+    @Override
+    public void visit(ProgramNode node) throws CompilationError {
+        globalScope = new Scope(null, Scope.ScopeType.programScope,
+                null, null);
+        scopeStack.add(globalScope);
+        node.setScope(globalScope);
+
+        globalScope.addBuiltInFunction();
+
+        boolean error = false; // error may be set to "true" in the following steps
+
+        // Step 1: define classes
+        // Step 2: define functions
+        // Step 3: resolve in order
+        // Step 4: check "int main()"
+
+        scopeStack.pop();
+
+        if (error)
+            throw new CompilationError();
+    }
+    
+    // Override other methods...
+}
+```
+
+### Pitfalls
+
+Cannot check whether there is a return statement in semantic stage. 
+
+For example, in semantic test case basic-19.mx:
+
+```c++
+int foo(int a) {
+    if (a == 1) return 0;
+    else if (a > 5) {
+        if (a < 10) {
+            if (a > 8) {
+                if (a <= 9) {
+                    return "hello";
+                }
+            }
+        }
+    }else {
+        return 1;
+    }
+}
+```
+
+Maybe I can check return statement in IR stage.
+
+
+
+## ErrorHandler
+
+See [ErrorHandler.java](https://github.com/MasterJH5574/Mx-Compiler/blob/master/src/MxCompiler/Utilities/ErrorHandler.java) for details.
+
+```java
+public class ErrorHandler {
+    private PrintStream printStream;
+    private int errorCnt;
+    private int warningCnt;
+    
+    public ErrorHandler() {
+        printStream = System.err;
+        errorCnt = 0;
+        warningCnt = 0;
+    }
+    
+    // ...
+}
+```
+
+#### What is the advantage of ErrorHandler?
+
+Collect **as much errors as possible** except errors occurred in an expression. Print the errors together.

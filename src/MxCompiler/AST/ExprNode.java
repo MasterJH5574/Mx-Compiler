@@ -45,6 +45,10 @@ abstract public class ExprNode extends ASTNode {
         return text;
     }
 
+    public void setText(String text) {
+        this.text = text;
+    }
+
     @Override
     abstract public String toString();
 }

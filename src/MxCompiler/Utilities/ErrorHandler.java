@@ -8,7 +8,7 @@ public class ErrorHandler {
     private int warningCnt;
 
     public ErrorHandler() {
-        printStream = System.out;
+        printStream = System.err;
         errorCnt = 0;
         warningCnt = 0;
     }

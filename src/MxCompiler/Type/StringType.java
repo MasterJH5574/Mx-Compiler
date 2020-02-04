@@ -22,7 +22,7 @@ public class StringType extends Type {
 
         // int length();
         parameters = new ArrayList<>();
-        method = new FunctionEntity("length",
+        method = new FunctionEntity("length", location,
                 new PrimitiveTypeNode(location, "int"), parameters, null,
                 FunctionEntity.EntityType.method);
         methods.add(method);
@@ -31,14 +31,14 @@ public class StringType extends Type {
         parameters = new ArrayList<>();
         parameters.add(VariableEntity.newEntity("left", "int"));
         parameters.add(VariableEntity.newEntity("right", "int"));
-        method = new FunctionEntity("substring",
+        method = new FunctionEntity("substring", location,
                 new PrimitiveTypeNode(location, "string"), parameters, null,
                 FunctionEntity.EntityType.method);
         methods.add(method);
 
         // int parseInt();
         parameters = new ArrayList<>();
-        method = new FunctionEntity("parseInt",
+        method = new FunctionEntity("parseInt", location,
                 new PrimitiveTypeNode(location, "int"), parameters, null,
                 FunctionEntity.EntityType.method);
         methods.add(method);
@@ -46,7 +46,7 @@ public class StringType extends Type {
         // int ord(int pos);
         parameters = new ArrayList<>();
         parameters.add(VariableEntity.newEntity("pos", "int"));
-        method = new FunctionEntity("ord",
+        method = new FunctionEntity("ord", location,
                 new PrimitiveTypeNode(location, "int"), parameters, null,
                 FunctionEntity.EntityType.method);
         methods.add(method);

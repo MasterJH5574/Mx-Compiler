@@ -26,7 +26,7 @@ public class ArrayType extends Type {
 
         // int size();
         parameters = new ArrayList<>();
-        method = new FunctionEntity("size",
+        method = new FunctionEntity("size", location,
                 new PrimitiveTypeNode(location, "int"), parameters, null,
                 FunctionEntity.EntityType.method);
         methods.add(method);

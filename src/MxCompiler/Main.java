@@ -19,6 +19,8 @@ import java.io.InputStream;
 public class Main {
     public static void main(String[] args) {
         ErrorHandler errorHandler = new ErrorHandler();
+        String failed = "Compilation Failed.";
+        String success = "Compilation Success!";
 
         InputStream inputStream;
         CharStream input;
@@ -28,22 +30,27 @@ public class Main {
         ParseTree parseTreeEntrance;
         try {
             inputStream = new FileInputStream("code.txt");
+            // inputStream = System.in;
             input = CharStreams.fromStream(inputStream);
         } catch (Exception e) {
             errorHandler.error("Cannot open file \"code.txt\".");
-            return;
+            errorHandler.print();
+            System.out.println(failed);
+            throw new RuntimeException();
         }
 
         lexer = new MxLexer(input);
+        lexer.removeErrorListeners();
+        lexer.addErrorListener(new MxErrorListener(errorHandler));
         tokens = new CommonTokenStream(lexer);
         parser = new MxParser(tokens);
         parser.removeErrorListeners();
         parser.addErrorListener(new MxErrorListener(errorHandler));
         parseTreeEntrance = parser.program();
         if (errorHandler.hasError()) {
-            System.out.println("Compilation Failed.");
             errorHandler.print();
-            return;
+            System.out.println(failed);
+            throw new RuntimeException();
         }
 
 
@@ -51,19 +58,21 @@ public class Main {
         ProgramNode astRoot;
         astRoot = (ProgramNode) astBuilder.visit(parseTreeEntrance); // throws no error
 
-        boolean error = false;
         Checker semanticChecker = new Checker(errorHandler);
         try {
             astRoot.accept(semanticChecker);
         } catch (CompilationError e) {
-            error = true;
+            errorHandler.print();
+            System.out.println(failed);
+            throw new RuntimeException();
         }
 
-        if (error)
-            System.out.println("Compilation Failed.");
-        else
-            System.out.println("Compilation Success!");
         errorHandler.print();
+        if (errorHandler.hasError()) {
+            System.out.println(failed);
+            throw new RuntimeException();
+        }
 
+        System.out.println(success);
     }
 }

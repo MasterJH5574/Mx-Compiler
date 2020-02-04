@@ -14,8 +14,8 @@ public class VariableEntity extends Entity {
     private ExprNode initExpr;
     private EntityType entityType;
 
-    public VariableEntity(String name, TypeNode type, ExprNode initExpr, EntityType entityType) {
-        super(name);
+    public VariableEntity(String name, Location location, TypeNode type, ExprNode initExpr, EntityType entityType) {
+        super(name, location);
         this.type = type;
         this.initExpr = initExpr;
         this.entityType = entityType;
@@ -23,7 +23,7 @@ public class VariableEntity extends Entity {
 
     public static VariableEntity newEntity(String identifier, String typeName) {
         Location location = new Location(0, 0);
-        return new VariableEntity(identifier,
+        return new VariableEntity(identifier, new Location(0, 0),
                 new PrimitiveTypeNode(location, typeName),
                 null, VariableEntity.EntityType.parameter);
     }

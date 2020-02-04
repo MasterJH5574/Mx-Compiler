@@ -3,6 +3,7 @@ package MxCompiler;
 import MxCompiler.AST.ProgramNode;
 import MxCompiler.Frontend.ASTBuilder;
 import MxCompiler.Frontend.Checker;
+import MxCompiler.Parser.MxErrorListener;
 import MxCompiler.Parser.MxLexer;
 import MxCompiler.Parser.MxParser;
 import MxCompiler.Utilities.CompilationError;
@@ -33,15 +34,18 @@ public class Main {
             return;
         }
 
-        try {
-            lexer = new MxLexer(input);
-            tokens = new CommonTokenStream(lexer);
-            parser = new MxParser(tokens);
-            parseTreeEntrance = parser.program();
-        } catch (Exception e) {
-            System.out.println(1 + e.getMessage());
+        lexer = new MxLexer(input);
+        tokens = new CommonTokenStream(lexer);
+        parser = new MxParser(tokens);
+        parser.removeErrorListeners();
+        parser.addErrorListener(new MxErrorListener(errorHandler));
+        parseTreeEntrance = parser.program();
+        if (errorHandler.hasError()) {
+            System.out.println("Compilation Failed.");
+            errorHandler.print();
             return;
         }
+
 
         ASTBuilder astBuilder = new ASTBuilder(errorHandler);
         ProgramNode astRoot;
@@ -56,9 +60,9 @@ public class Main {
         }
 
         if (error)
-            System.out.println("Compilation Error.");
+            System.out.println("Compilation Failed.");
         else
-            System.out.println("Conpilation Success!");
+            System.out.println("Compilation Success!");
         errorHandler.print();
 
     }

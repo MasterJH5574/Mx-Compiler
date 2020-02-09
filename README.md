@@ -12,7 +12,10 @@
 * 2020.1.30	Add ErrorHandler. Add Scope, TypeTable, package Type and package Entity. Start coding Checker.java.
 * 2020.1.31	Continue semantic analysis. Finish variable resolver, type resolver and "void" checker in Checker.java.
 * 2020.2.1	Continue semantic analysis(type check stage).
-* 2020.2.2	Finish the basic code of semantic analysis(built-in method of string unhandled, to be debugged). Update Mx.g4 and package Parser since ";" is required at the end of class definition.
+* 2020.2.2	Finish the basic code of semantic analysis
+  * Built-in method of string unhandled.
+  * To be debugged.
+  * Update Mx.g4 and package Parser since ";" is required at the end of class definition.
 * 2020.2.3	Continue semantic analysis.
   * Check return statement in functions with non-void return value type.
   * Check "int main()" and its return statement.
@@ -21,6 +24,8 @@
 * 2020.2.4	Debug. Finish semantic analysis.
   * Add MxErrorListener to lexer and parser.
   * Almost pass all the semantic test cases(90.56%). See [Pitfalls](#pitfalls) for detail.
+* 2020.2.6	Learn LLVM.
+* 2020.2.7-2020.2.9	Write package IR.
 
 
 
@@ -227,9 +232,7 @@ int foo(int a) {
 
 Maybe I can check return statement in IR stage.
 
-
-
-## ErrorHandler
+### ErrorHandler
 
 See [ErrorHandler.java](https://github.com/MasterJH5574/Mx-Compiler/blob/master/src/MxCompiler/Utilities/ErrorHandler.java) for details.
 
@@ -252,3 +255,51 @@ public class ErrorHandler {
 #### What is the advantage of ErrorHandler?
 
 Collect **as much errors as possible** except errors occurred in an expression. Print the errors together.
+
+It seems user-friendly.
+
+
+
+## Intermediate Representation
+
+CFG + LLVM IR
+
+### Instructions
+
+* - [ ] IRInstruction
+  * - [ ] ReturnInst
+  * - [ ] BranchInst
+  * - [ ] BinaryOpInst
+  * - [ ] AllocateInst
+  * - [ ] LoadInst
+  * - [ ] StoreInst
+  * - [ ] GetElementPtrInst
+  * - [ ] BitCastToInst
+  * - [ ] IcmpInst
+  * - [ ] PhiInst
+  * - [ ] CallInst
+
+### Type System
+
+* - [ ] Type
+  * - [ ] VoidType
+  * - [ ] FunctionType
+  * - [ ] IntegerType
+  * - [ ] PointerType
+  * - [ ] LabelType
+  * - [ ] ArrayType
+  * - [ ] StructureType
+
+### Operand
+
+* - [ ] Operand
+  * - [ ] GlobalVariable
+  * - [ ] Register
+  * - [ ] Parameter
+  * - [ ] Constant
+    * - [ ] ConstInt
+    * - [ ] ConstBool
+    * - [ ] ConstString
+    * - [ ] ConstNull
+
+

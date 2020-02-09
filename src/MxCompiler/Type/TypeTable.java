@@ -23,6 +23,10 @@ public class TypeTable {
         typeTable.put(new PrimitiveTypeNode(location, "void"), new VoidType());
     }
 
+    public Map<TypeNode, Type> getTypeTable() {
+        return typeTable;
+    }
+
     public boolean hasType(TypeNode typeNode) {
         return typeTable.containsKey(typeNode);
     }

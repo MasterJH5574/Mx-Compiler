@@ -2,6 +2,11 @@ package MxCompiler.Type;
 
 import MxCompiler.Entity.FunctionEntity;
 import MxCompiler.Entity.VariableEntity;
+import MxCompiler.IR.Operand.ConstNull;
+import MxCompiler.IR.Operand.Operand;
+import MxCompiler.IR.TypeSystem.IRType;
+import MxCompiler.IR.TypeSystem.IRTypeTable;
+import MxCompiler.IR.TypeSystem.PointerType;
 
 import java.util.ArrayList;
 
@@ -60,5 +65,16 @@ public class ClassType extends Type {
 
     public boolean hasMemberOrMethod(String name) {
         return hasMember(name) || hasMethod(name);
+    }
+
+    @Override
+    public IRType getIRType(IRTypeTable irTypeTable) {
+        IRType baseType = irTypeTable.get(this);
+        return new PointerType(baseType);
+    }
+
+    @Override
+    public Operand getDefaultValue() {
+        return new ConstNull();
     }
 }

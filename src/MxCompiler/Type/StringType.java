@@ -3,6 +3,12 @@ package MxCompiler.Type;
 import MxCompiler.AST.PrimitiveTypeNode;
 import MxCompiler.Entity.FunctionEntity;
 import MxCompiler.Entity.VariableEntity;
+import MxCompiler.IR.Operand.ConstNull;
+import MxCompiler.IR.Operand.Operand;
+import MxCompiler.IR.TypeSystem.IRType;
+import MxCompiler.IR.TypeSystem.IRTypeTable;
+import MxCompiler.IR.TypeSystem.IntegerType;
+import MxCompiler.IR.TypeSystem.PointerType;
 import MxCompiler.Utilities.Location;
 
 import java.util.ArrayList;
@@ -68,5 +74,15 @@ public class StringType extends Type {
             if (method.getName().equals(name))
                 return method;
         return null;
+    }
+
+    @Override
+    public IRType getIRType(IRTypeTable irTypeTable) {
+        return irTypeTable.get(this);
+    }
+
+    @Override
+    public Operand getDefaultValue() {
+        return new ConstNull();
     }
 }

@@ -1,5 +1,9 @@
 package MxCompiler.Type;
 
+import MxCompiler.IR.Operand.Operand;
+import MxCompiler.IR.TypeSystem.IRType;
+import MxCompiler.IR.TypeSystem.IRTypeTable;
+
 abstract public class Type {
     private String name;
     private long size;
@@ -39,4 +43,8 @@ abstract public class Type {
     public String toString() {
         return name;
     }
+
+    abstract public IRType getIRType(IRTypeTable irTypeTable);
+
+    abstract public Operand getDefaultValue();
 }

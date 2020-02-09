@@ -3,6 +3,11 @@ package MxCompiler.Type;
 import MxCompiler.AST.PrimitiveTypeNode;
 import MxCompiler.Entity.FunctionEntity;
 import MxCompiler.Entity.VariableEntity;
+import MxCompiler.IR.Operand.ConstNull;
+import MxCompiler.IR.Operand.Operand;
+import MxCompiler.IR.TypeSystem.IRType;
+import MxCompiler.IR.TypeSystem.IRTypeTable;
+import MxCompiler.IR.TypeSystem.PointerType;
 import MxCompiler.Utilities.Location;
 
 import java.util.ArrayList;
@@ -65,5 +70,18 @@ public class ArrayType extends Type {
     @Override
     public String toString() {
         return getName() + "[]".repeat(dims);
+    }
+
+    @Override
+    public IRType getIRType(IRTypeTable irTypeTable) {
+        IRType res = baseType.getIRType(irTypeTable);
+        for (int i = 0; i < dims; i++)
+            res = new PointerType(res);
+        return res;
+    }
+
+    @Override
+    public Operand getDefaultValue() {
+        return new ConstNull();
     }
 }

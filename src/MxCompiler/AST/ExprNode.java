@@ -1,6 +1,7 @@
 package MxCompiler.AST;
 
 import MxCompiler.Entity.Entity;
+import MxCompiler.IR.Operand.Operand;
 import MxCompiler.Type.Type;
 import MxCompiler.Utilities.Location;
 
@@ -9,6 +10,9 @@ abstract public class ExprNode extends ASTNode {
     private Entity entity;
     private Boolean lvalue;
     private Type type;
+
+    // for IR
+    private Operand result;
 
     public ExprNode(Location location, String text) {
         super(location);
@@ -47,6 +51,14 @@ abstract public class ExprNode extends ASTNode {
 
     public void setText(String text) {
         this.text = text;
+    }
+
+    public Operand getResult() {
+        return result;
+    }
+
+    public void setResult(Operand result) {
+        this.result = result;
     }
 
     @Override

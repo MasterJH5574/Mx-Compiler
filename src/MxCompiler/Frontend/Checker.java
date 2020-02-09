@@ -251,12 +251,18 @@ public class Checker implements ASTVisitor {
             }
         }
 
-        if (node.hasConstructor()) // Step 2: resolve constructor
-            try {
-                node.getConstructor().accept(this); // visit FunctionNode
-            } catch (CompilationError ignored) {
+        if (node.hasConstructor()) { // Step 2: resolve constructor
+            if (node.getConstructor().getParameters().size() != 0) {
+                errorHandler.error(node.getConstructor().getLocation(), "Constructor should have no parameter.");
                 error = true;
+            } else {
+                try {
+                    node.getConstructor().accept(this); // visit FunctionNode
+                } catch (CompilationError ignored) {
+                    error = true;
+                }
             }
+        }
 
         for (FunctionNode method : funcList) { // Step 3: resolve functions
             if (!method.getIdentifier().equals(node.getIdentifier()))

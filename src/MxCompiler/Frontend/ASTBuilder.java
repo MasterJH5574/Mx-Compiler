@@ -201,6 +201,8 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
         // return IfStmtNode(StmtNode)
         ExprNode cond = (ExprNode) visit(ctx.expr());
         StmtNode thenBody = (StmtNode) visit(ctx.statement(0));
+        if (thenBody == null)
+            thenBody = new BlockNode(new Location(ctx.statement(0).getStart()), new ArrayList<>());
         StmtNode elseBody = ctx.statement(1) != null ? (StmtNode) visit(ctx.statement(1)) : null;
         return new IfStmtNode(new Location(ctx.getStart()), cond, thenBody, elseBody);
     }
@@ -210,6 +212,8 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
         // return WhileStmtNode(StmtNode)
         ExprNode cond = (ExprNode) visit(ctx.expr());
         StmtNode body = (StmtNode) visit(ctx.statement());
+        if (body == null)
+            body = new BlockNode(new Location(ctx.statement().getStart()), new ArrayList<>());
         return new WhileStmtNode(new Location(ctx.getStart()), cond, body);
     }
 
@@ -220,6 +224,8 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
         ExprNode cond = ctx.cond != null ? (ExprNode) visit(ctx.cond) : null;
         ExprNode step = ctx.step != null ? (ExprNode) visit(ctx.step) : null;
         StmtNode body = (StmtNode) visit(ctx.statement());
+        if (body == null)
+            body = new BlockNode(new Location(ctx.statement().getStart()), new ArrayList<>());
         return new ForStmtNode(new Location(ctx.getStart()), init, cond, step, body);
     }
 

@@ -27,6 +27,10 @@ public class ClassType extends Type {
         return members;
     }
 
+    public boolean hasConstructor() {
+        return constructor != null;
+    }
+
     public FunctionEntity getConstructor() {
         return constructor;
     }

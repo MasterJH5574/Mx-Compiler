@@ -39,4 +39,10 @@ public class SymbolTable {
         }
         arrayList.add(object);
     }
+
+    public Object get(String name) {
+        // This method may be called only by "visit(ThisExprNode node)".
+        ArrayList<Object> arrayList = symbolTable.get(name);
+        return arrayList.get(0);
+    }
 }

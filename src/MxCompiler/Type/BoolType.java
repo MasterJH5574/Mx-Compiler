@@ -1,5 +1,6 @@
 package MxCompiler.Type;
 
+import MxCompiler.IR.Operand.ConstBool;
 import MxCompiler.IR.Operand.ConstInt;
 import MxCompiler.IR.Operand.Operand;
 import MxCompiler.IR.TypeSystem.IRType;
@@ -18,6 +19,6 @@ public class BoolType extends Type {
 
     @Override
     public Operand getDefaultValue() {
-        return new ConstInt(IntegerType.BitWidth.int1, 0);
+        return new ConstBool(false);
     }
 }

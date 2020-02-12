@@ -16,4 +16,14 @@ public class ArrayType extends IRType {
     public IRType getType() {
         return type;
     }
+
+    @Override
+    public int getBytes() {
+        return type.getBytes() * size;
+    }
+
+    @Override
+    public String toString() {
+        return "[" + size + " x " + type.toString() + "]";
+    }
 }

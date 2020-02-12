@@ -28,9 +28,10 @@ public class Function {
     private SymbolTable symbolTable; // symbol table of operands
 
 
-    private boolean define;
+    private boolean external;
 
-    public Function(Module module, String name, IRType returnType, ArrayList<Parameter> parameters) {
+    public Function(Module module, String name, IRType returnType,
+                    ArrayList<Parameter> parameters, boolean external) {
         this.module = module;
         this.name = name;
         this.parameters = parameters;
@@ -45,7 +46,7 @@ public class Function {
         returnValue = null;
 
         symbolTable = new SymbolTable();
-        define = true;
+        this.external = external;
 
         // Add parameters to symbol table.
         for (Parameter parameter : parameters)
@@ -60,29 +61,41 @@ public class Function {
         return parameters;
     }
 
+    public FunctionType getFunctionType() {
+        return functionType;
+    }
+
     public BasicBlock getEntranceBlock() {
         return entranceBlock;
+    }
+
+    public BasicBlock getReturnBlock() {
+        return returnBlock;
+    }
+
+    public Register getReturnValue() {
+        return returnValue;
     }
 
     public SymbolTable getSymbolTable() {
         return symbolTable;
     }
 
-    public BasicBlock addBasicBlock(String name) {
-        BasicBlock block = new BasicBlock(this, name);
+    public void addBasicBlock(BasicBlock block) {
         if (entranceBlock == null)
             entranceBlock = block;
         else
             exitBlock.appendBlock(block);
 
         exitBlock = block;
-        symbolTable.put(name, block);
-        return block;
     }
 
     public void initialize() {
-        addBasicBlock("entrance"); // It becomes the entrance block.
+        BasicBlock block = new BasicBlock(this, "entranceBlock"); // It becomes the entrance block.
+        addBasicBlock(block);
         returnBlock = new BasicBlock(this, "returnBlock");
+        symbolTable.put(entranceBlock.getName(), entranceBlock);
+        symbolTable.put(returnBlock.getName(), returnBlock);
 
         IRType returnType = functionType.getReturnType();
         if (returnType instanceof VoidType)

@@ -13,12 +13,15 @@ abstract public class ExprNode extends ASTNode {
 
     // for IR
     private Operand result;
+    private Operand lvalueResult;
 
     public ExprNode(Location location, String text) {
         super(location);
         this.text = text;
         lvalue = null;
         entity = null;
+        result = null;
+        lvalueResult = null;
     }
 
     public Entity getEntity() {
@@ -59,6 +62,14 @@ abstract public class ExprNode extends ASTNode {
 
     public void setResult(Operand result) {
         this.result = result;
+    }
+
+    public Operand getLvalueResult() {
+        return lvalueResult;
+    }
+
+    public void setLvalueResult(Operand lvalueResult) {
+        this.lvalueResult = lvalueResult;
     }
 
     @Override

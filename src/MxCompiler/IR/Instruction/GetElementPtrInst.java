@@ -7,20 +7,26 @@ import MxCompiler.IR.TypeSystem.IRType;
 import java.util.ArrayList;
 
 public class GetElementPtrInst extends IRInstruction {
-    private IRType pointerType;
+    private Operand pointer;
     private ArrayList<Operand> index;
+    private Operand result;
 
-    public GetElementPtrInst(BasicBlock basicBlock, IRType pointerType, ArrayList<Operand> index) {
+    public GetElementPtrInst(BasicBlock basicBlock, Operand pointer, ArrayList<Operand> index, Operand result) {
         super(basicBlock);
-        this.pointerType = pointerType;
+        this.pointer = pointer;
         this.index = index;
+        this.result = result;
     }
 
-    public IRType getPointerType() {
-        return pointerType;
+    public Operand getPointer() {
+        return pointer;
     }
 
     public ArrayList<Operand> getIndex() {
         return index;
+    }
+
+    public Operand getResult() {
+        return result;
     }
 }

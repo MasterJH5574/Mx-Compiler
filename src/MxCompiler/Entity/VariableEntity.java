@@ -3,7 +3,7 @@ package MxCompiler.Entity;
 import MxCompiler.AST.ExprNode;
 import MxCompiler.AST.PrimitiveTypeNode;
 import MxCompiler.AST.TypeNode;
-import MxCompiler.IR.Operand.Register;
+import MxCompiler.IR.Operand.Operand;
 import MxCompiler.Utilities.Location;
 
 public class VariableEntity extends Entity {
@@ -15,7 +15,7 @@ public class VariableEntity extends Entity {
     private ExprNode initExpr;
     private EntityType entityType;
 
-    private Register allocaAddr;
+    private Operand allocaAddr;
 
     public VariableEntity(String name, Location location, TypeNode type, ExprNode initExpr, EntityType entityType) {
         super(name, location);
@@ -43,11 +43,11 @@ public class VariableEntity extends Entity {
         return entityType;
     }
 
-    public Register getAllocaAddr() {
+    public Operand getAllocaAddr() {
         return allocaAddr;
     }
 
-    public void setAllocaAddr(Register allocaAddr) {
+    public void setAllocaAddr(Operand allocaAddr) {
         this.allocaAddr = allocaAddr;
     }
 }

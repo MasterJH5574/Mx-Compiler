@@ -36,7 +36,7 @@ public class Checker implements ASTVisitor {
     public void visit(ProgramNode node) throws CompilationError {
         globalScope = new Scope(null, Scope.ScopeType.programScope,
                 null, null);
-        scopeStack.add(globalScope);
+        scopeStack.push(globalScope);
         node.setScope(globalScope);
 
         globalScope.addBuiltInFunction();
@@ -166,7 +166,7 @@ public class Checker implements ASTVisitor {
     public void visit(FunctionNode node) throws CompilationError {
         Scope scope = new Scope(currentScope(), Scope.ScopeType.functionScope,
                 node.getType(), currentScope().getClassType());
-        scopeStack.add(scope);
+        scopeStack.push(scope);
         node.setScope(scope);
 
         try {
@@ -221,7 +221,7 @@ public class Checker implements ASTVisitor {
     public void visit(ClassNode node) throws CompilationError {
         Scope scope = new Scope(currentScope(), Scope.ScopeType.classScope, null,
                 typeTable.get(new ClassTypeNode(new Location(0, 0), node.getIdentifier())));
-        scopeStack.add(scope);
+        scopeStack.push(scope);
         node.setScope(scope);
 
         boolean error = false;
@@ -283,7 +283,7 @@ public class Checker implements ASTVisitor {
     public void visit(BlockNode node) throws CompilationError {
         Scope scope = new Scope(currentScope(), Scope.ScopeType.blockScope,
                 currentScope().getFunctionReturnType(), currentScope().getClassType());
-        scopeStack.add(scope);
+        scopeStack.push(scope);
         node.setScope(scope);
 
         boolean error = false;
@@ -344,7 +344,7 @@ public class Checker implements ASTVisitor {
                 else {
                     Scope scope = new Scope(currentScope(), Scope.ScopeType.blockScope,
                             currentScope().getFunctionReturnType(), currentScope().getClassType());
-                    scopeStack.add(scope);
+                    scopeStack.push(scope);
 
                     node.getThenBody().accept(this); // visit StmtNode
                     scopeStack.pop();
@@ -361,7 +361,7 @@ public class Checker implements ASTVisitor {
                 else {
                     Scope scope = new Scope(currentScope(), Scope.ScopeType.blockScope,
                             currentScope().getFunctionReturnType(), currentScope().getClassType());
-                    scopeStack.add(scope);
+                    scopeStack.push(scope);
 
                     node.getElseBody().accept(this); // visit StmtNode
                     scopeStack.pop();
@@ -394,7 +394,7 @@ public class Checker implements ASTVisitor {
         if (node.hasBody()) {
             Scope scope = new Scope(currentScope(), Scope.ScopeType.loopScope,
                     currentScope().getFunctionReturnType(), currentScope().getClassType());
-            scopeStack.add(scope);
+            scopeStack.push(scope);
 
             try {
                 node.getBody().accept(this); // visit StmtNode
@@ -440,7 +440,7 @@ public class Checker implements ASTVisitor {
         if (node.hasBody()) {
             Scope scope = new Scope(currentScope(), Scope.ScopeType.loopScope,
                     currentScope().getFunctionReturnType(), currentScope().getClassType());
-            scopeStack.add(scope);
+            scopeStack.push(scope);
 
             try {
                 node.getBody().accept(this); // visit StmtNode
@@ -881,7 +881,7 @@ public class Checker implements ASTVisitor {
             throw new CompilationError();
         }
 
-        node.setLvalue(name.getLvalue());
+        node.setLvalue(true);
         Type baseType = ((ArrayType) nameType).getBaseType();
         int dims = ((ArrayType) nameType).getDims();
         if (dims == 1)

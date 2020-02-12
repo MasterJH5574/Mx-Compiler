@@ -25,7 +25,10 @@
   * Add MxErrorListener to lexer and parser.
   * Almost pass all the semantic test cases(90.56%). See [Pitfalls](#pitfalls) for detail.
 * 2020.2.6	Learn LLVM.
-* 2020.2.7-2020.2.9	Write package IR.
+* 2020.2.7-2020.2.11	Write package IR.
+* 2020.2.12	Finish IRBuilder.
+  * StringLiteral to be fixed.
+  * To be debugged.
 
 
 
@@ -185,7 +188,7 @@ public class Checker implements ASTVisitor {
     public void visit(ProgramNode node) throws CompilationError {
         globalScope = new Scope(null, Scope.ScopeType.programScope,
                 null, null);
-        scopeStack.add(globalScope);
+        scopeStack.push(globalScope);
         node.setScope(globalScope);
 
         globalScope.addBuiltInFunction();

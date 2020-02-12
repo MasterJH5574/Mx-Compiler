@@ -2,13 +2,14 @@ package MxCompiler.IR.Instruction;
 
 import MxCompiler.IR.BasicBlock;
 import MxCompiler.IR.Operand.Operand;
+import MxCompiler.IR.TypeSystem.IRType;
 
 public class BitCastToInst extends IRInstruction {
     private Operand src;
-    private Operand objectType;
+    private IRType objectType;
     private Operand result;
 
-    public BitCastToInst(BasicBlock basicBlock, Operand src, Operand objectType, Operand result) {
+    public BitCastToInst(BasicBlock basicBlock, Operand src, IRType objectType, Operand result) {
         super(basicBlock);
         this.src = src;
         this.objectType = objectType;
@@ -19,7 +20,7 @@ public class BitCastToInst extends IRInstruction {
         return src;
     }
 
-    public Operand getObjectType() {
+    public IRType getObjectType() {
         return objectType;
     }
 

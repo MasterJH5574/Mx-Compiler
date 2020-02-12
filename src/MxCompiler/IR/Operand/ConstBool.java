@@ -1,12 +1,12 @@
 package MxCompiler.IR.Operand;
 
-import MxCompiler.IR.TypeSystem.IRType;
+import MxCompiler.IR.TypeSystem.IntegerType;
 
 public class ConstBool extends Constant {
     private boolean value;
 
-    public ConstBool(IRType type, boolean value) {
-        super(type);
+    public ConstBool(boolean value) {
+        super(new IntegerType(IntegerType.BitWidth.int1));
         this.value = value;
     }
 

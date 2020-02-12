@@ -10,4 +10,14 @@ public class PointerType extends IRType {
     public IRType getBaseType() {
         return baseType;
     }
+
+    @Override
+    public int getBytes() {
+        return 8;
+    }
+
+    @Override
+    public String toString() {
+        return baseType.toString() + "*";
+    }
 }

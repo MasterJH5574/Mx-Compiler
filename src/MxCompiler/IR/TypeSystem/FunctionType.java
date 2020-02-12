@@ -18,4 +18,22 @@ public class FunctionType extends IRType {
     public ArrayList<IRType> getParameterList() {
         return parameterList;
     }
+
+    @Override
+    public int getBytes() {
+        return 0;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder string = new StringBuilder();
+        string.append("FunctionType: ").append(returnType.toString()).append(" (");
+        for (int i = 0; i < parameterList.size(); i++) {
+            string.append(parameterList.get(i).toString());
+            if (i != parameterList.size() - 1)
+                string.append(", ");
+        }
+        string.append(")\n");
+        return string.toString();
+    }
 }

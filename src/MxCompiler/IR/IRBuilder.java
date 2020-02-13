@@ -193,6 +193,12 @@ public class IRBuilder implements ASTVisitor {
 
         node.getStatement().accept(this); // visit StmtNode
 
+        if (node.getIdentifier().equals("main")) {
+            function = module.getFunctionMap().get("__init__");
+            currentFunction.getEntranceBlock().addInstructionAtFront(new CallInst(currentBlock, function,
+                    new ArrayList<>(), null));
+        }
+
         currentFunction = null;
         currentBlock = null;
     }
@@ -1146,9 +1152,13 @@ public class IRBuilder implements ASTVisitor {
         ArrayList<Operand> index = new ArrayList<>();
         index.add(new ConstInt(0));
         index.add(new ConstInt(0));
+        Register result = new Register(new PointerType(new IntegerType(IntegerType.BitWidth.int8)),
+                "stringLiteral");
+        currentBlock.addInstruction(new GetElementPtrInst(currentBlock, string, index, result));
 
-        node.setResult(null);
+        node.setResult(result);
         node.setLvalueResult(null);
+        currentFunction.getSymbolTable().put(result.getName(), result);
     }
 
     @Override

@@ -1,7 +1,7 @@
 package MxCompiler.IR;
 
+import MxCompiler.IR.Operand.ConstString;
 import MxCompiler.IR.Operand.GlobalVariable;
-import MxCompiler.IR.Operand.Operand;
 import MxCompiler.IR.Operand.Parameter;
 import MxCompiler.IR.TypeSystem.*;
 import MxCompiler.Type.TypeTable;
@@ -221,10 +221,15 @@ public class Module {
             int id = constStringMap.size();
             String name = "_str." + id;
             GlobalVariable globalVariable = new GlobalVariable(new ArrayType(string.length(),
-                    new IntegerType(IntegerType.BitWidth.int8)), name, null);
+                    new IntegerType(IntegerType.BitWidth.int8)), name, new ConstString(new ArrayType(string.length(),
+                    new IntegerType(IntegerType.BitWidth.int8)), string));
             constStringMap.put(string, globalVariable);
             globalVariableMap.put(name, globalVariable);
             return globalVariable;
         }
+    }
+
+    public void accept(IRVisitor visitor) {
+        visitor.visit(this);
     }
 }

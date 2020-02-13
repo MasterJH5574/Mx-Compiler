@@ -1,5 +1,7 @@
 package MxCompiler.IR.TypeSystem;
 
+import MxCompiler.IR.IRVisitor;
+
 public class ArrayType extends IRType {
     private int size;
     private IRType type;
@@ -25,5 +27,10 @@ public class ArrayType extends IRType {
     @Override
     public String toString() {
         return "[" + size + " x " + type.toString() + "]";
+    }
+
+    @Override
+    public void accept(IRVisitor visitor) {
+        visitor.visit(this);
     }
 }

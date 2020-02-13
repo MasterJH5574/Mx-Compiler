@@ -1,5 +1,7 @@
 package MxCompiler.IR.TypeSystem;
 
+import MxCompiler.IR.IRVisitor;
+
 abstract public class IRType {
     abstract public int getBytes();
 
@@ -13,4 +15,6 @@ abstract public class IRType {
         else
             return toString().equals(obj.toString());
     }
+
+    abstract public void accept(IRVisitor visitor);
 }

@@ -1,6 +1,6 @@
 package MxCompiler.IR.TypeSystem;
 
-import MxCompiler.Entity.VariableEntity;
+import MxCompiler.IR.IRVisitor;
 import MxCompiler.Utilities.Aligner;
 
 import java.util.ArrayList;
@@ -38,5 +38,10 @@ public class StructureType extends IRType {
     @Override
     public String toString() {
         return "%" + name;
+    }
+
+    @Override
+    public void accept(IRVisitor visitor) {
+        visitor.visit(this);
     }
 }

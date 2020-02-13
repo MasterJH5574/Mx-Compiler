@@ -1,6 +1,7 @@
 package MxCompiler.IR.Instruction;
 
 import MxCompiler.IR.BasicBlock;
+import MxCompiler.IR.IRVisitor;
 
 abstract public class IRInstruction {
     private BasicBlock basicBlock;
@@ -31,4 +32,10 @@ abstract public class IRInstruction {
     public BasicBlock getBasicBlock() {
         return basicBlock;
     }
+
+    public boolean isTerminalInst() {
+        return this instanceof BranchInst || this instanceof ReturnInst;
+    }
+
+    abstract public void accept(IRVisitor visitor);
 }

@@ -1,6 +1,7 @@
 package MxCompiler.IR.Instruction;
 
 import MxCompiler.IR.BasicBlock;
+import MxCompiler.IR.IRVisitor;
 import MxCompiler.IR.Operand.Operand;
 
 public class StoreInst extends IRInstruction {
@@ -19,5 +20,10 @@ public class StoreInst extends IRInstruction {
 
     public Operand getPointer() {
         return pointer;
+    }
+
+    @Override
+    public void accept(IRVisitor visitor) {
+        visitor.visit(this);
     }
 }

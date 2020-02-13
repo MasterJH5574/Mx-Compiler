@@ -1,5 +1,6 @@
 package MxCompiler.IR.Operand;
 
+import MxCompiler.IR.IRVisitor;
 import MxCompiler.IR.TypeSystem.IRType;
 
 abstract public class Operand {
@@ -14,4 +15,6 @@ abstract public class Operand {
     }
 
     abstract public boolean isConstValue();
+
+    abstract public void accept(IRVisitor visitor);
 }

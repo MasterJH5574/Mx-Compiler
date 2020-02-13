@@ -2,6 +2,7 @@ package MxCompiler.IR.Instruction;
 
 import MxCompiler.IR.BasicBlock;
 import MxCompiler.IR.Function;
+import MxCompiler.IR.IRVisitor;
 import MxCompiler.IR.Operand.Operand;
 
 import java.util.ArrayList;
@@ -28,5 +29,10 @@ public class CallInst extends IRInstruction {
 
     public Operand getResult() {
         return result;
+    }
+
+    @Override
+    public void accept(IRVisitor visitor) {
+        visitor.visit(this);
     }
 }

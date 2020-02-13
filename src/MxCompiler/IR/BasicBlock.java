@@ -50,13 +50,13 @@ public class BasicBlock {
     public void addInstruction(IRInstruction instruction) {
         if (isEmpty()) {
             instHead = instruction;
-        } else {
+            instTail = instruction;
+        } else if (!instTail.isTerminalInst()) {
             instTail.setInstNext(instruction);
             instruction.setInstNext(instTail);
+            instTail = instruction;
         }
-        instTail = instruction;
-        // Question: cause problem?
-        // Todo
+        // else do nothing
     }
 
     public void addInstructionAtFront(IRInstruction instruction) {
@@ -67,5 +67,9 @@ public class BasicBlock {
             instruction.setInstNext(instHead);
         }
         instHead = instruction;
+    }
+
+    public void accept(IRVisitor visitor) {
+        visitor.visit(this);
     }
 }

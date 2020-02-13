@@ -1,5 +1,6 @@
 package MxCompiler.IR.Operand;
 
+import MxCompiler.IR.IRVisitor;
 import MxCompiler.IR.TypeSystem.IntegerType;
 
 public class ConstBool extends Constant {
@@ -12,5 +13,10 @@ public class ConstBool extends Constant {
 
     public boolean isValue() {
         return value;
+    }
+
+    @Override
+    public void accept(IRVisitor visitor) {
+        visitor.visit(this);
     }
 }

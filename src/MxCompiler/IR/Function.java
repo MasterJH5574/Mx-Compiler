@@ -111,4 +111,8 @@ public class Function {
             symbolTable.put(loadReturnValue.getName(), loadReturnValue);
         }
     }
+
+    public void accept(IRVisitor visitor) {
+        visitor.visit(this);
+    }
 }

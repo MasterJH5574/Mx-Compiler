@@ -1,5 +1,7 @@
 package MxCompiler.IR.TypeSystem;
 
+import MxCompiler.IR.IRVisitor;
+
 import java.util.ArrayList;
 
 public class FunctionType extends IRType {
@@ -35,5 +37,10 @@ public class FunctionType extends IRType {
         }
         string.append(")\n");
         return string.toString();
+    }
+
+    @Override
+    public void accept(IRVisitor visitor) {
+        visitor.visit(this);
     }
 }

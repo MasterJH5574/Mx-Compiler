@@ -29,6 +29,7 @@
 * 2020.2.12	Finish IRBuilder.
   * StringLiteral to be fixed.
   * To be debugged.
+* 2020.2.13	Add interface IRVisitor and method accept(IRVisitor visitor).
 
 
 
@@ -267,42 +268,50 @@ It seems user-friendly.
 
 CFG + LLVM IR
 
+### Basic Components
+
+Module  --  Function -- BasicBlock -- IRInstruction
+
 ### Instructions
 
-* - [ ] IRInstruction
-  * - [ ] ReturnInst
-  * - [ ] BranchInst
-  * - [ ] BinaryOpInst
-  * - [ ] AllocateInst
-  * - [ ] LoadInst
-  * - [ ] StoreInst
-  * - [ ] GetElementPtrInst
-  * - [ ] BitCastToInst
-  * - [ ] IcmpInst
-  * - [ ] PhiInst
-  * - [ ] CallInst
+* - [x] IRInstruction (basicBlock, instPrev, instNext)
+  * - [x] ReturnInst (type, returnValue)
+  * - [x] BranchInst (cond, thenBlock, elseBlock)
+  * - [x] BinaryOpInst (op, lhs, rhs, result)
+  * - [x] AllocateInst (result, type)
+  * - [x] LoadInst (type, pointer, result)
+  * - [x] StoreInst (value, pointer)
+  * - [x] GetElementPtrInst (pointer, index, result)
+  * - [x] BitCastToInst (src, objectType, result)
+  * - [x] IcmpInst (operator, irType, op1, op2, result)
+  * - [x] PhiInst (branch, result)
+  * - [x] CallInst (function, parameter, result)
 
 ### Type System
 
-* - [ ] Type
-  * - [ ] VoidType
-  * - [ ] FunctionType
-  * - [ ] IntegerType
-  * - [ ] PointerType
-  * - [ ] LabelType
-  * - [ ] ArrayType
-  * - [ ] StructureType
+* - [x] IRType
+  * - [x] VoidType
+  * - [x] FunctionType (returnType, parameterList)
+  * - [x] IntegerType (bitWidth)
+  * - [x] PointerType (baseType)
+  * - [x] ArrayType (size, type)
+  * - [x] StructureType (name, memberList)
+
+#### IRTypeTable
+
+Map "MxCompiler.Type" to "MxCompiler.IR.TypeSystem.IRType".
+
 
 ### Operand
 
-* - [ ] Operand
-  * - [ ] GlobalVariable
-  * - [ ] Register
-  * - [ ] Parameter
-  * - [ ] Constant
-    * - [ ] ConstInt
-    * - [ ] ConstBool
-    * - [ ] ConstString
-    * - [ ] ConstNull
+* - [x] Operand (type)
+  * - [x] GlobalVariable (name, init)
+  * - [x] Register (name)
+  * - [x] Parameter (name)
+  * - [x] Constant
+    * - [x] ConstInt (value)
+    * - [x] ConstBool (value)
+    * - [x] ConstString (value)
+    * - [x] ConstNull
 
 

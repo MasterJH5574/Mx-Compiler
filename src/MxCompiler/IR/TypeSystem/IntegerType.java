@@ -1,5 +1,7 @@
 package MxCompiler.IR.TypeSystem;
 
+import MxCompiler.IR.IRVisitor;
+
 public class IntegerType extends IRType {
     public enum BitWidth {
         int1, int8, int32
@@ -31,5 +33,10 @@ public class IntegerType extends IRType {
             return "i8";
         else
             return "i32";
+    }
+
+    @Override
+    public void accept(IRVisitor visitor) {
+        visitor.visit(this);
     }
 }

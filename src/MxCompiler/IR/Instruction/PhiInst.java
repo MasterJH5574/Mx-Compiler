@@ -15,6 +15,9 @@ public class PhiInst extends IRInstruction {
         super(basicBlock);
         this.branch = branch;
         this.result = result;
+
+        for (Pair<Operand, BasicBlock> pair : branch)
+            assert pair.getFirst().getType().equals(result.getType());
     }
 
     public ArrayList<Pair<Operand, BasicBlock>> getBranch() {
@@ -23,6 +26,19 @@ public class PhiInst extends IRInstruction {
 
     public Operand getResult() {
         return result;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder string = new StringBuilder();
+        string.append(result.toString()).append(" = phi ").append(result.getType().toString()).append(" ");
+        for (int i = 0; i < branch.size(); i++) {
+            string.append("[ ").append(branch.get(i).getFirst().toString()).
+                    append(", ").append(branch.get(i).getSecond().toString()).append(" ]");
+            if (i != branch.size() - 1)
+                string.append(", ");
+        }
+        return string.toString();
     }
 
     @Override

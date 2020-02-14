@@ -16,5 +16,8 @@ abstract public class Operand {
 
     abstract public boolean isConstValue();
 
+    @Override
+    abstract public String toString();
+
     abstract public void accept(IRVisitor visitor);
 }

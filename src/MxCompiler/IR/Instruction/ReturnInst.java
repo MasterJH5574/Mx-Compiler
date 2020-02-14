@@ -1,9 +1,11 @@
 package MxCompiler.IR.Instruction;
 
+import MxCompiler.AST.BreakStmtNode;
 import MxCompiler.IR.BasicBlock;
 import MxCompiler.IR.IRVisitor;
 import MxCompiler.IR.Operand.Operand;
 import MxCompiler.IR.TypeSystem.IRType;
+import MxCompiler.IR.TypeSystem.VoidType;
 
 public class ReturnInst extends IRInstruction {
     private IRType type; // void or not
@@ -13,6 +15,11 @@ public class ReturnInst extends IRInstruction {
         super(basicBlock);
         this.type = type;
         this.returnValue = returnValue;
+
+        if (!(type instanceof VoidType))
+            assert type.equals(returnValue.getType());
+        else
+            assert returnValue == null;
     }
 
     public IRType getType() {
@@ -21,6 +28,14 @@ public class ReturnInst extends IRInstruction {
 
     public Operand getReturnValue() {
         return returnValue;
+    }
+
+    @Override
+    public String toString() {
+        if (!(type instanceof VoidType))
+            return "ret " + type.toString() + " " + returnValue.toString();
+        else
+            return "ret void";
     }
 
     @Override

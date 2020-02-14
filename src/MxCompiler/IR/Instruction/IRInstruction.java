@@ -37,5 +37,8 @@ abstract public class IRInstruction {
         return this instanceof BranchInst || this instanceof ReturnInst;
     }
 
+    @Override
+    abstract public String toString();
+
     abstract public void accept(IRVisitor visitor);
 }

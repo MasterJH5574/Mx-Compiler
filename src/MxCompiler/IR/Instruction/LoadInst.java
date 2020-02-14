@@ -2,8 +2,10 @@ package MxCompiler.IR.Instruction;
 
 import MxCompiler.IR.BasicBlock;
 import MxCompiler.IR.IRVisitor;
+import MxCompiler.IR.Operand.GlobalVariable;
 import MxCompiler.IR.Operand.Operand;
 import MxCompiler.IR.TypeSystem.IRType;
+import MxCompiler.IR.TypeSystem.PointerType;
 
 public class LoadInst extends IRInstruction {
     private IRType type;
@@ -15,6 +17,14 @@ public class LoadInst extends IRInstruction {
         this.type = type;
         this.pointer = pointer;
         this.result = result;
+
+        if (pointer instanceof GlobalVariable)
+            assert pointer.getType().equals(type);
+        else {
+            assert pointer.getType() instanceof PointerType;
+            assert ((PointerType) pointer.getType()).getBaseType().equals(type);
+        }
+        assert result.getType().equals(type);
     }
 
     public IRType getType() {
@@ -27,6 +37,16 @@ public class LoadInst extends IRInstruction {
 
     public Operand getResult() {
         return result;
+    }
+
+    @Override
+    public String toString() {
+        if (pointer instanceof GlobalVariable)
+            return result.toString() + " = load " + type.toString() +
+                    ", " + (new PointerType(pointer.getType())).toString() + " " + pointer.toString();
+        else
+            return result.toString() + " = load "
+                    + type.toString() + ", " + pointer.getType().toString() + " " + pointer.toString();
     }
 
     @Override

@@ -30,6 +30,12 @@ public class BitCastToInst extends IRInstruction {
     }
 
     @Override
+    public String toString() {
+        return result.toString() + " = bitcast "
+                + src.getType().toString() + " " + src.toString() + " to " + objectType.toString();
+    }
+
+    @Override
     public void accept(IRVisitor visitor) {
         visitor.visit(this);
     }

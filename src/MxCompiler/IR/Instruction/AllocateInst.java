@@ -16,6 +16,8 @@ public class AllocateInst extends IRInstruction {
         super(basicBlock);
         this.result = result;
         this.type = new PointerType(type);
+
+        assert (new PointerType(type)).equals(result.getType());
     }
 
     public Register getResult() {
@@ -24,6 +26,11 @@ public class AllocateInst extends IRInstruction {
 
     public IRType getType() {
         return type;
+    }
+
+    @Override
+    public String toString() {
+        return result.toString() + " = alloca " + type.toString();
     }
 
     @Override

@@ -16,6 +16,17 @@ public class ConstString extends Constant {
     }
 
     @Override
+    public String toString() {
+        String text = value;
+        text = text.replace("\n", "\\0A");
+        text = text.replace("\t", "\\09");
+        text = text.replace("\"", "\\22");
+        text = text.replace("\0", "\\00");
+
+        return "c\"" + text + "\"";
+    }
+
+    @Override
     public void accept(IRVisitor visitor) {
         visitor.visit(this);
     }

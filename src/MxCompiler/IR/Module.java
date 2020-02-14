@@ -186,6 +186,10 @@ public class Module {
         return functionMap;
     }
 
+    public Map<String, GlobalVariable> getGlobalVariableMap() {
+        return globalVariableMap;
+    }
+
     public Map<String, StructureType> getStructureMap() {
         return structureMap;
     }
@@ -219,7 +223,7 @@ public class Module {
             return constStringMap.get(string);
         else {
             int id = constStringMap.size();
-            String name = "_str." + id;
+            String name = ".str." + id;
             GlobalVariable globalVariable = new GlobalVariable(new ArrayType(string.length(),
                     new IntegerType(IntegerType.BitWidth.int8)), name, new ConstString(new ArrayType(string.length(),
                     new IntegerType(IntegerType.BitWidth.int8)), string));

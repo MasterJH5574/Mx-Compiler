@@ -30,6 +30,22 @@ public class GlobalVariable extends Operand {
         return false;
     }
 
+    public String definitionToString() {
+        StringBuilder string = new StringBuilder(toString() + " = ");
+        assert init instanceof Constant;
+        if (init instanceof ConstString)
+            string.append("private unnamed_addr constant ").
+                    append(getType().toString()).append(" ").append(init.toString());
+        else
+            string.append("global ").append(getType().toString()).append(" ").append(init.toString());
+        return string.toString();
+    }
+
+    @Override
+    public String toString() {
+        return "@" + name;
+    }
+
     @Override
     public void accept(IRVisitor visitor) {
         visitor.visit(this);

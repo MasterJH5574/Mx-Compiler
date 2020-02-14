@@ -21,6 +21,9 @@ public class BinaryOpInst extends IRInstruction {
         this.lhs = lhs;
         this.rhs = rhs;
         this.result = result;
+
+        assert lhs.getType().equals(result.getType());
+        assert rhs.getType().equals(result.getType());
     }
 
     public BinaryOpName getOp() {
@@ -37,6 +40,12 @@ public class BinaryOpInst extends IRInstruction {
 
     public Operand getResult() {
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return result.toString() + " = " +
+                op.name() + " " + result.getType().toString() + " " + lhs.toString() + ", " + rhs.toString();
     }
 
     @Override

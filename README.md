@@ -30,6 +30,9 @@
   * StringLiteral to be fixed.
   * To be debugged.
 * 2020.2.13	Add interface IRVisitor and method accept(IRVisitor visitor).
+* 2020.2.14	Implement IRPrinter. Add some assert statement to ensure correctness.
+  * IRBuilder is still to be debugged.
+  * Happy Valentine's Day!
 
 
 

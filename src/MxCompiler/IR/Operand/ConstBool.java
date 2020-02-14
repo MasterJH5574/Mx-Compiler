@@ -16,6 +16,11 @@ public class ConstBool extends Constant {
     }
 
     @Override
+    public String toString() {
+        return String.valueOf(value);
+    }
+
+    @Override
     public void accept(IRVisitor visitor) {
         visitor.visit(this);
     }

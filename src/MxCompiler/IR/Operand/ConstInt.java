@@ -16,6 +16,11 @@ public class ConstInt extends Constant {
     }
 
     @Override
+    public String toString() {
+        return String.valueOf(value);
+    }
+
+    @Override
     public void accept(IRVisitor visitor) {
         visitor.visit(this);
     }

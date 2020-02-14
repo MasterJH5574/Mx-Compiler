@@ -112,6 +112,24 @@ public class Function {
         }
     }
 
+    public String declareToString() {
+        StringBuilder string = new StringBuilder("declare ");
+        string.append(functionType.getReturnType().toString());
+        string.append(" @").append(name);
+
+        string.append("(");
+        for (int i = 0; i < parameters.size(); i++) {
+            Parameter parameter = parameters.get(i);
+            string.append(parameter.getType().toString()).append(" ");
+            string.append(parameter.toString());
+            if (i != parameters.size() - 1)
+                string.append(", ");
+        }
+        string.append(")");
+
+        return string.toString();
+    }
+
     public void accept(IRVisitor visitor) {
         visitor.visit(this);
     }

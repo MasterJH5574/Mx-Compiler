@@ -3,7 +3,11 @@
     <words>
       <w>alloca</w>
       <w>ashr</w>
+      <w>bitcast</w>
+      <w>datalayout</w>
+      <w>getelementptr</w>
       <w>icmp</w>
+      <w>preds</w>
       <w>sdiv</w>
       <w>srem</w>
     </words>

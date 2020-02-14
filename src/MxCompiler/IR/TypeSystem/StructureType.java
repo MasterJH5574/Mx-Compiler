@@ -35,6 +35,18 @@ public class StructureType extends IRType {
         return size;
     }
 
+    public String structureToString() {
+        StringBuilder string = new StringBuilder(this.toString());
+        string.append(" = type { ");
+        for (int i = 0; i < memberList.size(); i++) {
+            string.append(memberList.get(i).toString());
+            if (i != memberList.size() - 1)
+                string.append(", ");
+        }
+        string.append(" }");
+        return string.toString();
+    }
+
     @Override
     public String toString() {
         return "%" + name;

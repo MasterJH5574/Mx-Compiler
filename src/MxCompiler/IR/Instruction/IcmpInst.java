@@ -4,6 +4,7 @@ import MxCompiler.IR.BasicBlock;
 import MxCompiler.IR.IRVisitor;
 import MxCompiler.IR.Operand.Operand;
 import MxCompiler.IR.TypeSystem.IRType;
+import MxCompiler.IR.TypeSystem.IntegerType;
 
 public class IcmpInst extends IRInstruction {
     public enum IcmpName {
@@ -23,6 +24,10 @@ public class IcmpInst extends IRInstruction {
         this.op1 = op1;
         this.op2 = op2;
         this.result = result;
+
+        assert irType.equals(op1.getType());
+        assert irType.equals(op2.getType());
+        assert result.getType().equals(new IntegerType(IntegerType.BitWidth.int1));
     }
 
     public IcmpName getOperator() {
@@ -39,6 +44,12 @@ public class IcmpInst extends IRInstruction {
 
     public Operand getResult() {
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return result.toString() + " = icmp "
+                + operator.name() + " " + irType.toString() + " " + op1.toString() + ", " + op2.toString();
     }
 
     @Override

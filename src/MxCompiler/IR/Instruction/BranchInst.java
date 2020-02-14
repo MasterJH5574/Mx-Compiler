@@ -3,6 +3,7 @@ package MxCompiler.IR.Instruction;
 import MxCompiler.IR.BasicBlock;
 import MxCompiler.IR.IRVisitor;
 import MxCompiler.IR.Operand.Operand;
+import MxCompiler.IR.TypeSystem.IntegerType;
 
 public class BranchInst extends IRInstruction {
     private Operand cond;
@@ -14,6 +15,15 @@ public class BranchInst extends IRInstruction {
         this.cond = cond;
         this.thenBlock = thenBlock;
         this.elseBlock = elseBlock;
+
+        basicBlock.getSuccessors().add(thenBlock);
+        thenBlock.getPredecessors().add(basicBlock);
+
+        if (cond != null) {
+            basicBlock.getSuccessors().add(elseBlock);
+            elseBlock.getPredecessors().add(basicBlock);
+            assert cond.getType().equals(new IntegerType(IntegerType.BitWidth.int1));
+        }
     }
 
     public Operand getCond() {
@@ -26,6 +36,14 @@ public class BranchInst extends IRInstruction {
 
     public BasicBlock getElseBlock() {
         return elseBlock;
+    }
+
+    @Override
+    public String toString() {
+        if (cond != null)
+            return "br i1 " + cond.toString() + ", label " + thenBlock.toString() + ", label " + elseBlock.toString();
+        else
+            return "b1 label " + thenBlock.toString();
     }
 
     @Override

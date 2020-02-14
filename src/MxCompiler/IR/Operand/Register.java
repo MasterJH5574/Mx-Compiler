@@ -32,6 +32,11 @@ public class Register extends Operand {
     }
 
     @Override
+    public String toString() {
+        return "%" + name;
+    }
+
+    @Override
     public void accept(IRVisitor visitor) {
         visitor.visit(this);
     }

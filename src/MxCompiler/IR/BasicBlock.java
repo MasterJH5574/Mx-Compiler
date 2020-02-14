@@ -38,6 +38,38 @@ public class BasicBlock {
         this.name = name;
     }
 
+    public IRInstruction getInstHead() {
+        return instHead;
+    }
+
+    public IRInstruction getInstTail() {
+        return instTail;
+    }
+
+    public boolean hasNext() {
+        return next != null;
+    }
+
+    public BasicBlock getNext() {
+        return next;
+    }
+
+    public boolean hasPredecessor() {
+        return predecessors.size() != 0;
+    }
+
+    public boolean hasSuccessor() {
+        return successors.size() != 0;
+    }
+
+    public ArrayList<BasicBlock> getPredecessors() {
+        return predecessors;
+    }
+
+    public ArrayList<BasicBlock> getSuccessors() {
+        return successors;
+    }
+
     public void appendBlock(BasicBlock block) {
         block.prev = this;
         this.next = block;
@@ -67,6 +99,11 @@ public class BasicBlock {
             instruction.setInstNext(instHead);
         }
         instHead = instruction;
+    }
+
+    @Override
+    public String toString() {
+        return "%" + name;
     }
 
     public void accept(IRVisitor visitor) {

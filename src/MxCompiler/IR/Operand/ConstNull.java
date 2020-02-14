@@ -9,6 +9,11 @@ public class ConstNull extends Constant {
     }
 
     @Override
+    public String toString() {
+        return "null";
+    }
+
+    @Override
     public void accept(IRVisitor visitor) {
         visitor.visit(this);
     }

@@ -117,7 +117,7 @@ public class IRBuilder implements ASTVisitor {
                 init = initExpr.getResult();
                 if (!init.isConstValue()) {
                     currentBlock.addInstruction(new StoreInst(currentBlock, init, globalVariable));
-                    init = null;
+                    init = type.getDefaultValue();
                 }
             } else
                 init = type.getDefaultValue();
@@ -967,7 +967,6 @@ public class IRBuilder implements ASTVisitor {
             currentFunction.getSymbolTable().put(cast.getName(), cast);
         } else {
             // array creator
-            int dim = node.getDim();
             ArrayList<ExprNode> exprForDim = node.getExprForDim();
             IRType irType = astTypeTable.get(node.getBaseType()).getIRType(irTypeTable);
 

@@ -2,10 +2,11 @@ package MxCompiler.IR.Operand;
 
 import MxCompiler.IR.IRVisitor;
 import MxCompiler.IR.TypeSystem.PointerType;
+import MxCompiler.IR.TypeSystem.VoidType;
 
 public class ConstNull extends Constant {
     public ConstNull() {
-        super(new PointerType(null));
+        super(new PointerType(new VoidType()));
     }
 
     @Override

@@ -76,7 +76,7 @@ public class BasicBlock {
     }
 
     private boolean isEmpty() {
-        return instHead == instTail;
+        return instHead == instTail && instHead == null;
     }
 
     public void addInstruction(IRInstruction instruction) {
@@ -85,7 +85,7 @@ public class BasicBlock {
             instTail = instruction;
         } else if (!instTail.isTerminalInst()) {
             instTail.setInstNext(instruction);
-            instruction.setInstNext(instTail);
+            instruction.setInstPrev(instTail);
             instTail = instruction;
         }
         // else do nothing
@@ -99,6 +99,10 @@ public class BasicBlock {
             instruction.setInstNext(instHead);
         }
         instHead = instruction;
+    }
+
+    public boolean endWithTerminalInst() {
+        return instTail.isTerminalInst();
     }
 
     @Override

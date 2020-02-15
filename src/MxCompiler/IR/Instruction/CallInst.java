@@ -3,7 +3,9 @@ package MxCompiler.IR.Instruction;
 import MxCompiler.IR.BasicBlock;
 import MxCompiler.IR.Function;
 import MxCompiler.IR.IRVisitor;
+import MxCompiler.IR.Operand.ConstNull;
 import MxCompiler.IR.Operand.Operand;
+import MxCompiler.IR.TypeSystem.PointerType;
 import MxCompiler.IR.TypeSystem.VoidType;
 
 import java.util.ArrayList;
@@ -26,8 +28,15 @@ public class CallInst extends IRInstruction {
 
         assert parameters.size() == function.getParameters().size();
         for (int i = 0; i < parameters.size(); i++) {
-            assert parameters.get(i).getType().equals(function.getParameters().get(i).getType());
-            assert parameters.get(i).getType().equals(function.getFunctionType().getParameterList().get(i));
+            if (parameters.get(i) instanceof ConstNull) {
+                assert function.getParameters().get(i).getType() instanceof PointerType;
+                assert function.getFunctionType().getParameterList().get(i) instanceof PointerType;
+                assert function.getParameters().get(i).getType()
+                        .equals(function.getFunctionType().getParameterList().get(i));
+            } else {
+                assert parameters.get(i).getType().equals(function.getParameters().get(i).getType());
+                assert parameters.get(i).getType().equals(function.getFunctionType().getParameterList().get(i));
+            }
         }
     }
 
@@ -55,7 +64,7 @@ public class CallInst extends IRInstruction {
         string.append(function.getFunctionType().getReturnType().toString()).append(" ");
         string.append("@").append(function.getName()).append("(");
         for (int i = 0; i < parameters.size(); i++) {
-            string.append(parameters.get(i).getType().toString()).append(" ").append(parameters.get(i).toString());
+            string.append(function.getParameters().get(i).getType()).append(" ").append(parameters.get(i).toString());
             if (i != parameters.size() - 1)
                 string.append(", ");
         }

@@ -2,7 +2,9 @@ package MxCompiler.IR.Instruction;
 
 import MxCompiler.IR.BasicBlock;
 import MxCompiler.IR.IRVisitor;
+import MxCompiler.IR.Operand.ConstNull;
 import MxCompiler.IR.Operand.Operand;
+import MxCompiler.IR.TypeSystem.PointerType;
 import MxCompiler.Utilities.Pair;
 
 import java.util.ArrayList;
@@ -17,7 +19,8 @@ public class PhiInst extends IRInstruction {
         this.result = result;
 
         for (Pair<Operand, BasicBlock> pair : branch)
-            assert pair.getFirst().getType().equals(result.getType());
+            assert pair.getFirst().getType().equals(result.getType())
+                    || (pair.getFirst() instanceof ConstNull && result.getType() instanceof PointerType);
     }
 
     public ArrayList<Pair<Operand, BasicBlock>> getBranch() {

@@ -163,11 +163,48 @@ public class Scope {
             entities.put(entity.getName(), entity);
     }
 
+    public void declareEntity(Entity entity, ErrorHandler errorHandler, Location location) throws CompilationError {
+        assert entity != null;
+        if (entities.containsKey(entity.getName())) {
+            errorHandler.error(location, "Duplicate declaration of \"" + entity.getName() + "\".");
+            throw new CompilationError();
+        } else
+            entities.put(entity.getName(), entity);
+    }
+
+    public void declareConstructor(FunctionNode unit) {
+        FunctionEntity entity = unit.getEntity(FunctionEntity.EntityType.constructor);
+        assert !entities.containsKey(entity.getName());
+        entities.put(entity.getName(), entity);
+    }
+
     public Entity getEntity(String name) {
-        if (entities.containsKey(name))
+        if (entities.containsKey(name)
+                && (entities.get(name) instanceof VariableEntity
+                || ((FunctionEntity) entities.get(name)).getEntityType() != FunctionEntity.EntityType.constructor))
             return entities.get(name);
         else if (parentScope != null)
             return parentScope.getEntity(name);
+        else
+            return null;
+    }
+
+    public FunctionEntity getFunctionEntity(String name) {
+        if (entities.containsKey(name)
+                && entities.get(name) instanceof FunctionEntity
+                && ((FunctionEntity) entities.get(name)).getEntityType() != FunctionEntity.EntityType.constructor)
+            return (FunctionEntity) entities.get(name);
+        else if (parentScope != null)
+            return parentScope.getFunctionEntity(name);
+        else
+            return null;
+    }
+
+    public FunctionEntity getFunctionEntityIncludeConstructor(String name) {
+        if (entities.containsKey(name) && entities.get(name) instanceof FunctionEntity)
+            return (FunctionEntity) entities.get(name);
+        else if (parentScope != null)
+            return parentScope.getFunctionEntityIncludeConstructor(name);
         else
             return null;
     }

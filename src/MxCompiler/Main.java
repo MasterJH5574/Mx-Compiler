@@ -3,6 +3,8 @@ package MxCompiler;
 import MxCompiler.AST.ProgramNode;
 import MxCompiler.Frontend.ASTBuilder;
 import MxCompiler.Frontend.Checker;
+import MxCompiler.IR.IRBuilder;
+import MxCompiler.IR.IRPrinter;
 import MxCompiler.Parser.MxErrorListener;
 import MxCompiler.Parser.MxLexer;
 import MxCompiler.Parser.MxParser;
@@ -65,6 +67,28 @@ public class Main {
             errorHandler.print();
             System.out.println(failed);
             throw new RuntimeException();
+        }
+
+
+        IRBuilder irBuilder = new IRBuilder(semanticChecker.getGlobalScope(),
+                semanticChecker.getTypeTable(),
+                errorHandler);
+        try {
+            astRoot.accept(irBuilder);
+        } catch (CompilationError e) {
+            errorHandler.print();
+            System.out.println(failed);
+            throw new RuntimeException();
+        }
+
+        IRPrinter irPrinter = new IRPrinter();
+        irBuilder.getModule().accept(irPrinter);
+        try {
+            irPrinter.getWriter().close();
+            irPrinter.getOs().close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException(e.getMessage());
         }
 
         errorHandler.print();

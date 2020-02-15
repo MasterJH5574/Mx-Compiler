@@ -2,6 +2,7 @@ package MxCompiler.IR.Instruction;
 
 import MxCompiler.IR.BasicBlock;
 import MxCompiler.IR.IRVisitor;
+import MxCompiler.IR.Operand.ConstNull;
 import MxCompiler.IR.Operand.GlobalVariable;
 import MxCompiler.IR.Operand.Operand;
 import MxCompiler.IR.TypeSystem.PointerType;
@@ -19,7 +20,8 @@ public class StoreInst extends IRInstruction {
             assert pointer.getType().equals(value.getType());
         else {
             assert pointer.getType() instanceof PointerType;
-            assert ((PointerType) pointer.getType()).getBaseType().equals(value.getType());
+            assert ((PointerType) pointer.getType()).getBaseType().equals(value.getType())
+                    || value instanceof ConstNull;
         }
     }
 
@@ -34,10 +36,10 @@ public class StoreInst extends IRInstruction {
     @Override
     public String toString() {
         if (pointer instanceof GlobalVariable)
-            return "store " + value.getType().toString() + " " + value.toString() +
-                    ", " + (new PointerType(pointer.getType())).toString() + " " + pointer.toString();
+                return "store " + pointer.getType().toString() + " " + value.toString() +
+                        ", " + (new PointerType(pointer.getType())).toString() + " " + pointer.toString();
         else
-            return "store " + value.getType().toString() + " " + value.toString() +
+            return "store " + ((PointerType) pointer.getType()).getBaseType().toString() + " " + value.toString() +
                     ", " + pointer.getType().toString() + " " + pointer.toString();
     }
 

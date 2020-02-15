@@ -11,6 +11,7 @@ import MxCompiler.IR.TypeSystem.VoidType;
 import MxCompiler.Type.*;
 import MxCompiler.Type.ArrayType;
 import MxCompiler.Utilities.CompilationError;
+import MxCompiler.Utilities.ErrorHandler;
 import MxCompiler.Utilities.Pair;
 
 import java.util.ArrayList;
@@ -31,7 +32,9 @@ public class IRBuilder implements ASTVisitor {
 
     private Function initializer;
 
-    public IRBuilder(Scope globalScope, TypeTable astTypeTable) {
+    private ErrorHandler errorHandler;
+
+    public IRBuilder(Scope globalScope, TypeTable astTypeTable, ErrorHandler errorHandler) {
         module = new Module(astTypeTable);
 
         this.globalScope = globalScope;
@@ -46,6 +49,12 @@ public class IRBuilder implements ASTVisitor {
         initializer = new Function(module, "__init__", new VoidType(), new ArrayList<>(), false);
         initializer.initialize();
         module.addFunction(initializer);
+
+        this.errorHandler = errorHandler;
+    }
+
+    public Module getModule() {
+        return module;
     }
 
     public Function getCurrentFunction() {
@@ -68,16 +77,31 @@ public class IRBuilder implements ASTVisitor {
         for (ProgramUnitNode unit : node.getProgramUnits()) // Step 1: declare global variables
             if (unit instanceof VarNode)
                 unit.accept(this);
+        currentBlock.addInstruction(new BranchInst(currentBlock,
+                null, currentFunction.getReturnBlock(), null));
+        currentFunction.addBasicBlock(currentFunction.getReturnBlock());
 
         currentFunction = null;
         currentBlock = null;
         // ------  set initializer finish  ------
 
-        for (ProgramUnitNode unit : node.getProgramUnits()) // Step 2: define classes
+        for (ProgramUnitNode unit : node.getProgramUnits()) // Step 2: add class methods
+            if (unit instanceof ClassNode) {
+                if (((ClassNode) unit).hasConstructor())
+                    ((ClassNode) unit).getConstructor().addFunctionToModule(module, astTypeTable, irTypeTable);
+                for (FunctionNode method : ((ClassNode) unit).getFuncList())
+                    method.addFunctionToModule(module, astTypeTable, irTypeTable);
+            }
+
+        for (ProgramUnitNode unit : node.getProgramUnits()) // Step 3: add functions
+            if (unit instanceof FunctionNode)
+                ((FunctionNode) unit).addFunctionToModule(module, astTypeTable, irTypeTable);
+
+        for (ProgramUnitNode unit : node.getProgramUnits()) // Step 4: define classes
             if (unit instanceof ClassNode)
                 unit.accept(this);
 
-        for (ProgramUnitNode unit : node.getProgramUnits()) // Step 3: define functions
+        for (ProgramUnitNode unit : node.getProgramUnits()) // Step 5: define functions
             if (unit instanceof FunctionNode)
                 unit.accept(this);
     }
@@ -125,7 +149,7 @@ public class IRBuilder implements ASTVisitor {
             module.addGlobalVariable(globalVariable);
             variableEntity.setAllocaAddr(globalVariable);
         } else { // local variables
-            Register allocaAddr = new Register(new PointerType(irType), name + "#addr");
+            Register allocaAddr = new Register(new PointerType(irType), name + "$addr");
             BasicBlock entranceBlock = currentFunction.getEntranceBlock();
             entranceBlock.addInstructionAtFront(new AllocateInst(entranceBlock, allocaAddr, irType));
             currentFunction.getSymbolTable().put(allocaAddr.getName(), allocaAddr);
@@ -144,57 +168,34 @@ public class IRBuilder implements ASTVisitor {
     @Override
     public void visit(FunctionNode node) throws CompilationError {
         String functionName;
-        IRType returnType;
-        ArrayList<Parameter> parameters = new ArrayList<>();
-        FunctionEntity functionEntity;
         if (node.getScope().inClassScope()) { // constructor or method
             ClassType classType = (ClassType) node.getScope().getClassType();
-            parameters.add(new Parameter(classType.getIRType(irTypeTable), "this"));
 
             String className = classType.getName();
             String methodName = node.getIdentifier();
             functionName = className + "." + methodName;
-            functionEntity = (FunctionEntity) node.getScope().getEntity(methodName);
         } else {
             functionName = node.getIdentifier();
-            functionEntity = (FunctionEntity) node.getScope().getEntity(functionName);
         }
-        returnType = astTypeTable.get(functionEntity.getReturnType()).getIRType(irTypeTable);
-        ArrayList<VariableEntity> entityParameters = functionEntity.getParameters();
-        for (VariableEntity entityParameter : entityParameters)
-            parameters.add(new Parameter(astTypeTable.get(entityParameter.getType()).getIRType(irTypeTable),
-                    entityParameter.getName()));
-        Function function = new Function(module, functionName, returnType, parameters, false);
-        module.addFunction(function);
-        function.initialize();
+
+        assert module.getFunctionMap().containsKey(functionName);
+        Function function = module.getFunctionMap().get(functionName);
 
         currentFunction = function;
         currentBlock = function.getEntranceBlock();
 
-        // Add alloca and store to parameters.
-        if (node.getScope().inClassScope()) {
-            Parameter parameter = parameters.get(0);
-            Register allocaAddr = new Register(new PointerType(parameter.getType()),
-                    "this#addr");
-            currentBlock.addInstruction(new AllocateInst(currentBlock, allocaAddr, parameter.getType()));
-            currentBlock.addInstruction(new StoreInst(currentBlock, parameter, allocaAddr));
-            function.getSymbolTable().put(allocaAddr.getName(), allocaAddr);
-        }
-        int offset = node.getScope().inClassScope() ? 1 : 0;
-        for (int i = 0; i < entityParameters.size(); i++) {
-            Parameter parameter = parameters.get(i + offset);
-            Register allocaAddr = new Register(new PointerType(parameter.getType()),
-                    parameter.getNameWithoutDot() + "#addr");
-            currentBlock.addInstruction(new AllocateInst(currentBlock, allocaAddr, parameter.getType()));
-            currentBlock.addInstruction(new StoreInst(currentBlock, parameter, allocaAddr));
-            function.getSymbolTable().put(allocaAddr.getName(), allocaAddr);
-            entityParameters.get(i).setAllocaAddr(allocaAddr);
-        }
-
         node.getStatement().accept(this); // visit StmtNode
+
+        currentBlock.addInstruction(new BranchInst(currentBlock,
+                null, currentFunction.getReturnBlock(), null));
+        function.addBasicBlock(function.getReturnBlock());
+
+        // Check if there is enough return statement.
+        function.checkBlockTerminalInst(errorHandler);
 
         if (node.getIdentifier().equals("main")) {
             function = module.getFunctionMap().get("__init__");
+            function.checkBlockTerminalInst(errorHandler);
             currentFunction.getEntranceBlock().addInstructionAtFront(new CallInst(currentBlock, function,
                     new ArrayList<>(), null));
         }
@@ -387,8 +388,6 @@ public class IRBuilder implements ASTVisitor {
     @Override
     public void visit(BreakStmtNode node) throws CompilationError {
         currentBlock.addInstruction(new BranchInst(currentBlock, null, loopBreakBlock.peek(), null));
-        loopBreakBlock.pop();
-        loopContinueBlock.pop();
     }
 
     @Override
@@ -944,13 +943,13 @@ public class IRBuilder implements ASTVisitor {
             assert type instanceof ClassType;
 
             Function function = module.getExternalFunctionMap().get("malloc");
-            int size = module.getStructureMap().get(type.getName()).getBytes();
+            int size = module.getStructureMap().get("class." + type.getName()).getBytes();
             ArrayList<Operand> parameters = new ArrayList<>();
             parameters.add(new ConstInt(size));
 
             Register result = new Register(new PointerType(new IntegerType(IntegerType.BitWidth.int8)),
                     "malloc");
-            Register cast = new Register(type.getIRType(irTypeTable), "castMalloc");
+            Register cast = new Register(type.getIRType(irTypeTable), "classPtr");
             currentBlock.addInstruction(new CallInst(currentBlock, function, parameters, result));
             currentBlock.addInstruction(new BitCastToInst(currentBlock, result, type.getIRType(irTypeTable), cast));
 
@@ -969,6 +968,8 @@ public class IRBuilder implements ASTVisitor {
             // array creator
             ArrayList<ExprNode> exprForDim = node.getExprForDim();
             IRType irType = astTypeTable.get(node.getBaseType()).getIRType(irTypeTable);
+            for (int i = 0; i < node.getDim(); i++)
+                irType = new PointerType(irType);
 
             ArrayList<Operand> sizeList = new ArrayList<>();
             for (ExprNode expr : exprForDim) {
@@ -1001,7 +1002,7 @@ public class IRBuilder implements ASTVisitor {
         index.add(new ConstInt(0));
         index.add(new ConstInt(pos));
         IRType irType = astTypeTable.get(members.get(pos).getType()).getIRType(irTypeTable);
-        Register result = new Register(new PointerType(irType), type.getName() + "." + name + "#addr");
+        Register result = new Register(new PointerType(irType), type.getName() + "." + name + "$addr");
         Register load = new Register(irType, type.getName() + "." + name);
         currentBlock.addInstruction(new GetElementPtrInst(currentBlock, pointer, index, result));
         currentBlock.addInstruction(new LoadInst(currentBlock, irType, result, load));
@@ -1046,11 +1047,12 @@ public class IRBuilder implements ASTVisitor {
                 currentFunction.getSymbolTable().put(size.getName(), size);
             } else {
                 if (type instanceof StringType) {
-                    function = module.getExternalFunctionMap().get("__string_ " + name);
+                    function = module.getExternalFunctionMap().get("__string_" + name);
                 } else {
                     assert type instanceof ClassType;
                     function = module.getFunctionMap().get(type.getName() + "." + name);
                 }
+                assert function != null;
                 ArrayList<Operand> parameters = new ArrayList<>();
                 IRType returnType = function.getFunctionType().getReturnType();
                 Register result = returnType instanceof VoidType ? null : new Register(returnType, "call");
@@ -1070,20 +1072,52 @@ public class IRBuilder implements ASTVisitor {
         } else {
             assert funcName instanceof IdExprNode;
             String name = ((IdExprNode) funcName).getIdentifier();
-            function = module.getFunctionMap().get(name);
-            ArrayList<Operand> parameters = new ArrayList<>();
-            IRType returnType = function.getFunctionType().getReturnType();
-            Register result = returnType instanceof VoidType ? null : new Register(returnType, "call");
-            for (ExprNode parameterExpr : node.getParameters()) {
-                parameterExpr.accept(this); // visit ExprNode
-                parameters.add(parameterExpr.getResult());
+            FunctionEntity functionEntity = node.getScope().getFunctionEntity(name);
+            if (functionEntity.getEntityType() == FunctionEntity.EntityType.function) {
+                if (module.getFunctionMap().containsKey(name))
+                    function = module.getFunctionMap().get(name);
+                else
+                    function = module.getExternalFunctionMap().get(name);
+                assert function != null;
+                ArrayList<Operand> parameters = new ArrayList<>();
+                IRType returnType = function.getFunctionType().getReturnType();
+                Register result = returnType instanceof VoidType ? null : new Register(returnType, "call");
+                for (ExprNode parameterExpr : node.getParameters()) {
+                    parameterExpr.accept(this); // visit ExprNode
+                    parameters.add(parameterExpr.getResult());
+                }
+
+                currentBlock.addInstruction(new CallInst(currentBlock, function, parameters, result));
+                if (result != null)
+                    currentFunction.getSymbolTable().put(result.getName(), result);
+
+                node.setResult(result);
+            } else { // Call method: this.method()
+                ClassType type = (ClassType) node.getScope().getClassType();
+                function = module.getFunctionMap().get(type.getName() + "." + name);
+                assert function != null;
+
+                Register thisAllocaAddr = (Register) currentFunction.getSymbolTable().get("this$addr");
+                IRType baseType = ((PointerType) thisAllocaAddr.getType()).getBaseType();
+                Register ptrResult = new Register(baseType, "this");
+                currentBlock.addInstruction(new LoadInst(currentBlock, baseType, thisAllocaAddr, ptrResult));
+
+                ArrayList<Operand> parameters = new ArrayList<>();
+                IRType returnType = function.getFunctionType().getReturnType();
+                Register result = returnType instanceof VoidType ? null : new Register(returnType, "call");
+                parameters.add(ptrResult);
+                for (ExprNode parameterExpr : node.getParameters()) {
+                    parameterExpr.accept(this); // visit ExprNode
+                    parameters.add(parameterExpr.getResult());
+                }
+
+                currentBlock.addInstruction(new CallInst(currentBlock, function, parameters, result));
+                currentFunction.getSymbolTable().put(ptrResult.getName(), ptrResult);
+                if (result != null)
+                    currentFunction.getSymbolTable().put(result.getName(), result);
+
+                node.setResult(result);
             }
-
-            currentBlock.addInstruction(new CallInst(currentBlock, function, parameters, result));
-            if (result != null)
-                currentFunction.getSymbolTable().put(result.getName(), result);
-
-            node.setResult(result);
             node.setLvalueResult(null);
         }
     }
@@ -1096,22 +1130,22 @@ public class IRBuilder implements ASTVisitor {
         Operand arrayPtr = node.getName().getResult();
         ArrayList<Operand> index = new ArrayList<>();
         index.add(node.getIndex().getResult());
-        Operand result = new Register(arrayPtr.getType(), "elementPtr");
+        Register result = new Register(arrayPtr.getType(), "elementPtr");
         currentBlock.addInstruction(new GetElementPtrInst(currentBlock, arrayPtr, index, result));
 
-        Operand arrayLoad = new Register(((PointerType) arrayPtr.getType()).getBaseType(), "arrayLoad");
+        Register arrayLoad = new Register(((PointerType) arrayPtr.getType()).getBaseType(), "arrayLoad");
         currentBlock.addInstruction(new LoadInst(currentBlock,
                 ((PointerType) arrayPtr.getType()).getBaseType(), result, arrayLoad));
 
         node.setResult(arrayLoad);
         node.setLvalueResult(result);
-        currentFunction.getSymbolTable().put(result.toString(), result);
-        currentFunction.getSymbolTable().put(arrayLoad.toString(), arrayLoad);
+        currentFunction.getSymbolTable().put(result.getName(), result);
+        currentFunction.getSymbolTable().put(arrayLoad.getName(), arrayLoad);
     }
 
     @Override
     public void visit(ThisExprNode node) throws CompilationError {
-        Register thisAllocaAddr = (Register) currentFunction.getSymbolTable().get("this#addr");
+        Register thisAllocaAddr = (Register) currentFunction.getSymbolTable().get("this$addr");
         IRType irType = ((PointerType) thisAllocaAddr.getType()).getBaseType();
         Register result = new Register(irType, "this");
         currentBlock.addInstruction(new LoadInst(currentBlock, irType, thisAllocaAddr, result));
@@ -1124,13 +1158,50 @@ public class IRBuilder implements ASTVisitor {
     @Override
     public void visit(IdExprNode node) throws CompilationError {
         Operand allocaAddr = ((VariableEntity) node.getEntity()).getAllocaAddr();
-        IRType irType = ((PointerType) allocaAddr.getType()).getBaseType();
-        Register result = new Register(irType, node.getIdentifier());
-        currentBlock.addInstruction(new LoadInst(currentBlock, irType, allocaAddr, result));
+        if (allocaAddr != null) {
+            IRType irType;
+            if (((VariableEntity) node.getEntity()).getEntityType() == VariableEntity.EntityType.global)
+                irType = allocaAddr.getType();
+            else
+                irType = ((PointerType) allocaAddr.getType()).getBaseType();
+            Register result = new Register(irType, node.getIdentifier());
+            currentBlock.addInstruction(new LoadInst(currentBlock, irType, allocaAddr, result));
 
-        node.setResult(result);
-        node.setLvalueResult(allocaAddr);
-        currentFunction.getSymbolTable().put(result.getName(), result);
+            node.setResult(result);
+            node.setLvalueResult(allocaAddr);
+            currentFunction.getSymbolTable().put(result.getName(), result);
+        } else {
+            Register thisAllocaAddr = (Register) currentFunction.getSymbolTable().get("this$addr");
+            assert node.getScope().inMethodScope();
+            assert thisAllocaAddr != null;
+
+            IRType baseType = ((PointerType) thisAllocaAddr.getType()).getBaseType();
+            Register thisPtr = new Register(baseType, "this");
+            currentBlock.addInstruction(new LoadInst(currentBlock, baseType, thisAllocaAddr, thisPtr));
+
+            Type type = node.getScope().getClassType();
+            String name = node.getIdentifier();
+            ArrayList<VariableEntity> members = ((ClassType) type).getMembers();
+            int pos;
+            for (pos = 0; pos < members.size(); pos++)
+                if (members.get(pos).getName().equals(name))
+                    break;
+
+            ArrayList<Operand> index = new ArrayList<>();
+            index.add(new ConstInt(0));
+            index.add(new ConstInt(pos));
+            IRType irType = astTypeTable.get(members.get(pos).getType()).getIRType(irTypeTable);
+            Register result = new Register(new PointerType(irType), type.getName() + "." + name + "$addr");
+            Register load = new Register(irType, type.getName() + "." + name);
+            currentBlock.addInstruction(new GetElementPtrInst(currentBlock, thisPtr, index, result));
+            currentBlock.addInstruction(new LoadInst(currentBlock, irType, result, load));
+
+            node.setResult(load);
+            node.setLvalueResult(result);
+            currentFunction.getSymbolTable().put(thisPtr.getName(), thisPtr);
+            currentFunction.getSymbolTable().put(result.getName(), result);
+            currentFunction.getSymbolTable().put(load.getName(), load);
+        }
     }
 
     @Override

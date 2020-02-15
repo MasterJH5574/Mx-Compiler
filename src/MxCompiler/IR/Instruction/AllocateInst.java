@@ -15,7 +15,7 @@ public class AllocateInst extends IRInstruction {
         // Note that "type" here should be converted to a pointer
         super(basicBlock);
         this.result = result;
-        this.type = new PointerType(type);
+        this.type = type;
 
         assert (new PointerType(type)).equals(result.getType());
     }

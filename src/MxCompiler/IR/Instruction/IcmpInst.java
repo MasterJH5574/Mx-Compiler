@@ -2,9 +2,11 @@ package MxCompiler.IR.Instruction;
 
 import MxCompiler.IR.BasicBlock;
 import MxCompiler.IR.IRVisitor;
+import MxCompiler.IR.Operand.ConstNull;
 import MxCompiler.IR.Operand.Operand;
 import MxCompiler.IR.TypeSystem.IRType;
 import MxCompiler.IR.TypeSystem.IntegerType;
+import MxCompiler.IR.TypeSystem.PointerType;
 
 public class IcmpInst extends IRInstruction {
     public enum IcmpName {
@@ -25,8 +27,8 @@ public class IcmpInst extends IRInstruction {
         this.op2 = op2;
         this.result = result;
 
-        assert irType.equals(op1.getType());
-        assert irType.equals(op2.getType());
+        assert irType.equals(op1.getType()) || (op1 instanceof ConstNull && irType instanceof PointerType);
+        assert irType.equals(op2.getType()) || (op2 instanceof ConstNull && irType instanceof PointerType);
         assert result.getType().equals(new IntegerType(IntegerType.BitWidth.int1));
     }
 

@@ -43,7 +43,7 @@ public class BranchInst extends IRInstruction {
         if (cond != null)
             return "br i1 " + cond.toString() + ", label " + thenBlock.toString() + ", label " + elseBlock.toString();
         else
-            return "b1 label " + thenBlock.toString();
+            return "br label " + thenBlock.toString();
     }
 
     @Override

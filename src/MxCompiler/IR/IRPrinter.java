@@ -4,76 +4,73 @@ import MxCompiler.IR.Instruction.*;
 import MxCompiler.IR.Operand.*;
 import MxCompiler.IR.TypeSystem.*;
 
-import java.io.File;
-import java.io.FileWriter;
+import java.io.*;
 
 public class IRPrinter implements IRVisitor {
-    private Module module;
-
-    private FileWriter writer;
+    private OutputStream os;
+    private PrintWriter writer;
     private String indent;
 
-    public IRPrinter(Module module) {
-        File file = new File("test.ll");
+    public IRPrinter() {
         try {
-            boolean createResult = file.createNewFile();
-            if (!createResult)
-                throw new RuntimeException();
-            writer = new FileWriter(file);
+            os = new FileOutputStream("test/test.ll");
+            writer = new PrintWriter(os);
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException(e.getMessage());
         }
-        indent = "    ";
 
-        this.module = module;
-        this.module.accept(this);
+        indent = "    ";
+    }
+
+    public OutputStream getOs() {
+        return os;
+    }
+
+    public PrintWriter getWriter() {
+        return writer;
     }
 
     private void print(String string) {
-        try {
-            writer.write(string);
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException(e.getMessage());
-        }
+        writer.print(string);
     }
 
     private void println(String string) {
-        try {
-            writer.write(string + "\n");
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException(e.getMessage());
-        }
+        writer.println(string);
     }
 
     @Override
     public void visit(Module module) {
         // ------ HEAD ------
-        println("; ModuleID = 'test.txt'");
-        println("source_filename = \"test.txt\"");
+        println("; ModuleID = 'code.txt'");
+        println("source_filename = \"code.txt\"");
         println("target datalayout = \"e-m:e-i64:64-f80:128-n8:16:32:64-S128\"");
         println("target triple = \"x86_64-pc-linux-gnu\"");
         println("");
 
         // ------ STRUCTURE ------
-        for (String name : module.getStructureMap().keySet())
-            println(module.getStructureMap().get(name).structureToString());
-        println("");
+        if (module.getStructureMap().size() > 0) {
+            for (String name : module.getStructureMap().keySet())
+                println(module.getStructureMap().get(name).structureToString());
+            println("");
+        }
 
         // ------ GLOBAL VARIABLE ------
-        for (String name : module.getGlobalVariableMap().keySet())
-            println(module.getGlobalVariableMap().get(name).definitionToString());
-        println("");
+        if (module.getGlobalVariableMap().size() > 0) {
+            for (String name : module.getGlobalVariableMap().keySet())
+                println(module.getGlobalVariableMap().get(name).definitionToString());
+            println("");
+        }
 
         // ------ EXTERNAL FUNCTION ------
         for (String name : module.getExternalFunctionMap().keySet())
             println(module.getExternalFunctionMap().get(name).declareToString());
         println("");
 
-        for (String name : module.getFunctionMap().keySet())
+        for (String name : module.getFunctionMap().keySet()) {
             module.getFunctionMap().get(name).accept(this); // visit Function
+            println("");
+        }
     }
 
     @Override
@@ -169,66 +166,66 @@ public class IRPrinter implements IRVisitor {
 
     @Override
     public void visit(VoidType type) {
-
+        // This method will never be called.
     }
 
     @Override
     public void visit(FunctionType type) {
-
+        // This method will never be called.
     }
 
     @Override
     public void visit(IntegerType type) {
-
+        // This method will never be called.
     }
 
     @Override
     public void visit(PointerType type) {
-
+        // This method will never be called.
     }
 
     @Override
     public void visit(ArrayType type) {
-
+        // This method will never be called.
     }
 
     @Override
     public void visit(StructureType type) {
-
+        // This method will never be called.
     }
 
     @Override
     public void visit(GlobalVariable globalVariable) {
-
+        // This method will never be called.
     }
 
     @Override
     public void visit(Register register) {
-
+        // This method will never be called.
     }
 
     @Override
     public void visit(Parameter parameter) {
-
+        // This method will never be called.
     }
 
     @Override
     public void visit(ConstInt constInt) {
-
+        // This method will never be called.
     }
 
     @Override
     public void visit(ConstBool constBool) {
-
+        // This method will never be called.
     }
 
     @Override
     public void visit(ConstString constString) {
-
+        // This method will never be called.
     }
 
     @Override
     public void visit(ConstNull constNull) {
-
+        // This method will never be called.
     }
 }

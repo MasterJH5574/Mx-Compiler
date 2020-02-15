@@ -17,7 +17,7 @@ public class Parameter extends Operand {
 
     public String getNameWithoutDot() {
         if (name.contains("."))
-            return name.split(".")[0];
+            return name.split("\\.")[0];
         else
             throw new RuntimeException();
     }

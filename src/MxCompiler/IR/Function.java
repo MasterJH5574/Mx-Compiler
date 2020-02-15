@@ -9,6 +9,8 @@ import MxCompiler.IR.TypeSystem.FunctionType;
 import MxCompiler.IR.TypeSystem.IRType;
 import MxCompiler.IR.TypeSystem.PointerType;
 import MxCompiler.IR.TypeSystem.VoidType;
+import MxCompiler.Utilities.CompilationError;
+import MxCompiler.Utilities.ErrorHandler;
 import MxCompiler.Utilities.SymbolTable;
 
 import java.util.ArrayList;
@@ -69,6 +71,10 @@ public class Function {
         return entranceBlock;
     }
 
+    public BasicBlock getExitBlock() {
+        return exitBlock;
+    }
+
     public BasicBlock getReturnBlock() {
         return returnBlock;
     }
@@ -105,7 +111,7 @@ public class Function {
             entranceBlock.addInstruction(new AllocateInst(entranceBlock, returnValue, returnType));
             Register loadReturnValue = new Register(returnType, "loadReturnValue");
             returnBlock.addInstruction(new LoadInst(returnBlock, returnType, returnValue, loadReturnValue));
-            returnBlock.addInstruction(new ReturnInst(returnBlock, returnType, returnValue));
+            returnBlock.addInstruction(new ReturnInst(returnBlock, returnType, loadReturnValue));
 
             symbolTable.put(returnValue.getName(), returnValue);
             symbolTable.put(loadReturnValue.getName(), loadReturnValue);
@@ -128,6 +134,17 @@ public class Function {
         string.append(")");
 
         return string.toString();
+    }
+
+    public void checkBlockTerminalInst(ErrorHandler errorHandler) throws CompilationError {
+        BasicBlock ptr = entranceBlock;
+        while (ptr != null) {
+            if (!ptr.endWithTerminalInst()) {
+                errorHandler.error("Function \"" + name + "\" has no return statement.");
+                throw new CompilationError();
+            }
+            ptr = ptr.getNext();
+        }
     }
 
     public void accept(IRVisitor visitor) {

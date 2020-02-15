@@ -15,7 +15,7 @@ public class NullType extends Type {
     @Override
     public IRType getIRType(IRTypeTable irTypeTable) {
         // A Pointer to class/array type.
-        return new PointerType(null);
+        return new PointerType(new VoidType());
     }
 
     @Override

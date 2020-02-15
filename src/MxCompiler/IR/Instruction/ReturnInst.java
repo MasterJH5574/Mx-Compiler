@@ -1,10 +1,11 @@
 package MxCompiler.IR.Instruction;
 
-import MxCompiler.AST.BreakStmtNode;
 import MxCompiler.IR.BasicBlock;
 import MxCompiler.IR.IRVisitor;
+import MxCompiler.IR.Operand.ConstNull;
 import MxCompiler.IR.Operand.Operand;
 import MxCompiler.IR.TypeSystem.IRType;
+import MxCompiler.IR.TypeSystem.PointerType;
 import MxCompiler.IR.TypeSystem.VoidType;
 
 public class ReturnInst extends IRInstruction {
@@ -17,7 +18,8 @@ public class ReturnInst extends IRInstruction {
         this.returnValue = returnValue;
 
         if (!(type instanceof VoidType))
-            assert type.equals(returnValue.getType());
+            assert type.equals(returnValue.getType())
+                    || (returnValue instanceof ConstNull && type instanceof PointerType);
         else
             assert returnValue == null;
     }

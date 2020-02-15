@@ -32,6 +32,10 @@ public class Checker implements ASTVisitor {
         return scopeStack.peek();
     }
 
+    public TypeTable getTypeTable() {
+        return typeTable;
+    }
+
     @Override
     public void visit(ProgramNode node) throws CompilationError {
         globalScope = new Scope(null, Scope.ScopeType.programScope,
@@ -177,15 +181,19 @@ public class Checker implements ASTVisitor {
         }
 
         boolean error = false;
+        FunctionEntity function = currentScope().getFunctionEntityIncludeConstructor(node.getIdentifier());
+        ArrayList<VariableEntity> entityParameters = function.getParameters();
         ArrayList<VarNode> parameters = node.getParameters();
-        for (VarNode parameter : parameters)
+        assert parameters.size() == entityParameters.size();
+        for (int i = 0; i < parameters.size(); i++) {
+            VarNode parameter = parameters.get(i);
             try {
                 parameter.accept(this); // visit VarNode
-                scope.declareEntity(parameter, errorHandler, VariableEntity.EntityType.parameter,
-                        FunctionEntity.EntityType.function, globalScope, typeTable);
+                scope.declareEntity(entityParameters.get(i), errorHandler, parameter.getLocation());
             } catch (CompilationError ignored) {
                 error = true;
             }
+        }
 
         try {
             node.getStatement().accept(this); // visit StmtNode
@@ -193,8 +201,7 @@ public class Checker implements ASTVisitor {
             error = true;
         }
 
-        // check whether there is at least a return statement
-        // Question: Maybe in IR stage?
+        /*// check whether there is at least a return statement
         if (!typeTable.get(node.getType()).equals(new VoidType()) && !node.getIdentifier().equals("main")) {
             assert node.getStatement() instanceof BlockNode;
             BlockNode block = (BlockNode) node.getStatement();
@@ -209,7 +216,7 @@ public class Checker implements ASTVisitor {
                 errorHandler.error(node.getLocation(), "Function has no return statement.");
                 error = true;
             }
-        }
+        }*/
 
         scopeStack.pop();
 
@@ -256,6 +263,7 @@ public class Checker implements ASTVisitor {
                 errorHandler.error(node.getConstructor().getLocation(), "Constructor should have no parameter.");
                 error = true;
             } else {
+                scope.declareConstructor(node.getConstructor());
                 try {
                     node.getConstructor().accept(this); // visit FunctionNode
                 } catch (CompilationError ignored) {

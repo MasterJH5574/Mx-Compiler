@@ -33,7 +33,7 @@
 * 2020.2.14	Implement IRPrinter. Add some assert statement to ensure correctness.
   * IRBuilder is still to be debugged.
   * Happy Valentine's Day!
-* 2020.2.15	Debug. Pass all the semantic test cases.
+* 2020.2.15	Debug. Pass all the semantic test cases. Fix [Pitfalls](#pitfalls) in semantic stage.
 
 
 

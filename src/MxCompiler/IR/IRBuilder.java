@@ -71,10 +71,23 @@ public class IRBuilder implements ASTVisitor {
 
     @Override
     public void visit(ProgramNode node) throws CompilationError {
+        for (ProgramUnitNode unit : node.getProgramUnits()) // Step 1: add class methods
+            if (unit instanceof ClassNode) {
+                if (((ClassNode) unit).hasConstructor())
+                    ((ClassNode) unit).getConstructor().addFunctionToModule(module, astTypeTable, irTypeTable);
+                for (FunctionNode method : ((ClassNode) unit).getFuncList())
+                    method.addFunctionToModule(module, astTypeTable, irTypeTable);
+            }
+
+        for (ProgramUnitNode unit : node.getProgramUnits()) // Step 2: add functions
+            if (unit instanceof FunctionNode)
+                ((FunctionNode) unit).addFunctionToModule(module, astTypeTable, irTypeTable);
+
+
         // ------ set function initializer ------
         currentFunction = initializer;
         currentBlock = initializer.getEntranceBlock();
-        for (ProgramUnitNode unit : node.getProgramUnits()) // Step 1: declare global variables
+        for (ProgramUnitNode unit : node.getProgramUnits()) // Step 3: declare global variables
             if (unit instanceof VarNode)
                 unit.accept(this);
         currentBlock.addInstruction(new BranchInst(currentBlock,
@@ -85,17 +98,6 @@ public class IRBuilder implements ASTVisitor {
         currentBlock = null;
         // ------  set initializer finish  ------
 
-        for (ProgramUnitNode unit : node.getProgramUnits()) // Step 2: add class methods
-            if (unit instanceof ClassNode) {
-                if (((ClassNode) unit).hasConstructor())
-                    ((ClassNode) unit).getConstructor().addFunctionToModule(module, astTypeTable, irTypeTable);
-                for (FunctionNode method : ((ClassNode) unit).getFuncList())
-                    method.addFunctionToModule(module, astTypeTable, irTypeTable);
-            }
-
-        for (ProgramUnitNode unit : node.getProgramUnits()) // Step 3: add functions
-            if (unit instanceof FunctionNode)
-                ((FunctionNode) unit).addFunctionToModule(module, astTypeTable, irTypeTable);
 
         for (ProgramUnitNode unit : node.getProgramUnits()) // Step 4: define classes
             if (unit instanceof ClassNode)
@@ -462,7 +464,7 @@ public class IRBuilder implements ASTVisitor {
             // -a
             if (exprResult.isConstValue()) {
                 assert exprResult instanceof ConstInt;
-                node.setResult(new ConstInt(((ConstInt) exprResult).getValue()));
+                node.setResult(new ConstInt(-((ConstInt) exprResult).getValue()));
                 node.setLvalueResult(null);
             } else {
                 Register result = new Register(new IntegerType(IntegerType.BitWidth.int32), "signNeg");
@@ -903,6 +905,8 @@ public class IRBuilder implements ASTVisitor {
             node.setResult(result);
             node.setLvalueResult(null);
             currentFunction.getSymbolTable().put(result.getName(), result);
+            currentFunction.getSymbolTable().put(branchBlock.getName(), branchBlock);
+            currentFunction.getSymbolTable().put(mergeBlock.getName(), mergeBlock);
         } else { // op == BinaryExprNode.Operator.logicalOr
             BasicBlock branchBlock = new BasicBlock(currentFunction, "logicalOrBranch");
             BasicBlock mergeBlock = new BasicBlock(currentFunction, "logicalOrMerge");
@@ -932,6 +936,8 @@ public class IRBuilder implements ASTVisitor {
             node.setResult(result);
             node.setLvalueResult(null);
             currentFunction.getSymbolTable().put(result.getName(), result);
+            currentFunction.getSymbolTable().put(branchBlock.getName(), branchBlock);
+            currentFunction.getSymbolTable().put(mergeBlock.getName(), mergeBlock);
         }
     }
 
@@ -1026,7 +1032,7 @@ public class IRBuilder implements ASTVisitor {
             Operand ptrResult = expr.getResult();
             if (type instanceof ArrayType) {
                 Register pointer;
-                if (ptrResult.getType().equals(new PointerType(new IntegerType(IntegerType.BitWidth.int32)))) {
+                if (!ptrResult.getType().equals(new PointerType(new IntegerType(IntegerType.BitWidth.int32)))) {
                     pointer = new Register(new PointerType(new IntegerType(IntegerType.BitWidth.int32)), "cast");
                     currentBlock.addInstruction(new BitCastToInst(currentBlock, ptrResult,
                             new PointerType(new IntegerType(IntegerType.BitWidth.int32)), pointer));

@@ -13,6 +13,7 @@ import java.util.ArrayList;
 public class NewArrayMalloc {
     static public Operand generate(int cur, ArrayList<Operand> sizeList, IRType irType,
                                    Module module, IRBuilder irBuilder) {
+        assert irType instanceof PointerType;
         BasicBlock currentBlock = irBuilder.getCurrentBlock();
         Function currentFunction = irBuilder.getCurrentFunction();
         Function function = module.getExternalFunctionMap().get("malloc");
@@ -58,7 +59,7 @@ public class NewArrayMalloc {
         // Generate for the next dimension
         if (cur != sizeList.size() - 1) {
             // GetElementPtr to tail
-            Register arrayTail = new Register(new PointerType(irType), "arrayTail");
+            Register arrayTail = new Register(irType, "arrayTail");
             currentFunction.getSymbolTable().put(arrayTail.getName(), arrayTail);
             index = new ArrayList<>();
             index.add(sizeList.get(cur));
@@ -82,6 +83,7 @@ public class NewArrayMalloc {
             currentBlock.addInstruction(new BranchInst(currentBlock, null, loopCond, null));
             currentBlock = loopCond;
             irBuilder.setCurrentBlock(loopCond);
+            currentFunction.addBasicBlock(loopCond);
             // Check condition: arrayPointer != arrayHead
             Register arrayPointer = new Register(irType, "arrayPointer");
             Register cmpResult = new Register(new IntegerType(IntegerType.BitWidth.int1), "ptrCmpResult");
@@ -97,7 +99,10 @@ public class NewArrayMalloc {
             //           Add arrayPointer
             currentBlock = loopBody;
             irBuilder.setCurrentBlock(currentBlock);
-            Operand arrayHeadNextDim = generate(cur + 1, sizeList, irType, module, irBuilder);
+            currentFunction.addBasicBlock(loopBody);
+            Operand arrayHeadNextDim = generate(cur + 1, sizeList,
+                    ((PointerType) irType).getBaseType(), module, irBuilder);
+            currentBlock = irBuilder.getCurrentBlock();
             currentBlock.addInstruction(new StoreInst(currentBlock, arrayHeadNextDim, arrayPointer));
             // GetElementPtr to next arrayPointer
             Register nextArrayPtr = new Register(irType, "nextArrayPtr");
@@ -112,6 +117,7 @@ public class NewArrayMalloc {
             // loopMerge:
             currentBlock = loopMerge;
             irBuilder.setCurrentBlock(currentBlock);
+            currentFunction.addBasicBlock(loopMerge);
         }
         return arrayHead;
     }

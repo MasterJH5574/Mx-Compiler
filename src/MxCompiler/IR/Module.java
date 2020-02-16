@@ -215,8 +215,8 @@ public class Module {
     }
 
     public GlobalVariable addConstString(String string) {
+        string = string.replace("\\\\", "\\");
         string = string.replace("\\n", "\n");
-        string = string.replace("\\t", "\t");
         string = string.replace("\\\"", "\"");
         string = string + "\0";
         if (constStringMap.containsKey(string))

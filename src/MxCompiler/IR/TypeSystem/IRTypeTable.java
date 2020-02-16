@@ -29,7 +29,7 @@ public class IRTypeTable {
             else {
                 assert astType instanceof ClassType;
                 ArrayList<IRType> memberList = new ArrayList<>(); // To be modified later;
-                typeTable.put(astType, new StructureType(astType.getName(), memberList));
+                typeTable.put(astType, new StructureType("class." + astType.getName(), memberList));
             }
         }
 

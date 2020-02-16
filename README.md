@@ -34,6 +34,7 @@
   * IRBuilder is still to be debugged.
   * Happy Valentine's Day!
 * 2020.2.15	Debug. Pass all the semantic test cases. Fix [Pitfalls](#pitfalls) in semantic stage.
+* 2020.2.16	Debug. Generate correct LLVM IR to pass all codegen test cases.
 
 
 

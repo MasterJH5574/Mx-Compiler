@@ -58,7 +58,7 @@ public class GetElementPtrInst extends IRInstruction {
         string.append("getelementptr ").append(baseType.toString()).append(", ");
         string.append(pointerType).append(" ").append(pointer.toString());
         for (Operand aIndex : index)
-            string.append(", ").append(aIndex.toString());
+            string.append(", ").append(aIndex.getType().toString()).append(" ").append(aIndex.toString());
         return string.toString();
     }
 

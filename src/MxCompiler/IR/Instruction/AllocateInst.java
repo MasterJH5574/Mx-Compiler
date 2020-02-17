@@ -18,6 +18,7 @@ public class AllocateInst extends IRInstruction {
         this.type = type;
 
         assert (new PointerType(type)).equals(result.getType());
+        result.setDef(this);
     }
 
     public Register getResult() {

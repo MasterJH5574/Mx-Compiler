@@ -4,7 +4,7 @@ import MxCompiler.IR.Instruction.IRInstruction;
 
 import java.util.ArrayList;
 
-public class BasicBlock {
+public class BasicBlock extends IRObject {
     private Function function;
 
     private String name;

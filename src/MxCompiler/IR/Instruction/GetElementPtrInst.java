@@ -4,6 +4,7 @@ import MxCompiler.IR.BasicBlock;
 import MxCompiler.IR.IRVisitor;
 import MxCompiler.IR.Operand.GlobalVariable;
 import MxCompiler.IR.Operand.Operand;
+import MxCompiler.IR.Operand.Register;
 import MxCompiler.IR.TypeSystem.ArrayType;
 import MxCompiler.IR.TypeSystem.IRType;
 import MxCompiler.IR.TypeSystem.IntegerType;
@@ -16,7 +17,7 @@ public class GetElementPtrInst extends IRInstruction {
     private ArrayList<Operand> index;
     private Operand result;
 
-    public GetElementPtrInst(BasicBlock basicBlock, Operand pointer, ArrayList<Operand> index, Operand result) {
+    public GetElementPtrInst(BasicBlock basicBlock, Operand pointer, ArrayList<Operand> index, Register result) {
         super(basicBlock);
         this.pointer = pointer;
         this.index = index;
@@ -28,6 +29,12 @@ public class GetElementPtrInst extends IRInstruction {
             assert result.getType() instanceof PointerType;
         else
             assert result.getType().equals(new PointerType(new IntegerType(IntegerType.BitWidth.int8)));
+
+        result.setDef(this);
+
+        pointer.addUse(this);
+        for (Operand operand : index)
+            operand.addUse(this);
     }
 
     public Operand getPointer() {

@@ -3,6 +3,7 @@ package MxCompiler.IR.Instruction;
 import MxCompiler.IR.BasicBlock;
 import MxCompiler.IR.IRVisitor;
 import MxCompiler.IR.Operand.Operand;
+import MxCompiler.IR.Operand.Register;
 
 public class BinaryOpInst extends IRInstruction {
     public enum BinaryOpName {
@@ -15,7 +16,7 @@ public class BinaryOpInst extends IRInstruction {
     private Operand rhs;
     private Operand result;
 
-    public BinaryOpInst(BasicBlock basicBlock, BinaryOpName op, Operand lhs, Operand rhs, Operand result) {
+    public BinaryOpInst(BasicBlock basicBlock, BinaryOpName op, Operand lhs, Operand rhs, Register result) {
         super(basicBlock);
         this.op = op;
         this.lhs = lhs;
@@ -24,6 +25,10 @@ public class BinaryOpInst extends IRInstruction {
 
         assert lhs.getType().equals(result.getType());
         assert rhs.getType().equals(result.getType());
+
+        result.setDef(this);
+        lhs.addUse(this);
+        rhs.addUse(this);
     }
 
     public BinaryOpName getOp() {

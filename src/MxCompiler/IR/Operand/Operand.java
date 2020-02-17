@@ -1,9 +1,10 @@
 package MxCompiler.IR.Operand;
 
+import MxCompiler.IR.IRObject;
 import MxCompiler.IR.IRVisitor;
 import MxCompiler.IR.TypeSystem.IRType;
 
-abstract public class Operand {
+abstract public class Operand extends IRObject {
     private IRType type;
 
     public Operand(IRType type) {

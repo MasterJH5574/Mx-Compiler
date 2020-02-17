@@ -35,6 +35,7 @@
   * Happy Valentine's Day!
 * 2020.2.15	Debug. Pass all the semantic test cases. Fix [Pitfalls](#pitfalls) in semantic stage.
 * 2020.2.16	Debug. Generate correct LLVM IR to pass all codegen test cases.
+* 2020.2.17	Add class IRObject for use. Add def-use chains and use-def chain.
 
 
 
@@ -272,6 +273,8 @@ It seems user-friendly.
 ## Intermediate Representation
 
 CFG + LLVM IR
+
+Top Abstract Class: IRObject
 
 ### Basic Components
 

@@ -4,6 +4,7 @@ import MxCompiler.IR.BasicBlock;
 import MxCompiler.IR.IRVisitor;
 import MxCompiler.IR.Operand.GlobalVariable;
 import MxCompiler.IR.Operand.Operand;
+import MxCompiler.IR.Operand.Register;
 import MxCompiler.IR.TypeSystem.IRType;
 import MxCompiler.IR.TypeSystem.PointerType;
 
@@ -12,7 +13,7 @@ public class LoadInst extends IRInstruction {
     private Operand pointer;
     private Operand result;
 
-    public LoadInst(BasicBlock basicBlock, IRType type, Operand pointer, Operand result) {
+    public LoadInst(BasicBlock basicBlock, IRType type, Operand pointer, Register result) {
         super(basicBlock);
         this.type = type;
         this.pointer = pointer;
@@ -25,6 +26,9 @@ public class LoadInst extends IRInstruction {
             assert ((PointerType) pointer.getType()).getBaseType().equals(type);
         }
         assert result.getType().equals(type);
+
+        result.setDef(this);
+        pointer.addUse(this);
     }
 
     public IRType getType() {

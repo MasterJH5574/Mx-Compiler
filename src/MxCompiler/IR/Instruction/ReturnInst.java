@@ -22,6 +22,9 @@ public class ReturnInst extends IRInstruction {
                     || (returnValue instanceof ConstNull && type instanceof PointerType);
         else
             assert returnValue == null;
+
+        if (returnValue != null)
+            returnValue.addUse(this);
     }
 
     public IRType getType() {

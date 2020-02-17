@@ -23,6 +23,9 @@ public class StoreInst extends IRInstruction {
             assert ((PointerType) pointer.getType()).getBaseType().equals(value.getType())
                     || value instanceof ConstNull;
         }
+
+        value.addUse(this);
+        pointer.addUse(this);
     }
 
     public Operand getValue() {

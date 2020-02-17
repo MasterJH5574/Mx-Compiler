@@ -5,6 +5,7 @@ import MxCompiler.IR.Function;
 import MxCompiler.IR.IRVisitor;
 import MxCompiler.IR.Operand.ConstNull;
 import MxCompiler.IR.Operand.Operand;
+import MxCompiler.IR.Operand.Register;
 import MxCompiler.IR.TypeSystem.PointerType;
 import MxCompiler.IR.TypeSystem.VoidType;
 
@@ -15,7 +16,7 @@ public class CallInst extends IRInstruction {
     private ArrayList<Operand> parameters;
     private Operand result;
 
-    public CallInst(BasicBlock basicBlock, Function function, ArrayList<Operand> parameters, Operand result) {
+    public CallInst(BasicBlock basicBlock, Function function, ArrayList<Operand> parameters, Register result) {
         super(basicBlock);
         this.function = function;
         this.parameters = parameters;
@@ -37,7 +38,13 @@ public class CallInst extends IRInstruction {
                 assert parameters.get(i).getType().equals(function.getParameters().get(i).getType());
                 assert parameters.get(i).getType().equals(function.getFunctionType().getParameterList().get(i));
             }
+            parameters.get(i).addUse(this);
         }
+
+        if (result != null)
+            result.setDef(this);
+
+        function.addUse(this);
     }
 
     public Function getFunction() {

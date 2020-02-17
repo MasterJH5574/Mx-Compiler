@@ -1,10 +1,12 @@
 package MxCompiler.IR.Operand;
 
 import MxCompiler.IR.IRVisitor;
+import MxCompiler.IR.Instruction.IRInstruction;
 import MxCompiler.IR.TypeSystem.IRType;
 
 public class Register extends Operand {
     private String name;
+    private IRInstruction def;
 
     public Register(IRType type, String name) {
         super(type);
@@ -24,6 +26,10 @@ public class Register extends Operand {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public void setDef(IRInstruction def) {
+        this.def = def;
     }
 
     @Override

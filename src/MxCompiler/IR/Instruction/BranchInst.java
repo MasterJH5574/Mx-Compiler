@@ -23,7 +23,11 @@ public class BranchInst extends IRInstruction {
             basicBlock.getSuccessors().add(elseBlock);
             elseBlock.getPredecessors().add(basicBlock);
             assert cond.getType().equals(new IntegerType(IntegerType.BitWidth.int1));
+
+            cond.addUse(this);
+            elseBlock.addUse(this);
         }
+        thenBlock.addUse(this);
     }
 
     public Operand getCond() {

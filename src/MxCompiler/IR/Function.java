@@ -15,7 +15,7 @@ import MxCompiler.Utilities.SymbolTable;
 
 import java.util.ArrayList;
 
-public class Function {
+public class Function extends IRObject {
     private Module module;
 
     private String name;
@@ -38,8 +38,10 @@ public class Function {
         this.name = name;
         this.parameters = parameters;
         ArrayList<IRType> parameterList = new ArrayList<>();
-        for (Parameter parameter : parameters)
+        for (Parameter parameter : parameters) {
             parameterList.add(parameter.getType());
+            parameter.setFunction(this);
+        }
         functionType = new FunctionType(returnType, parameterList);
 
         entranceBlock = null;

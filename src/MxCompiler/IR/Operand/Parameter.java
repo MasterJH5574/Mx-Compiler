@@ -1,10 +1,12 @@
 package MxCompiler.IR.Operand;
 
+import MxCompiler.IR.Function;
 import MxCompiler.IR.IRVisitor;
 import MxCompiler.IR.TypeSystem.IRType;
 
 public class Parameter extends Operand {
     private String name;
+    private Function function;
 
     public Parameter(IRType type, String name) {
         super(type);
@@ -24,6 +26,10 @@ public class Parameter extends Operand {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public void setFunction(Function function) {
+        this.function = function;
     }
 
     @Override

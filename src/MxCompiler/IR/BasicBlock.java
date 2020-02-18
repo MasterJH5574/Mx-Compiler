@@ -3,6 +3,7 @@ package MxCompiler.IR;
 import MxCompiler.IR.Instruction.IRInstruction;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 
 public class BasicBlock extends IRObject {
     private Function function;
@@ -17,6 +18,17 @@ public class BasicBlock extends IRObject {
 
     private ArrayList<BasicBlock> predecessors;
     private ArrayList<BasicBlock> successors;
+
+
+    private int dfn;
+    private BasicBlock dfsFather;
+
+    private BasicBlock idom;
+    private BasicBlock semiDom;
+    private ArrayList<BasicBlock> semiDomChildren;
+    private HashSet<BasicBlock> strictDominators;
+
+    private HashSet<BasicBlock> DF; // Dominance Frontier
 
     public BasicBlock(Function function, String name) {
         this.function = function;
@@ -42,8 +54,16 @@ public class BasicBlock extends IRObject {
         return instHead;
     }
 
+    public void setInstHead(IRInstruction instHead) {
+        this.instHead = instHead;
+    }
+
     public IRInstruction getInstTail() {
         return instTail;
+    }
+
+    public void setInstTail(IRInstruction instTail) {
+        this.instTail = instTail;
     }
 
     public boolean hasNext() {
@@ -101,8 +121,74 @@ public class BasicBlock extends IRObject {
         instHead = instruction;
     }
 
+    public ArrayList<IRInstruction> getInstructions() {
+        ArrayList<IRInstruction> instructions = new ArrayList<>();
+        IRInstruction ptr = instHead;
+        while (ptr != null) {
+            instructions.add(ptr);
+            ptr = ptr.getInstNext();
+        }
+        return instructions;
+    }
+
     public boolean endWithTerminalInst() {
         return instTail.isTerminalInst();
+    }
+
+    public int getDfn() {
+        return dfn;
+    }
+
+    public void setDfn(int dfn) {
+        this.dfn = dfn;
+    }
+
+    public BasicBlock getDfsFather() {
+        return dfsFather;
+    }
+
+    public void setDfsFather(BasicBlock dfsFather) {
+        this.dfsFather = dfsFather;
+    }
+
+    public BasicBlock getIdom() {
+        return idom;
+    }
+
+    public void setIdom(BasicBlock idom) {
+        this.idom = idom;
+    }
+
+    public BasicBlock getSemiDom() {
+        return semiDom;
+    }
+
+    public void setSemiDom(BasicBlock semiDom) {
+        this.semiDom = semiDom;
+    }
+
+    public ArrayList<BasicBlock> getSemiDomChildren() {
+        return semiDomChildren;
+    }
+
+    public void setSemiDomChildren(ArrayList<BasicBlock> semiDomChildren) {
+        this.semiDomChildren = semiDomChildren;
+    }
+
+    public HashSet<BasicBlock> getStrictDominators() {
+        return strictDominators;
+    }
+
+    public void setStrictDominators(HashSet<BasicBlock> strictDominators) {
+        this.strictDominators = strictDominators;
+    }
+
+    public HashSet<BasicBlock> getDF() {
+        return DF;
+    }
+
+    public void setDF(HashSet<BasicBlock> DF) {
+        this.DF = DF;
     }
 
     @Override

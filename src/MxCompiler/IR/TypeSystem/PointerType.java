@@ -1,6 +1,8 @@
 package MxCompiler.IR.TypeSystem;
 
 import MxCompiler.IR.IRVisitor;
+import MxCompiler.IR.Operand.ConstNull;
+import MxCompiler.IR.Operand.Operand;
 
 public class PointerType extends IRType {
     private IRType baseType;
@@ -11,6 +13,11 @@ public class PointerType extends IRType {
 
     public IRType getBaseType() {
         return baseType;
+    }
+
+    @Override
+    public Operand getDefaultValue() {
+        return new ConstNull();
     }
 
     @Override

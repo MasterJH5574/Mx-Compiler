@@ -1,6 +1,7 @@
 package MxCompiler.IR.TypeSystem;
 
 import MxCompiler.IR.IRVisitor;
+import MxCompiler.IR.Operand.Operand;
 
 import java.util.ArrayList;
 
@@ -19,6 +20,12 @@ public class FunctionType extends IRType {
 
     public ArrayList<IRType> getParameterList() {
         return parameterList;
+    }
+
+    @Override
+    public Operand getDefaultValue() {
+        // This method will never be called.
+        throw new RuntimeException();
     }
 
     @Override

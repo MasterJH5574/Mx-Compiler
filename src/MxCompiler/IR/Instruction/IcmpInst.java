@@ -1,6 +1,7 @@
 package MxCompiler.IR.Instruction;
 
 import MxCompiler.IR.BasicBlock;
+import MxCompiler.IR.IRObject;
 import MxCompiler.IR.IRVisitor;
 import MxCompiler.IR.Operand.ConstNull;
 import MxCompiler.IR.Operand.Operand;
@@ -51,6 +52,14 @@ public class IcmpInst extends IRInstruction {
 
     public Operand getResult() {
         return result;
+    }
+
+    @Override
+    public void replaceUse(IRObject oldUse, IRObject newUse) {
+        if (op1 == oldUse)
+            op1 = (Operand) newUse;
+        if (op2 == oldUse)
+            op2 = (Operand) newUse;
     }
 
     @Override

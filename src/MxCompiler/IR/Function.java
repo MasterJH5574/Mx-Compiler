@@ -1,6 +1,7 @@
 package MxCompiler.IR;
 
 import MxCompiler.IR.Instruction.AllocateInst;
+import MxCompiler.IR.Instruction.IRInstruction;
 import MxCompiler.IR.Instruction.LoadInst;
 import MxCompiler.IR.Instruction.ReturnInst;
 import MxCompiler.IR.Operand.Parameter;
@@ -14,6 +15,7 @@ import MxCompiler.Utilities.ErrorHandler;
 import MxCompiler.Utilities.SymbolTable;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 
 public class Function extends IRObject {
     private Module module;
@@ -29,8 +31,11 @@ public class Function extends IRObject {
 
     private SymbolTable symbolTable; // symbol table of operands
 
-
     private boolean external;
+
+    private ArrayList<BasicBlock> dfsOrder;
+    private HashSet<BasicBlock> dfsVisit;
+
 
     public Function(Module module, String name, IRType returnType,
                     ArrayList<Parameter> parameters, boolean external) {
@@ -98,6 +103,27 @@ public class Function extends IRObject {
         exitBlock = block;
     }
 
+    public ArrayList<BasicBlock> getBlocks() {
+        ArrayList<BasicBlock> blocks = new ArrayList<>();
+
+        BasicBlock ptr = entranceBlock;
+        while (ptr != null) {
+            blocks.add(ptr);
+            ptr = ptr.getNext();
+        }
+        return blocks;
+    }
+
+    public ArrayList<AllocateInst> getAllocaInstructions() {
+        ArrayList<AllocateInst> allocaInst = new ArrayList<>();
+        IRInstruction ptr = entranceBlock.getInstHead();
+        while (ptr instanceof AllocateInst) {
+            allocaInst.add((AllocateInst) ptr);
+            ptr = ptr.getInstNext();
+        }
+        return allocaInst;
+    }
+
     public void initialize() {
         BasicBlock block = new BasicBlock(this, "entranceBlock"); // It becomes the entrance block.
         addBasicBlock(block);
@@ -109,9 +135,9 @@ public class Function extends IRObject {
         if (returnType instanceof VoidType)
             returnBlock.addInstruction(new ReturnInst(returnBlock, new VoidType(), null));
         else {
-            returnValue = new Register(new PointerType(returnType), "returnValue");
+            returnValue = new Register(new PointerType(returnType), "returnValue$addr");
             entranceBlock.addInstruction(new AllocateInst(entranceBlock, returnValue, returnType));
-            Register loadReturnValue = new Register(returnType, "loadReturnValue");
+            Register loadReturnValue = new Register(returnType, "returnValue");
             returnBlock.addInstruction(new LoadInst(returnBlock, returnType, returnValue, loadReturnValue));
             returnBlock.addInstruction(new ReturnInst(returnBlock, returnType, loadReturnValue));
 
@@ -139,15 +165,35 @@ public class Function extends IRObject {
     }
 
     public void checkBlockTerminalInst(ErrorHandler errorHandler) throws CompilationError {
-        BasicBlock ptr = entranceBlock;
-        while (ptr != null) {
-            if (!ptr.endWithTerminalInst()) {
+        ArrayList<BasicBlock> blocks = getBlocks();
+        for (BasicBlock block : blocks) {
+            if (!block.endWithTerminalInst()) {
                 errorHandler.error("Function \"" + name + "\" has no return statement.");
                 throw new CompilationError();
             }
-            ptr = ptr.getNext();
         }
     }
+
+    private void dfsBasicBlocks(BasicBlock block) {
+        block.setDfn(dfsOrder.size());
+        dfsOrder.add(block);
+        dfsVisit.add(block);
+
+        for (BasicBlock successor : block.getSuccessors())
+            if (!dfsVisit.contains(successor)) {
+                successor.setDfsFather(block);
+                dfsBasicBlocks(successor);
+            }
+    }
+
+    public ArrayList<BasicBlock> getDFSOrder() {
+        dfsOrder = new ArrayList<>();
+        dfsVisit = new HashSet<>();
+        entranceBlock.setDfsFather(null);
+        dfsBasicBlocks(entranceBlock);
+        return dfsOrder;
+    }
+
 
     public void accept(IRVisitor visitor) {
         visitor.visit(this);

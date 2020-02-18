@@ -1,6 +1,7 @@
 package MxCompiler.IR.TypeSystem;
 
 import MxCompiler.IR.IRVisitor;
+import MxCompiler.IR.Operand.Operand;
 
 public class ArrayType extends IRType {
     private int size;
@@ -17,6 +18,12 @@ public class ArrayType extends IRType {
 
     public IRType getType() {
         return type;
+    }
+
+    @Override
+    public Operand getDefaultValue() {
+        // This method will never be called.
+        throw new RuntimeException();
     }
 
     @Override

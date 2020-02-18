@@ -33,10 +33,8 @@ public class SymbolTable {
             ((Parameter) object).setName(name + "." + label);
         else if (object instanceof Register)
             ((Register) object).setName(name + "." + label);
-        else {
-            // Todo
+        else
             throw new RuntimeException();
-        }
         arrayList.add(object);
     }
 

@@ -1,9 +1,12 @@
 package MxCompiler.IR.Instruction;
 
 import MxCompiler.IR.BasicBlock;
+import MxCompiler.IR.IRObject;
 import MxCompiler.IR.IRVisitor;
 import MxCompiler.IR.Operand.Operand;
 import MxCompiler.IR.TypeSystem.IntegerType;
+
+import javax.management.relation.RoleList;
 
 public class BranchInst extends IRInstruction {
     private Operand cond;
@@ -40,6 +43,18 @@ public class BranchInst extends IRInstruction {
 
     public BasicBlock getElseBlock() {
         return elseBlock;
+    }
+
+    @Override
+    public void replaceUse(IRObject oldUse, IRObject newUse) {
+        if (cond == oldUse)
+            cond = (Operand) newUse;
+        else {
+            if (thenBlock == oldUse)
+                thenBlock = (BasicBlock) newUse;
+            if (elseBlock == oldUse)
+                elseBlock = (BasicBlock) newUse;
+        }
     }
 
     @Override

@@ -36,6 +36,7 @@
 * 2020.2.15	Debug. Pass all the semantic test cases. Fix [Pitfalls](#pitfalls) in semantic stage.
 * 2020.2.16	Debug. Generate correct LLVM IR to pass all codegen test cases.
 * 2020.2.17	Add class IRObject for use. Add def-use chains and use-def chain.
+* 2020.2.18	Add DominatorTreeConstructor and SSAConstructor(to be debugged).
 
 
 
@@ -323,3 +324,25 @@ Map "MxCompiler.Type" to "MxCompiler.IR.TypeSystem.IRType".
     * - [x] ConstNull
 
 
+
+## Optimization
+
+### CFG Simplification
+
+To be done.
+
+### SSA Construction(Mem2Reg in LLVM IR)
+
+Note that LLVM IR is **in SSA form for registers,** but **not for memory**. So there are lots memory access in original LLVM IR. Hence we need to perform a SSA Construction **for memory** so that all alloca instructions, their corresponding load/store instructions can be removed.
+
+#### Algorithm
+
+*See Chapter 3 of [SSA Book](http://ssabook.gforge.inria.fr/latest/book.pdf) for details.*
+
+Step 1: Construct **Dominator Tree** and compute the **Dominance Frontier** for each node in CFG.
+
+Step 2: Regard <u>alloca instructions</u> as variables, its <u>load instructions</u> as uses, its <u>store instructions</u> as definitions.
+
+Step 3: Insert **Phi-function** for each variable to its **Iterated Dominance Frontier(DF+)**.
+
+Step 4: "Rename". **Replace uses** of load instruction. Remove alloca, load and store instructions.

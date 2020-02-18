@@ -414,12 +414,12 @@ public class IRBuilder implements ASTVisitor {
             // a++
             result = new Register(new IntegerType(IntegerType.BitWidth.int32), "postInc");
             currentBlock.addInstruction(new BinaryOpInst(currentBlock, BinaryOpInst.BinaryOpName.add,
-                    exprResult, new ConstInt(1), result));
+                    exprResult, new ConstInt(IntegerType.BitWidth.int32, 1), result));
         } else {
             // a--
             result = new Register(new IntegerType(IntegerType.BitWidth.int32), "postDec");
             currentBlock.addInstruction(new BinaryOpInst(currentBlock, BinaryOpInst.BinaryOpName.sub,
-                    exprResult, new ConstInt(1), result));
+                    exprResult, new ConstInt(IntegerType.BitWidth.int32, 1), result));
         }
         currentBlock.addInstruction(new StoreInst(currentBlock, result, addr));
 
@@ -439,7 +439,7 @@ public class IRBuilder implements ASTVisitor {
             Operand addr = node.getExpr().getLvalueResult();
             Register result = new Register(new IntegerType(IntegerType.BitWidth.int32), "preInc");
             currentBlock.addInstruction(new BinaryOpInst(currentBlock, BinaryOpInst.BinaryOpName.add,
-                    exprResult, new ConstInt(1), result));
+                    exprResult, new ConstInt(IntegerType.BitWidth.int32, 1), result));
             currentBlock.addInstruction(new StoreInst(currentBlock, result, addr));
 
             node.setResult(result);
@@ -450,7 +450,7 @@ public class IRBuilder implements ASTVisitor {
             Operand addr = node.getExpr().getLvalueResult();
             Register result = new Register(new IntegerType(IntegerType.BitWidth.int32), "preDec");
             currentBlock.addInstruction(new BinaryOpInst(currentBlock, BinaryOpInst.BinaryOpName.sub,
-                    exprResult, new ConstInt(1), result));
+                    exprResult, new ConstInt(IntegerType.BitWidth.int32, 1), result));
             currentBlock.addInstruction(new StoreInst(currentBlock, result, addr));
 
             node.setResult(result);
@@ -464,12 +464,12 @@ public class IRBuilder implements ASTVisitor {
             // -a
             if (exprResult.isConstValue()) {
                 assert exprResult instanceof ConstInt;
-                node.setResult(new ConstInt(-((ConstInt) exprResult).getValue()));
+                node.setResult(new ConstInt(IntegerType.BitWidth.int32, -((ConstInt) exprResult).getValue()));
                 node.setLvalueResult(null);
             } else {
                 Register result = new Register(new IntegerType(IntegerType.BitWidth.int32), "signNeg");
                 currentBlock.addInstruction(new BinaryOpInst(currentBlock, BinaryOpInst.BinaryOpName.sub,
-                        new ConstInt(0), exprResult, result));
+                        new ConstInt(IntegerType.BitWidth.int32, 0), exprResult, result));
 
                 node.setResult(result);
                 node.setLvalueResult(null);
@@ -488,7 +488,7 @@ public class IRBuilder implements ASTVisitor {
             // ~a
             Register result = new Register(new IntegerType(IntegerType.BitWidth.int32), "bitwiseComplement");
             currentBlock.addInstruction(new BinaryOpInst(currentBlock, BinaryOpInst.BinaryOpName.xor,
-                    new ConstInt(-1), exprResult, result));
+                    new ConstInt(IntegerType.BitWidth.int32, -1), exprResult, result));
 
             node.setResult(result);
             node.setLvalueResult(null);
@@ -951,7 +951,7 @@ public class IRBuilder implements ASTVisitor {
             Function function = module.getExternalFunctionMap().get("malloc");
             int size = module.getStructureMap().get("class." + type.getName()).getBytes();
             ArrayList<Operand> parameters = new ArrayList<>();
-            parameters.add(new ConstInt(size));
+            parameters.add(new ConstInt(IntegerType.BitWidth.int32, size));
 
             Register result = new Register(new PointerType(new IntegerType(IntegerType.BitWidth.int8)),
                     "malloc");
@@ -1005,8 +1005,8 @@ public class IRBuilder implements ASTVisitor {
 
         Operand pointer = node.getExpr().getResult();
         ArrayList<Operand> index = new ArrayList<>();
-        index.add(new ConstInt(0));
-        index.add(new ConstInt(pos));
+        index.add(new ConstInt(IntegerType.BitWidth.int32, 0));
+        index.add(new ConstInt(IntegerType.BitWidth.int32, pos));
         IRType irType = astTypeTable.get(members.get(pos).getType()).getIRType(irTypeTable);
         Register result = new Register(new PointerType(irType), type.getName() + "." + name + "$addr");
         Register load = new Register(irType, type.getName() + "." + name);
@@ -1040,7 +1040,7 @@ public class IRBuilder implements ASTVisitor {
                 } else
                     pointer = (Register) ptrResult;
                 ArrayList<Operand> index = new ArrayList<>();
-                index.add(new ConstInt(-1));
+                index.add(new ConstInt(IntegerType.BitWidth.int32, -1));
                 Register result = new Register(pointer.getType(), "elementPtr");
                 Register size = new Register(new IntegerType(IntegerType.BitWidth.int32), "arraySize");
                 currentBlock.addInstruction(new GetElementPtrInst(currentBlock, pointer, index, result));
@@ -1194,8 +1194,8 @@ public class IRBuilder implements ASTVisitor {
                     break;
 
             ArrayList<Operand> index = new ArrayList<>();
-            index.add(new ConstInt(0));
-            index.add(new ConstInt(pos));
+            index.add(new ConstInt(IntegerType.BitWidth.int32, 0));
+            index.add(new ConstInt(IntegerType.BitWidth.int32, pos));
             IRType irType = astTypeTable.get(members.get(pos).getType()).getIRType(irTypeTable);
             Register result = new Register(new PointerType(irType), type.getName() + "." + name + "$addr");
             Register load = new Register(irType, type.getName() + "." + name);
@@ -1218,7 +1218,7 @@ public class IRBuilder implements ASTVisitor {
 
     @Override
     public void visit(IntLiteralNode node) {
-        node.setResult(new ConstInt(node.getValue()));
+        node.setResult(new ConstInt(IntegerType.BitWidth.int32, node.getValue()));
         node.setLvalueResult(null);
     }
 
@@ -1226,8 +1226,8 @@ public class IRBuilder implements ASTVisitor {
     public void visit(StringLiteralNode node) {
         GlobalVariable string = module.addConstString(node.getValue());
         ArrayList<Operand> index = new ArrayList<>();
-        index.add(new ConstInt(0));
-        index.add(new ConstInt(0));
+        index.add(new ConstInt(IntegerType.BitWidth.int32, 0));
+        index.add(new ConstInt(IntegerType.BitWidth.int32, 0));
         Register result = new Register(new PointerType(new IntegerType(IntegerType.BitWidth.int8)),
                 "stringLiteral");
         currentBlock.addInstruction(new GetElementPtrInst(currentBlock, string, index, result));

@@ -1,9 +1,12 @@
 package MxCompiler.IR.TypeSystem;
 
 import MxCompiler.IR.IRVisitor;
+import MxCompiler.IR.Operand.Operand;
 
 abstract public class IRType {
     abstract public int getBytes();
+
+    abstract public Operand getDefaultValue();
 
     @Override
     abstract public String toString();

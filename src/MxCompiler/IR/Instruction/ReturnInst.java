@@ -1,6 +1,7 @@
 package MxCompiler.IR.Instruction;
 
 import MxCompiler.IR.BasicBlock;
+import MxCompiler.IR.IRObject;
 import MxCompiler.IR.IRVisitor;
 import MxCompiler.IR.Operand.ConstNull;
 import MxCompiler.IR.Operand.Operand;
@@ -33,6 +34,12 @@ public class ReturnInst extends IRInstruction {
 
     public Operand getReturnValue() {
         return returnValue;
+    }
+
+    @Override
+    public void replaceUse(IRObject oldUse, IRObject newUse) {
+        if (returnValue != null && returnValue == oldUse)
+            returnValue = (Operand) newUse;
     }
 
     @Override

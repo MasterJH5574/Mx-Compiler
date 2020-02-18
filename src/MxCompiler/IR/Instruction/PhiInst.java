@@ -1,6 +1,7 @@
 package MxCompiler.IR.Instruction;
 
 import MxCompiler.IR.BasicBlock;
+import MxCompiler.IR.IRObject;
 import MxCompiler.IR.IRVisitor;
 import MxCompiler.IR.Operand.ConstNull;
 import MxCompiler.IR.Operand.Operand;
@@ -32,8 +33,20 @@ public class PhiInst extends IRInstruction {
         return branch;
     }
 
+    public void addBranch(Operand operand, BasicBlock block) {
+        branch.add(new Pair<>(operand, block));
+    }
+
     public Operand getResult() {
         return result;
+    }
+
+    @Override
+    public void replaceUse(IRObject oldUse, IRObject newUse) {
+        for (Pair<Operand, BasicBlock> pair : branch) {
+            if (pair.getFirst() == oldUse)
+                pair.setFirst((Operand) newUse);
+        }
     }
 
     @Override

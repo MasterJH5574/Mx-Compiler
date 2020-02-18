@@ -1,6 +1,7 @@
 package MxCompiler.IR.Instruction;
 
 import MxCompiler.IR.BasicBlock;
+import MxCompiler.IR.IRObject;
 import MxCompiler.IR.IRVisitor;
 
 abstract public class IRInstruction {
@@ -35,6 +36,20 @@ abstract public class IRInstruction {
 
     public boolean isTerminalInst() {
         return this instanceof BranchInst || this instanceof ReturnInst;
+    }
+
+    abstract public void replaceUse(IRObject oldUse, IRObject newUse);
+
+    public void removeFromBlock() {
+        if (instPrev == null)
+            basicBlock.setInstHead(instNext);
+        else
+            instPrev.setInstNext(instNext);
+
+        if (instNext == null)
+            basicBlock.setInstTail(instPrev);
+        else
+            instNext.setInstPrev(instPrev);
     }
 
     @Override

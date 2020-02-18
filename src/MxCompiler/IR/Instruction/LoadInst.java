@@ -1,6 +1,7 @@
 package MxCompiler.IR.Instruction;
 
 import MxCompiler.IR.BasicBlock;
+import MxCompiler.IR.IRObject;
 import MxCompiler.IR.IRVisitor;
 import MxCompiler.IR.Operand.GlobalVariable;
 import MxCompiler.IR.Operand.Operand;
@@ -41,6 +42,12 @@ public class LoadInst extends IRInstruction {
 
     public Operand getResult() {
         return result;
+    }
+
+    @Override
+    public void replaceUse(IRObject oldUse, IRObject newUse) {
+        if (pointer == oldUse)
+            pointer = (Operand) newUse;
     }
 
     @Override

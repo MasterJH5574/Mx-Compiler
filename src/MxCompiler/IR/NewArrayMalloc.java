@@ -29,9 +29,9 @@ public class NewArrayMalloc {
         currentFunction.getSymbolTable().put(bytesMul.getName(), bytesMul);
         currentFunction.getSymbolTable().put(bytes.getName(), bytes);
         currentBlock.addInstruction(new BinaryOpInst(currentBlock, BinaryOpInst.BinaryOpName.mul,
-                sizeList.get(cur), new ConstInt(baseSize), bytesMul));
+                sizeList.get(cur), new ConstInt(IntegerType.BitWidth.int32, baseSize), bytesMul));
         currentBlock.addInstruction(new BinaryOpInst(currentBlock, BinaryOpInst.BinaryOpName.add,
-                bytesMul, new ConstInt(4), bytes));
+                bytesMul, new ConstInt(IntegerType.BitWidth.int32, 4), bytes));
         parameters.add(bytes);
 
         // Call malloc
@@ -49,7 +49,7 @@ public class NewArrayMalloc {
                 "arrayHeadInt32");
         currentFunction.getSymbolTable().put(arrayHeadInt32.getName(), arrayHeadInt32);
         ArrayList<Operand> index = new ArrayList<>();
-        index.add(new ConstInt(1));
+        index.add(new ConstInt(IntegerType.BitWidth.int32, 1));
         currentBlock.addInstruction(new GetElementPtrInst(currentBlock, mallocInt32, index, arrayHeadInt32));
         // Cast to object type
         Register arrayHead = new Register(irType, "arrayHead");
@@ -65,7 +65,7 @@ public class NewArrayMalloc {
             index.add(sizeList.get(cur));
             currentBlock.addInstruction(new GetElementPtrInst(currentBlock, arrayHead, index, arrayTail));
             // Allocate temporary variable arrayPointer
-            Register arrayPtrAddr = new Register(new PointerType(irType), "arrayPtrAddr");
+            Register arrayPtrAddr = new Register(new PointerType(irType), "arrayPtr$addr");
             currentFunction.getEntranceBlock().addInstructionAtFront(new AllocateInst(currentBlock,
                     arrayPtrAddr, irType));
             // Store arrayHead to arrayPtrAddr
@@ -108,7 +108,7 @@ public class NewArrayMalloc {
             Register nextArrayPtr = new Register(irType, "nextArrayPtr");
             currentFunction.getSymbolTable().put(nextArrayPtr.getName(), nextArrayPtr);
             index = new ArrayList<>();
-            index.add(new ConstInt(1));
+            index.add(new ConstInt(IntegerType.BitWidth.int32, 1));
             currentBlock.addInstruction(new GetElementPtrInst(currentBlock, arrayPointer, index, nextArrayPtr));
             // Store nextArrayPtr to arrayPtrAddr
             currentBlock.addInstruction(new StoreInst(currentBlock, nextArrayPtr, arrayPtrAddr));

@@ -1,6 +1,7 @@
 package MxCompiler.IR.Instruction;
 
 import MxCompiler.IR.BasicBlock;
+import MxCompiler.IR.IRObject;
 import MxCompiler.IR.IRVisitor;
 import MxCompiler.IR.Operand.ConstNull;
 import MxCompiler.IR.Operand.GlobalVariable;
@@ -34,6 +35,14 @@ public class StoreInst extends IRInstruction {
 
     public Operand getPointer() {
         return pointer;
+    }
+
+    @Override
+    public void replaceUse(IRObject oldUse, IRObject newUse) {
+        if (value == oldUse)
+            value = (Operand) newUse;
+        if (pointer == oldUse)
+            pointer = (Operand) newUse;
     }
 
     @Override

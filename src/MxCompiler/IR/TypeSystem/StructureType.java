@@ -1,6 +1,7 @@
 package MxCompiler.IR.TypeSystem;
 
 import MxCompiler.IR.IRVisitor;
+import MxCompiler.IR.Operand.Operand;
 import MxCompiler.Utilities.Aligner;
 
 import java.util.ArrayList;
@@ -20,6 +21,12 @@ public class StructureType extends IRType {
 
     public ArrayList<IRType> getMemberList() {
         return memberList;
+    }
+
+    @Override
+    public Operand getDefaultValue() {
+        // This method will never be called.
+        throw new RuntimeException();
     }
 
     @Override

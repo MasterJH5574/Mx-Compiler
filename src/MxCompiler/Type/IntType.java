@@ -4,6 +4,7 @@ import MxCompiler.IR.Operand.ConstInt;
 import MxCompiler.IR.Operand.Operand;
 import MxCompiler.IR.TypeSystem.IRType;
 import MxCompiler.IR.TypeSystem.IRTypeTable;
+import MxCompiler.IR.TypeSystem.IntegerType;
 
 public class IntType extends Type {
     public IntType() {
@@ -17,6 +18,6 @@ public class IntType extends Type {
 
     @Override
     public Operand getDefaultValue() {
-        return new ConstInt(0);
+        return new ConstInt(IntegerType.BitWidth.int32, 0);
     }
 }

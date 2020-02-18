@@ -7,6 +7,7 @@
       <w>datalayout</w>
       <w>getelementptr</w>
       <w>icmp</w>
+      <w>idom</w>
       <w>preds</w>
       <w>sdiv</w>
       <w>srem</w>

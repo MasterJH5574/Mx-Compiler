@@ -37,6 +37,8 @@
 * 2020.2.16	Debug. Generate correct LLVM IR to pass all codegen test cases.
 * 2020.2.17	Add class IRObject for use. Add def-use chains and use-def chain.
 * 2020.2.18	Add DominatorTreeConstructor and SSAConstructor(to be debugged).
+* 2020.2.19	Add CFGSimplifier(to be debugged).
+  * I need to spend more time on TA's task of CS158...See you later.
 
 
 
@@ -329,11 +331,14 @@ Map "MxCompiler.Type" to "MxCompiler.IR.TypeSystem.IRType".
 
 ### CFG Simplification
 
-To be done.
+By far, **CFG simplification** consists of **2 steps**.
+
+1. Simplify branches.
+2. Merge blocks which are linked with redundant unconditional branch.
 
 ### SSA Construction(Mem2Reg in LLVM IR)
 
-Note that LLVM IR is **in SSA form for registers,** but **not for memory**. So there are lots memory access in original LLVM IR. Hence we need to perform a SSA Construction **for memory** so that all alloca instructions, their corresponding load/store instructions can be removed.
+Note that LLVM IR is **in SSA form for registers,** but **not for memory**. So there are lots memory access in original LLVM IR. Hence we need to perform a SSA Construction **for memory** so that aaaaaaaaaaaaaaaaall alloca instructions, their corresponding load/store instructions can be removed.
 
 #### Algorithm
 

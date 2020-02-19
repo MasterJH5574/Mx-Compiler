@@ -80,7 +80,9 @@ public class SSAConstructor extends Pass {
         if (!phiInstMap.containsKey(block))
             phiInstMap.put(block, new HashMap<>());
         String name = alloca.getResult().getName().split("\\$")[0];
-        phiInstMap.get(block).put(alloca, new PhiInst(block, new ArrayList<>(), new Register(alloca.getType(), name)));
+        Register result = new Register(alloca.getType(), name);
+        phiInstMap.get(block).put(alloca, new PhiInst(block, new LinkedHashSet<>(), result));
+        block.getFunction().getSymbolTable().put(result.getName(), result);
     }
 
     private void rename(BasicBlock block, BasicBlock predecessor) {

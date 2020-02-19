@@ -18,6 +18,11 @@ abstract public class IRObject {
         use.add(instruction);
     }
 
+    public void removeUse(IRInstruction instruction) {
+        assert use.contains(instruction);
+        use.remove(instruction);
+    }
+
     public Set<IRInstruction> getUse() {
         return use;
     }

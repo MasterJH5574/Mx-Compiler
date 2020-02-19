@@ -43,6 +43,13 @@ public class ReturnInst extends IRInstruction {
     }
 
     @Override
+    public void removeFromBlock() {
+        if (returnValue != null)
+            returnValue.removeUse(this);
+        super.removeFromBlock();
+    }
+
+    @Override
     public String toString() {
         if (!(type instanceof VoidType))
             return "ret " + type.toString() + " " + returnValue.toString();

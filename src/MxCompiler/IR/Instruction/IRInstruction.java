@@ -14,6 +14,10 @@ abstract public class IRInstruction {
         this.basicBlock = basicBlock;
     }
 
+    public void setBasicBlock(BasicBlock basicBlock) {
+        this.basicBlock = basicBlock;
+    }
+
     public void setInstPrev(IRInstruction instPrev) {
         this.instPrev = instPrev;
     }

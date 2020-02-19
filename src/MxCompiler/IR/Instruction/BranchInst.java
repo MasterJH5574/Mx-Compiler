@@ -6,8 +6,6 @@ import MxCompiler.IR.IRVisitor;
 import MxCompiler.IR.Operand.Operand;
 import MxCompiler.IR.TypeSystem.IntegerType;
 
-import javax.management.relation.RoleList;
-
 public class BranchInst extends IRInstruction {
     private Operand cond;
     private BasicBlock thenBlock;
@@ -45,6 +43,19 @@ public class BranchInst extends IRInstruction {
         return elseBlock;
     }
 
+    public void setUnconditionalBranch(BasicBlock thenBlock) {
+        if (cond != null) {
+            this.cond.removeUse(this);
+            this.elseBlock.removeUse(this);
+        }
+        this.thenBlock.removeUse(this);
+
+        this.cond = null;
+        this.thenBlock = thenBlock;
+        this.elseBlock = null;
+        this.thenBlock.addUse(this);
+    }
+
     @Override
     public void replaceUse(IRObject oldUse, IRObject newUse) {
         if (cond == oldUse)
@@ -55,6 +66,16 @@ public class BranchInst extends IRInstruction {
             if (elseBlock == oldUse)
                 elseBlock = (BasicBlock) newUse;
         }
+    }
+
+    @Override
+    public void removeFromBlock() {
+        if (cond != null) {
+            cond.removeUse(this);
+            elseBlock.removeUse(this);
+        }
+        thenBlock.removeUse(this);
+        super.removeFromBlock();
     }
 
     @Override

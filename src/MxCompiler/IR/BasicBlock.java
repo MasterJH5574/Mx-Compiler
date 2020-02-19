@@ -1,9 +1,12 @@
 package MxCompiler.IR;
 
 import MxCompiler.IR.Instruction.IRInstruction;
+import MxCompiler.IR.Instruction.PhiInst;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 public class BasicBlock extends IRObject {
     private Function function;
@@ -16,8 +19,8 @@ public class BasicBlock extends IRObject {
     private BasicBlock prev;
     private BasicBlock next;
 
-    private ArrayList<BasicBlock> predecessors;
-    private ArrayList<BasicBlock> successors;
+    private Set<BasicBlock> predecessors;
+    private Set<BasicBlock> successors;
 
 
     private int dfn;
@@ -38,8 +41,12 @@ public class BasicBlock extends IRObject {
         instTail = null;
         prev = null;
         next = null;
-        predecessors = new ArrayList<>();
-        successors = new ArrayList<>();
+        predecessors = new LinkedHashSet<>();
+        successors = new LinkedHashSet<>();
+    }
+
+    public Function getFunction() {
+        return function;
     }
 
     public String getName() {
@@ -66,12 +73,20 @@ public class BasicBlock extends IRObject {
         this.instTail = instTail;
     }
 
+    public void setPrev(BasicBlock prev) {
+        this.prev = prev;
+    }
+
     public boolean hasNext() {
         return next != null;
     }
 
     public BasicBlock getNext() {
         return next;
+    }
+
+    public void setNext(BasicBlock next) {
+        this.next = next;
     }
 
     public boolean hasPredecessor() {
@@ -82,11 +97,11 @@ public class BasicBlock extends IRObject {
         return successors.size() != 0;
     }
 
-    public ArrayList<BasicBlock> getPredecessors() {
+    public Set<BasicBlock> getPredecessors() {
         return predecessors;
     }
 
-    public ArrayList<BasicBlock> getSuccessors() {
+    public Set<BasicBlock> getSuccessors() {
         return successors;
     }
 
@@ -133,6 +148,14 @@ public class BasicBlock extends IRObject {
 
     public boolean endWithTerminalInst() {
         return instTail.isTerminalInst();
+    }
+
+    public void removePhiIncomingBlock(BasicBlock block) {
+        IRInstruction ptr = instHead;
+        while (ptr instanceof PhiInst) {
+            ((PhiInst) ptr).removeIncomingBlock(block);
+            ptr = ptr.getInstNext();
+        }
     }
 
     public int getDfn() {
@@ -189,6 +212,34 @@ public class BasicBlock extends IRObject {
 
     public void setDF(HashSet<BasicBlock> DF) {
         this.DF = DF;
+    }
+
+    public void removeFromFunction() {
+        if (prev == null) {
+            function.setEntranceBlock(next);
+            throw new RuntimeException();
+        } else
+            prev.setNext(next);
+
+        if (next == null)
+            function.setExitBlock(prev);
+        else
+            next.setPrev(prev);
+    }
+
+    public void mergeBlock(BasicBlock block) {
+        this.instTail.removeFromBlock();
+        IRInstruction ptr = block.getInstHead();
+        while (ptr != null) {
+            ptr.setBasicBlock(this);
+            ptr.setInstPrev(this.instTail);
+            this.instTail.setInstNext(ptr);
+
+            this.instTail = ptr;
+            ptr = ptr.getInstNext();
+        }
+
+        block.removeFromFunction();
     }
 
     @Override

@@ -11,7 +11,7 @@ public class ConstBool extends Constant {
         this.value = value;
     }
 
-    public boolean isValue() {
+    public boolean getValue() {
         return value;
     }
 

@@ -94,9 +94,11 @@ public class IRPrinter implements IRVisitor {
         if (block.hasPredecessor()) {
             print(" ".repeat(50 - (block.getName().length() + 1)));
             print("; preds = ");
-            for (int i = 0; i < block.getPredecessors().size(); i++) {
-                print(block.getPredecessors().get(i).toString());
-                if (i != block.getPredecessors().size() - 1)
+            int size = block.getPredecessors().size();
+            int cnt = 0;
+            for (BasicBlock predecessor : block.getPredecessors()) {
+                print(predecessor.toString());
+                if (++cnt != size)
                     print(", ");
             }
         }

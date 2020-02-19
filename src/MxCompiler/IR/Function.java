@@ -78,8 +78,16 @@ public class Function extends IRObject {
         return entranceBlock;
     }
 
+    public void setEntranceBlock(BasicBlock entranceBlock) {
+        this.entranceBlock = entranceBlock;
+    }
+
     public BasicBlock getExitBlock() {
         return exitBlock;
+    }
+
+    public void setExitBlock(BasicBlock exitBlock) {
+        this.exitBlock = exitBlock;
     }
 
     public BasicBlock getReturnBlock() {

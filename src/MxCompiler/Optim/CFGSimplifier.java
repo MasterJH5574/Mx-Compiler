@@ -76,14 +76,14 @@ public class CFGSimplifier extends Pass {
         boolean changed = false;
         BasicBlock block = function.getEntranceBlock();
         while (block != null) {
-            if (!block.getName().equals("entranceBlock") && block.getPredecessors().isEmpty()) {
+            if (!block.getNameWithoutDot().equals("entranceBlock") && block.getPredecessors().isEmpty()) {
                 dfsVisit = new HashSet<>();
                 dfsRemoveBlocks(block);
                 changed = true;
             } else if (block.getPredecessors().size() == 1) {
                 BasicBlock predecessor = block.getPredecessors().iterator().next();
                 if (predecessor.getSuccessors().size() == 1) {
-                    if (predecessor.getSuccessors().iterator().next() == block)
+                    if (predecessor == block)
                         block.removeFromFunction();
                     else
                         predecessor.mergeBlock(block);

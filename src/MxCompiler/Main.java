@@ -5,6 +5,7 @@ import MxCompiler.Frontend.ASTBuilder;
 import MxCompiler.Frontend.Checker;
 import MxCompiler.IR.IRBuilder;
 import MxCompiler.IR.IRPrinter;
+import MxCompiler.Optim.CFGSimplifier;
 import MxCompiler.Parser.MxErrorListener;
 import MxCompiler.Parser.MxLexer;
 import MxCompiler.Parser.MxParser;
@@ -80,6 +81,9 @@ public class Main {
             System.out.println(failed);
             throw new RuntimeException();
         }
+
+        CFGSimplifier cfgSimplifier = new CFGSimplifier(irBuilder.getModule());
+        cfgSimplifier.run();
 
         IRPrinter irPrinter = new IRPrinter();
         irBuilder.getModule().accept(irPrinter);

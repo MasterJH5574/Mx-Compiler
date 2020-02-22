@@ -53,6 +53,13 @@ public class BasicBlock extends IRObject {
         return name;
     }
 
+    public String getNameWithoutDot() {
+        if (name.contains("."))
+            return name.split("\\.")[0];
+        else
+            throw new RuntimeException();
+    }
+
     public void setName(String name) {
         this.name = name;
     }
@@ -233,7 +240,10 @@ public class BasicBlock extends IRObject {
         while (ptr != null) {
             ptr.setBasicBlock(this);
             ptr.setInstPrev(this.instTail);
-            this.instTail.setInstNext(ptr);
+            if (this.isEmpty())
+                this.instHead = ptr;
+            else
+                this.instTail.setInstNext(ptr);
 
             this.instTail = ptr;
             ptr = ptr.getInstNext();

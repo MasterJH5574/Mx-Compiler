@@ -39,6 +39,7 @@
 * 2020.2.18	Add DominatorTreeConstructor and SSAConstructor(to be debugged).
 * 2020.2.19	Add CFGSimplifier(to be debugged).
   * I need to spend more time on TA's task of CS158...See you later.
+* 2020.2.22	Debug. Fix bugs in CFGSimplifier.
 
 
 

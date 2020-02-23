@@ -32,8 +32,11 @@ public class IcmpInst extends IRInstruction {
         assert irType.equals(op1.getType()) || (op1 instanceof ConstNull && irType instanceof PointerType);
         assert irType.equals(op2.getType()) || (op2 instanceof ConstNull && irType instanceof PointerType);
         assert result.getType().equals(new IntegerType(IntegerType.BitWidth.int1));
+    }
 
-        result.setDef(this);
+    @Override
+    public void successfullyAdd() {
+        ((Register) result).setDef(this);
         op1.addUse(this);
         op2.addUse(this);
     }
@@ -56,10 +59,21 @@ public class IcmpInst extends IRInstruction {
 
     @Override
     public void replaceUse(IRObject oldUse, IRObject newUse) {
-        if (op1 == oldUse)
+        if (op1 == oldUse) {
             op1 = (Operand) newUse;
-        if (op2 == oldUse)
+            op1.addUse(this);
+        }
+        if (op2 == oldUse) {
             op2 = (Operand) newUse;
+            op2.addUse(this);
+        }
+    }
+
+    @Override
+    public void removeFromBlock() {
+        op1.removeUse(this);
+        op2.removeUse(this);
+        super.removeFromBlock();
     }
 
     @Override

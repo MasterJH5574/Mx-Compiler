@@ -18,6 +18,8 @@ abstract public class IRInstruction {
         this.basicBlock = basicBlock;
     }
 
+    abstract public void successfullyAdd();
+
     public void setInstPrev(IRInstruction instPrev) {
         this.instPrev = instPrev;
     }

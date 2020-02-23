@@ -30,8 +30,11 @@ public class GetElementPtrInst extends IRInstruction {
             assert result.getType() instanceof PointerType;
         else
             assert result.getType().equals(new PointerType(new IntegerType(IntegerType.BitWidth.int8)));
+    }
 
-        result.setDef(this);
+    @Override
+    public void successfullyAdd() {
+        ((Register) result).setDef(this);
 
         pointer.addUse(this);
         for (Operand operand : index)
@@ -52,12 +55,24 @@ public class GetElementPtrInst extends IRInstruction {
 
     @Override
     public void replaceUse(IRObject oldUse, IRObject newUse) {
-        if (pointer == oldUse)
+        if (pointer == oldUse) {
             pointer = (Operand) newUse;
-        for (int i = 0; i < index.size(); i++) {
-            if (index.get(i) == oldUse)
-                index.set(i, (Operand) newUse);
+            pointer.addUse(this);
         }
+        for (int i = 0; i < index.size(); i++) {
+            if (index.get(i) == oldUse) {
+                index.set(i, (Operand) newUse);
+                index.get(i).addUse(this);
+            }
+        }
+    }
+
+    @Override
+    public void removeFromBlock() {
+        pointer.removeUse(this);
+        for (Operand operand : index)
+            operand.removeUse(this);
+        super.removeFromBlock();
     }
 
     @Override

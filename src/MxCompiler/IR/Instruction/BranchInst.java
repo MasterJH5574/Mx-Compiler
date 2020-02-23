@@ -17,13 +17,17 @@ public class BranchInst extends IRInstruction {
         this.thenBlock = thenBlock;
         this.elseBlock = elseBlock;
 
-        basicBlock.getSuccessors().add(thenBlock);
-        thenBlock.getPredecessors().add(basicBlock);
+        assert cond == null || cond.getType().equals(new IntegerType(IntegerType.BitWidth.int1));
+    }
+
+    @Override
+    public void successfullyAdd() {
+        this.getBasicBlock().getSuccessors().add(thenBlock);
+        thenBlock.getPredecessors().add(this.getBasicBlock());
 
         if (cond != null) {
-            basicBlock.getSuccessors().add(elseBlock);
-            elseBlock.getPredecessors().add(basicBlock);
-            assert cond.getType().equals(new IntegerType(IntegerType.BitWidth.int1));
+            this.getBasicBlock().getSuccessors().add(elseBlock);
+            elseBlock.getPredecessors().add(this.getBasicBlock());
 
             cond.addUse(this);
             elseBlock.addUse(this);
@@ -62,13 +66,18 @@ public class BranchInst extends IRInstruction {
 
     @Override
     public void replaceUse(IRObject oldUse, IRObject newUse) {
-        if (cond == oldUse)
+        if (cond == oldUse) {
             cond = (Operand) newUse;
-        else {
-            if (thenBlock == oldUse)
+            cond.addUse(this);
+        } else {
+            if (thenBlock == oldUse) {
                 thenBlock = (BasicBlock) newUse;
-            if (elseBlock == oldUse)
+                thenBlock.addUse(this);
+            }
+            if (elseBlock == oldUse) {
                 elseBlock = (BasicBlock) newUse;
+                elseBlock.addUse(this);
+            }
         }
     }
 

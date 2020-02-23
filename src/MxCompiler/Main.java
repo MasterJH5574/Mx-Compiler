@@ -89,8 +89,8 @@ public class Main {
         cfgSimplifier.run();
         DominatorTreeConstructor dominatorTreeConstructor = new DominatorTreeConstructor(irBuilder.getModule());
         dominatorTreeConstructor.run();
-//        SSAConstructor ssaConstructor = new SSAConstructor(irBuilder.getModule());
-//        ssaConstructor.run();
+        SSAConstructor ssaConstructor = new SSAConstructor(irBuilder.getModule());
+        ssaConstructor.run();
 
         IRPrinter irPrinter = new IRPrinter();
         irBuilder.getModule().accept(irPrinter);

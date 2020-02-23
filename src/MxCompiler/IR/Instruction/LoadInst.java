@@ -27,8 +27,11 @@ public class LoadInst extends IRInstruction {
             assert ((PointerType) pointer.getType()).getBaseType().equals(type);
         }
         assert result.getType().equals(type);
+    }
 
-        result.setDef(this);
+    @Override
+    public void successfullyAdd() {
+        ((Register) result).setDef(this);
         pointer.addUse(this);
     }
 
@@ -46,8 +49,16 @@ public class LoadInst extends IRInstruction {
 
     @Override
     public void replaceUse(IRObject oldUse, IRObject newUse) {
-        if (pointer == oldUse)
+        if (pointer == oldUse) {
             pointer = (Operand) newUse;
+            pointer.addUse(this);
+        }
+    }
+
+    @Override
+    public void removeFromBlock() {
+        pointer.removeUse(this);
+        super.removeFromBlock();
     }
 
     @Override

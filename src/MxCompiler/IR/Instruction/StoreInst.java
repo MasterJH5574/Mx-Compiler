@@ -24,7 +24,10 @@ public class StoreInst extends IRInstruction {
             assert ((PointerType) pointer.getType()).getBaseType().equals(value.getType())
                     || value instanceof ConstNull;
         }
+    }
 
+    @Override
+    public void successfullyAdd() {
         value.addUse(this);
         pointer.addUse(this);
     }
@@ -39,10 +42,21 @@ public class StoreInst extends IRInstruction {
 
     @Override
     public void replaceUse(IRObject oldUse, IRObject newUse) {
-        if (value == oldUse)
+        if (value == oldUse) {
             value = (Operand) newUse;
-        if (pointer == oldUse)
+            value.addUse(this);
+        }
+        if (pointer == oldUse) {
             pointer = (Operand) newUse;
+            pointer.addUse(this);
+        }
+    }
+
+    @Override
+    public void removeFromBlock() {
+        value.removeUse(this);
+        pointer.removeUse(this);
+        super.removeFromBlock();
     }
 
     @Override

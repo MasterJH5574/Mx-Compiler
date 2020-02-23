@@ -23,7 +23,10 @@ public class ReturnInst extends IRInstruction {
                     || (returnValue instanceof ConstNull && type instanceof PointerType);
         else
             assert returnValue == null;
+    }
 
+    @Override
+    public void successfullyAdd() {
         if (returnValue != null)
             returnValue.addUse(this);
     }
@@ -38,8 +41,10 @@ public class ReturnInst extends IRInstruction {
 
     @Override
     public void replaceUse(IRObject oldUse, IRObject newUse) {
-        if (returnValue != null && returnValue == oldUse)
+        if (returnValue != null && returnValue == oldUse) {
             returnValue = (Operand) newUse;
+            returnValue.addUse(this);
+        }
     }
 
     @Override

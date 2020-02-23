@@ -122,15 +122,21 @@ public class BasicBlock extends IRObject {
     }
 
     public void addInstruction(IRInstruction instruction) {
+        boolean success;
         if (isEmpty()) {
             instHead = instruction;
             instTail = instruction;
+            success = true;
         } else if (!instTail.isTerminalInst()) {
             instTail.setInstNext(instruction);
             instruction.setInstPrev(instTail);
             instTail = instruction;
-        }
-        // else do nothing
+            success = true;
+        } else
+            success = false;
+
+        if (success)
+            instruction.successfullyAdd();
     }
 
     public void addInstructionAtFront(IRInstruction instruction) {
@@ -141,6 +147,7 @@ public class BasicBlock extends IRObject {
             instruction.setInstNext(instHead);
         }
         instHead = instruction;
+        instruction.successfullyAdd();
     }
 
     public ArrayList<IRInstruction> getInstructions() {

@@ -26,8 +26,11 @@ public class BinaryOpInst extends IRInstruction {
 
         assert lhs.getType().equals(result.getType());
         assert rhs.getType().equals(result.getType());
+    }
 
-        result.setDef(this);
+    @Override
+    public void successfullyAdd() {
+        ((Register) result).setDef(this);
         lhs.addUse(this);
         rhs.addUse(this);
     }
@@ -50,10 +53,21 @@ public class BinaryOpInst extends IRInstruction {
 
     @Override
     public void replaceUse(IRObject oldUse, IRObject newUse) {
-        if (lhs == oldUse)
+        if (lhs == oldUse) {
             lhs = (Operand) newUse;
-        if (rhs == oldUse)
+            lhs.addUse(this);
+        }
+        if (rhs == oldUse) {
             rhs = (Operand) newUse;
+            rhs.addUse(this);
+        }
+    }
+
+    @Override
+    public void removeFromBlock() {
+        lhs.removeUse(this);
+        rhs.removeUse(this);
+        super.removeFromBlock();
     }
 
     @Override

@@ -6,6 +6,7 @@ import MxCompiler.IR.IRObject;
 import MxCompiler.IR.IRVisitor;
 import MxCompiler.IR.Operand.ConstNull;
 import MxCompiler.IR.Operand.Operand;
+import MxCompiler.IR.Operand.Parameter;
 import MxCompiler.IR.Operand.Register;
 import MxCompiler.IR.TypeSystem.PointerType;
 import MxCompiler.IR.TypeSystem.VoidType;
@@ -39,11 +40,16 @@ public class CallInst extends IRInstruction {
                 assert parameters.get(i).getType().equals(function.getParameters().get(i).getType());
                 assert parameters.get(i).getType().equals(function.getFunctionType().getParameterList().get(i));
             }
-            parameters.get(i).addUse(this);
         }
+    }
+
+    @Override
+    public void successfullyAdd() {
+        for (Operand parameter : parameters)
+            parameter.addUse(this);
 
         if (result != null)
-            result.setDef(this);
+            ((Register) result).setDef(this);
 
         function.addUse(this);
     }
@@ -62,13 +68,24 @@ public class CallInst extends IRInstruction {
 
     @Override
     public void replaceUse(IRObject oldUse, IRObject newUse) {
-        if (function == oldUse)
+        if (function == oldUse) {
             function = (Function) newUse;
-        else {
+            function.addUse(this);
+        } else {
             for (int i = 0; i < parameters.size(); i++)
-                if (parameters.get(i) == oldUse)
+                if (parameters.get(i) == oldUse) {
                     parameters.set(i, (Operand) newUse);
+                    parameters.get(i).addUse(this);
+                }
         }
+    }
+
+    @Override
+    public void removeFromBlock() {
+        for (Operand parameter : parameters)
+            parameter.removeUse(this);
+        function.removeUse(this);
+        super.removeFromBlock();
     }
 
     @Override

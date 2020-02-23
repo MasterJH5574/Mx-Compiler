@@ -17,8 +17,11 @@ public class BitCastToInst extends IRInstruction {
         this.src = src;
         this.objectType = objectType;
         this.result = result;
+    }
 
-        result.setDef(this);
+    @Override
+    public void successfullyAdd() {
+        ((Register) result).setDef(this);
         src.addUse(this);
     }
 
@@ -36,8 +39,16 @@ public class BitCastToInst extends IRInstruction {
 
     @Override
     public void replaceUse(IRObject oldUse, IRObject newUse) {
-        if (src == oldUse)
+        if (src == oldUse) {
             src = (Operand) newUse;
+            src.addUse(this);
+        }
+    }
+
+    @Override
+    public void removeFromBlock() {
+        src.removeUse(this);
+        super.removeFromBlock();
     }
 
     @Override

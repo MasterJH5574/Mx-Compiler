@@ -23,10 +23,17 @@ public class PhiInst extends IRInstruction {
         for (Pair<Operand, BasicBlock> pair : branch) {
             assert pair.getFirst().getType().equals(result.getType())
                     || (pair.getFirst() instanceof ConstNull && result.getType() instanceof PointerType);
+        }
+        result.setDef(this);
+    }
+
+    @Override
+    public void successfullyAdd() {
+        for (Pair<Operand, BasicBlock> pair : branch) {
             pair.getFirst().addUse(this);
             pair.getSecond().addUse(this);
         }
-        result.setDef(this);
+        ((Register) result).setDef(this);
     }
 
     public Set<Pair<Operand, BasicBlock>> getBranch() {
@@ -58,11 +65,23 @@ public class PhiInst extends IRInstruction {
     @Override
     public void replaceUse(IRObject oldUse, IRObject newUse) {
         for (Pair<Operand, BasicBlock> pair : branch) {
-            if (pair.getFirst() == oldUse)
+            if (pair.getFirst() == oldUse) {
                 pair.setFirst((Operand) newUse);
-            else if (pair.getSecond() == oldUse)
+                pair.getFirst().addUse(this);
+            } else if (pair.getSecond() == oldUse) {
                 pair.setSecond((BasicBlock) newUse);
+                pair.getSecond().addUse(this);
+            }
         }
+    }
+
+    @Override
+    public void removeFromBlock() {
+        for (Pair<Operand, BasicBlock> pair : branch) {
+            pair.getFirst().removeUse(this);
+            pair.getSecond().removeUse(this);
+        }
+        super.removeFromBlock();
     }
 
     @Override

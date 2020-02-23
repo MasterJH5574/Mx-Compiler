@@ -10,6 +10,7 @@ import MxCompiler.IR.Operand.Register;
 import java.util.*;
 
 public class SSAConstructor extends Pass {
+    private ArrayList<AllocateInst> allocaInst;
     private Map<BasicBlock, Map<AllocateInst, PhiInst>> phiInstMap;
     private Map<LoadInst, AllocateInst> useAlloca;
     private Map<StoreInst, AllocateInst> defAlloca;
@@ -28,10 +29,16 @@ public class SSAConstructor extends Pass {
     }
 
     private void constructSSA(Function function) {
-        ArrayList<AllocateInst> allocaInst = function.getAllocaInstructions();
+        allocaInst = function.getAllocaInstructions();
         phiInstMap = new HashMap<>();
         useAlloca = new HashMap<>();
         defAlloca = new HashMap<>();
+        renameTable = new HashMap<>();
+
+        for (BasicBlock block : function.getBlocks()) {
+            phiInstMap.put(block, new HashMap<>());
+            renameTable.put(block, new HashMap<>());
+        }
 
         for (AllocateInst alloca : allocaInst) {
             ArrayList<StoreInst> defs = new ArrayList<>();
@@ -71,34 +78,48 @@ public class SSAConstructor extends Pass {
             alloca.removeFromBlock();
         }
 
-        renameTable = new HashMap<>();
+        // Remove some redundant loads first to insure no exception occurs during renaming.
+        // A very simple dead code elimination which only removes loads.
+        // Why? Avoid using a variable before any of its definition.
+        loadInstElimination(function);
+
         visit = new HashSet<>();
         rename(function.getEntranceBlock(), null);
     }
 
     private void addPhiInst(BasicBlock block, AllocateInst alloca) {
-        if (!phiInstMap.containsKey(block))
-            phiInstMap.put(block, new HashMap<>());
         String name = alloca.getResult().getName().split("\\$")[0];
         Register result = new Register(alloca.getType(), name);
         phiInstMap.get(block).put(alloca, new PhiInst(block, new LinkedHashSet<>(), result));
         block.getFunction().getSymbolTable().put(result.getName(), result);
     }
 
+    private void loadInstElimination(Function function) {
+        for (BasicBlock block : function.getBlocks()) {
+            ArrayList<IRInstruction> instructions = block.getInstructions();
+            for (IRInstruction instruction : instructions) {
+                if (instruction instanceof LoadInst && ((LoadInst) instruction).getResult().getUse().isEmpty())
+                    instruction.removeFromBlock();
+            }
+        }
+    }
+
     private void rename(BasicBlock block, BasicBlock predecessor) {
-        if (phiInstMap.containsKey(block)) {
-            Map<AllocateInst, PhiInst> map = phiInstMap.get(block);
-            for (AllocateInst alloca : map.keySet()) {
-                PhiInst phiInst = map.get(alloca);
-                Operand value;
-                if (!renameTable.containsKey(predecessor)
-                        || !renameTable.get(predecessor).containsKey(alloca)
-                        || renameTable.get(predecessor).get(alloca) == null) {
-                    value = alloca.getType().getDefaultValue();
-                } else {
-                    value = renameTable.get(predecessor).get(alloca);
-                }
-                phiInst.addBranch(value, predecessor);
+        Map<AllocateInst, PhiInst> map = phiInstMap.get(block);
+        for (AllocateInst alloca : map.keySet()) {
+            PhiInst phiInst = map.get(alloca);
+            Operand value;
+            if (!renameTable.get(predecessor).containsKey(alloca)
+                    || renameTable.get(predecessor).get(alloca) == null) {
+                value = alloca.getType().getDefaultValue();
+            } else
+                value = renameTable.get(predecessor).get(alloca);
+            phiInst.addBranch(value, predecessor);
+        }
+        if (predecessor != null) {
+            for (AllocateInst alloca : allocaInst) {
+                if (!map.containsKey(alloca))
+                    renameTable.get(block).put(alloca, renameTable.get(predecessor).get(alloca));
             }
         }
 
@@ -106,37 +127,32 @@ public class SSAConstructor extends Pass {
             return;
         visit.add(block);
 
-        if (phiInstMap.containsKey(block)) {
-            Map<AllocateInst, PhiInst> map = phiInstMap.get(block);
-            for (AllocateInst alloca : map.keySet()) {
-                PhiInst phiInst = map.get(alloca);
-
-                if (!renameTable.containsKey(block))
-                    renameTable.put(block, new HashMap<>());
-                renameTable.get(block).put(alloca, phiInst.getResult());
-            }
-        }
+        for (AllocateInst alloca : map.keySet())
+            renameTable.get(block).put(alloca, map.get(alloca).getResult());
 
         ArrayList<IRInstruction> instructions = block.getInstructions();
         for (IRInstruction instruction : instructions) {
             if (instruction instanceof LoadInst && useAlloca.containsKey(instruction)) {
                 AllocateInst alloca = useAlloca.get(instruction);
-                assert renameTable.containsKey(block) && renameTable.get(block).containsKey(alloca);
+                assert renameTable.containsKey(block);
+                assert renameTable.get(block).containsKey(alloca);
                 Operand value = renameTable.get(block).get(alloca);
                 ((LoadInst) instruction).getResult().replaceUse(value);
                 instruction.removeFromBlock();
             } else if (instruction instanceof StoreInst && defAlloca.containsKey(instruction)) {
                 AllocateInst alloca = defAlloca.get(instruction);
-                if (!renameTable.containsKey(block))
-                    renameTable.put(block, new HashMap<>());
                 if (!renameTable.get(block).containsKey(alloca))
                     renameTable.get(block).put(alloca, ((StoreInst) instruction).getValue());
                 else
                     renameTable.get(block).replace(alloca, ((StoreInst) instruction).getValue());
+                instruction.removeFromBlock();
             }
         }
 
         for (BasicBlock successor : block.getSuccessors())
             rename(successor, block);
+
+        for (PhiInst phiInst : map.values())
+            block.addInstructionAtFront(phiInst);
     }
 }

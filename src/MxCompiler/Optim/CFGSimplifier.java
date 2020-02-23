@@ -77,8 +77,7 @@ public class CFGSimplifier extends Pass {
         BasicBlock block = function.getEntranceBlock();
         while (block != null) {
             if (!block.getNameWithoutDot().equals("entranceBlock") && block.getPredecessors().isEmpty()) {
-                dfsVisit = new HashSet<>();
-                dfsRemoveBlocks(block);
+                block.removeFromFunction();
                 changed = true;
             } else if (block.getPredecessors().size() == 1) {
                 BasicBlock predecessor = block.getPredecessors().iterator().next();
@@ -93,15 +92,5 @@ public class CFGSimplifier extends Pass {
             block = block.getNext();
         }
         return changed;
-    }
-
-    private void dfsRemoveBlocks(BasicBlock block) {
-        dfsVisit.add(block);
-        for (BasicBlock successor : block.getSuccessors()) {
-            if (!dfsVisit.contains(successor))
-                dfsRemoveBlocks(successor);
-        }
-
-        block.removeFromFunction();
     }
 }

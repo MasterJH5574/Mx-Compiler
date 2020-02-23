@@ -1,9 +1,6 @@
 package MxCompiler.IR;
 
-import MxCompiler.IR.Instruction.AllocateInst;
-import MxCompiler.IR.Instruction.IRInstruction;
-import MxCompiler.IR.Instruction.LoadInst;
-import MxCompiler.IR.Instruction.ReturnInst;
+import MxCompiler.IR.Instruction.*;
 import MxCompiler.IR.Operand.Parameter;
 import MxCompiler.IR.Operand.Register;
 import MxCompiler.IR.TypeSystem.FunctionType;
@@ -145,6 +142,7 @@ public class Function extends IRObject {
         else {
             returnValue = new Register(new PointerType(returnType), "returnValue$addr");
             entranceBlock.addInstruction(new AllocateInst(entranceBlock, returnValue, returnType));
+            entranceBlock.addInstruction(new StoreInst(entranceBlock, returnType.getDefaultValue(), returnValue));
             Register loadReturnValue = new Register(returnType, "returnValue");
             returnBlock.addInstruction(new LoadInst(returnBlock, returnType, returnValue, loadReturnValue));
             returnBlock.addInstruction(new ReturnInst(returnBlock, returnType, loadReturnValue));

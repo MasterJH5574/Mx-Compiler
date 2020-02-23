@@ -2,13 +2,14 @@ package MxCompiler.Optim;
 
 import MxCompiler.IR.BasicBlock;
 import MxCompiler.IR.Function;
+import MxCompiler.IR.Instruction.BranchInst;
 import MxCompiler.IR.Module;
 import MxCompiler.Utilities.Pair;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.util.*;
 
 public class DominatorTreeConstructor extends Pass {
     private Map<BasicBlock, Pair<BasicBlock, BasicBlock>> disjointSet; // first for father
@@ -24,6 +25,7 @@ public class DominatorTreeConstructor extends Pass {
             constructDominatorTree(function);
             constructDominanceFrontier(function);
         }
+        print();
         return true;
     }
 
@@ -108,5 +110,71 @@ public class DominatorTreeConstructor extends Pass {
                     ptr = ptr.getIdom();
                 }
             }
+    }
+
+    private void print() {
+        OutputStream os;
+        PrintWriter writer;
+        String indent = "    ";
+        try {
+            os = new FileOutputStream("test/dominator.txt");
+            writer = new PrintWriter(os);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException(e.getMessage());
+        }
+
+        for (Function function : module.getFunctionMap().values()) {
+            writer.println("Function: " + function.getName());
+            // ------ Print CFG ------
+            writer.println("  Print CFG:");
+            for (BasicBlock block : function.getBlocks()) {
+                if (block.getInstTail() instanceof BranchInst) {
+                    BranchInst branch = (BranchInst) block.getInstTail();
+                    writer.println(indent + block.getName() + "\t--->\t" + branch.getThenBlock().getName());
+                    if (branch.isConditional())
+                        writer.println(indent + block.getName() + "\t--->\t" + branch.getElseBlock().getName());
+                }
+            }
+            writer.println("");
+
+            // ------ Print Dominator Tree ------
+            writer.println("  Print Dominator Tree:");
+            for (BasicBlock block : function.getBlocks()) {
+                if (block.getIdom() != null)
+                    writer.println(indent + block.getName() + ":\t\t" + block.getIdom().getName());
+//                    writer.println(indent + block.getIdom().getName() + "\t--->\t" + block.getName());
+            }
+            writer.println("");
+
+            // ------ Print Strict Dominators ------
+            writer.println("  Print Strict Dominators:");
+            for (BasicBlock block : function.getBlocks()) {
+                writer.println(indent + block.getName() + "'s strict dominators:");
+                for (BasicBlock dominator : block.getStrictDominators())
+                    writer.println(indent + indent + dominator.getName());
+                writer.println("");
+            }
+            writer.println("");
+
+            // ------ Print Dominance Frontier ------
+            writer.println("  Print Dominance Frontier:");
+            for (BasicBlock block : function.getBlocks()) {
+                writer.println(indent + block.getName() + "'s dominance frontier:");
+                for (BasicBlock df : block.getDF())
+                    writer.println(indent + indent + df.getName());
+                writer.println("");
+            }
+            writer.println("");
+        }
+
+
+        try {
+            writer.close();
+            os.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException(e.getMessage());
+        }
     }
 }

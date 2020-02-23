@@ -232,6 +232,11 @@ public class BasicBlock extends IRObject {
             function.setExitBlock(prev);
         else
             next.setPrev(prev);
+
+        for (BasicBlock predecessor : predecessors)
+            predecessor.getSuccessors().remove(this);
+        for (BasicBlock successor : successors)
+            successor.getPredecessors().remove(this);
     }
 
     public void mergeBlock(BasicBlock block) {
@@ -249,6 +254,10 @@ public class BasicBlock extends IRObject {
             ptr = ptr.getInstNext();
         }
 
+        for (BasicBlock successor : block.getSuccessors()) {
+            this.getSuccessors().add(successor);
+            successor.getPredecessors().add(this);
+        }
         block.removeFromFunction();
     }
 

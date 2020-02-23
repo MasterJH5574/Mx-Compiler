@@ -40,6 +40,7 @@
 * 2020.2.19	Add CFGSimplifier(to be debugged).
   * I need to spend more time on TA's task of CS158...See you later.
 * 2020.2.22	Debug. Fix bugs in CFGSimplifier.
+* 2020.2.23	Debug. Fix bugs in DominatorTreeConstructor and add a CFG/Dominator Tree/Dominance Frontier printer.
 
 
 

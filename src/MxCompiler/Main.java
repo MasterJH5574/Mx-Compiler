@@ -6,6 +6,8 @@ import MxCompiler.Frontend.Checker;
 import MxCompiler.IR.IRBuilder;
 import MxCompiler.IR.IRPrinter;
 import MxCompiler.Optim.CFGSimplifier;
+import MxCompiler.Optim.DominatorTreeConstructor;
+import MxCompiler.Optim.SSAConstructor;
 import MxCompiler.Parser.MxErrorListener;
 import MxCompiler.Parser.MxLexer;
 import MxCompiler.Parser.MxParser;
@@ -82,8 +84,13 @@ public class Main {
             throw new RuntimeException();
         }
 
+        // ------ Simplify CFG, construct Dominator Tree & run SSAConstructor(mem2reg) ------
         CFGSimplifier cfgSimplifier = new CFGSimplifier(irBuilder.getModule());
         cfgSimplifier.run();
+        DominatorTreeConstructor dominatorTreeConstructor = new DominatorTreeConstructor(irBuilder.getModule());
+        dominatorTreeConstructor.run();
+//        SSAConstructor ssaConstructor = new SSAConstructor(irBuilder.getModule());
+//        ssaConstructor.run();
 
         IRPrinter irPrinter = new IRPrinter();
         irBuilder.getModule().accept(irPrinter);

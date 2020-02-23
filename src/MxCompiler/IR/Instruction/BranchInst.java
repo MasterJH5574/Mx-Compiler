@@ -31,6 +31,10 @@ public class BranchInst extends IRInstruction {
         thenBlock.addUse(this);
     }
 
+    public boolean isConditional() {
+        return cond != null;
+    }
+
     public Operand getCond() {
         return cond;
     }

@@ -10,6 +10,9 @@ import MxCompiler.IR.TypeSystem.IRType;
 import MxCompiler.IR.TypeSystem.IntegerType;
 import MxCompiler.IR.TypeSystem.PointerType;
 
+import java.util.Queue;
+import java.util.Set;
+
 public class IcmpInst extends IRInstruction {
     public enum IcmpName {
         eq, ne, sgt, sge, slt, sle
@@ -74,6 +77,12 @@ public class IcmpInst extends IRInstruction {
         op1.removeUse(this);
         op2.removeUse(this);
         super.removeFromBlock();
+    }
+
+    @Override
+    public void markUseAsLive(Set<IRInstruction> live, Queue<IRInstruction> queue) {
+        op1.markAsLive(live, queue);
+        op2.markAsLive(live, queue);
     }
 
     @Override

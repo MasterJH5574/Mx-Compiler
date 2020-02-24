@@ -8,6 +8,9 @@ import MxCompiler.IR.Operand.Register;
 import MxCompiler.IR.TypeSystem.PointerType;
 import MxCompiler.IR.TypeSystem.IRType;
 
+import java.util.Queue;
+import java.util.Set;
+
 public class AllocateInst extends IRInstruction {
     private Register result;
     private IRType type;
@@ -36,6 +39,11 @@ public class AllocateInst extends IRInstruction {
 
     @Override
     public void replaceUse(IRObject oldUse, IRObject newUse) {
+        // do nothing.
+    }
+
+    @Override
+    public void markUseAsLive(Set<IRInstruction> live, Queue<IRInstruction> queue) {
         // do nothing.
     }
 

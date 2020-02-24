@@ -2,7 +2,11 @@ package MxCompiler.IR.Operand;
 
 import MxCompiler.IR.Function;
 import MxCompiler.IR.IRVisitor;
+import MxCompiler.IR.Instruction.IRInstruction;
 import MxCompiler.IR.TypeSystem.IRType;
+
+import java.util.Queue;
+import java.util.Set;
 
 public class Parameter extends Operand {
     private String name;
@@ -35,6 +39,11 @@ public class Parameter extends Operand {
     @Override
     public boolean isConstValue() {
         return false;
+    }
+
+    @Override
+    public void markAsLive(Set<IRInstruction> live, Queue<IRInstruction> queue) {
+        // do nothing.
     }
 
     @Override

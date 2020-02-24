@@ -12,6 +12,8 @@ import MxCompiler.IR.TypeSystem.PointerType;
 import MxCompiler.IR.TypeSystem.VoidType;
 
 import java.util.ArrayList;
+import java.util.Queue;
+import java.util.Set;
 
 public class CallInst extends IRInstruction {
     private Function function;
@@ -86,6 +88,12 @@ public class CallInst extends IRInstruction {
             parameter.removeUse(this);
         function.removeUse(this);
         super.removeFromBlock();
+    }
+
+    @Override
+    public void markUseAsLive(Set<IRInstruction> live, Queue<IRInstruction> queue) {
+        for (Operand parameter : parameters)
+            parameter.markAsLive(live, queue);
     }
 
     @Override

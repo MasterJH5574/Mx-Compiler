@@ -8,6 +8,9 @@ import MxCompiler.IR.Operand.GlobalVariable;
 import MxCompiler.IR.Operand.Operand;
 import MxCompiler.IR.TypeSystem.PointerType;
 
+import java.util.Queue;
+import java.util.Set;
+
 public class StoreInst extends IRInstruction {
     private Operand value;
     private Operand pointer;
@@ -57,6 +60,12 @@ public class StoreInst extends IRInstruction {
         value.removeUse(this);
         pointer.removeUse(this);
         super.removeFromBlock();
+    }
+
+    @Override
+    public void markUseAsLive(Set<IRInstruction> live, Queue<IRInstruction> queue) {
+        value.markAsLive(live, queue);
+        pointer.markAsLive(live, queue);
     }
 
     @Override

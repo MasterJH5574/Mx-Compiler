@@ -7,12 +7,8 @@ import MxCompiler.IR.Module;
 import MxCompiler.IR.Operand.ConstBool;
 
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
 
 public class CFGSimplifier extends Pass {
-    private Set<BasicBlock> dfsVisit;
-
     public CFGSimplifier(Module module) {
         super(module);
         changed = false;

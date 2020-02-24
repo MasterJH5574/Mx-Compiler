@@ -9,6 +9,9 @@ import MxCompiler.IR.TypeSystem.IRType;
 import MxCompiler.IR.TypeSystem.PointerType;
 import MxCompiler.IR.TypeSystem.VoidType;
 
+import java.util.Queue;
+import java.util.Set;
+
 public class ReturnInst extends IRInstruction {
     private IRType type; // void or not
     private Operand returnValue;
@@ -52,6 +55,12 @@ public class ReturnInst extends IRInstruction {
         if (returnValue != null)
             returnValue.removeUse(this);
         super.removeFromBlock();
+    }
+
+    @Override
+    public void markUseAsLive(Set<IRInstruction> live, Queue<IRInstruction> queue) {
+        if (returnValue != null)
+            returnValue.markAsLive(live, queue);
     }
 
     @Override

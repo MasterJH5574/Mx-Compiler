@@ -201,8 +201,8 @@ public class IRBuilder implements ASTVisitor {
         if (node.getIdentifier().equals("main")) {
             function = module.getFunctionMap().get("__init__");
             function.checkBlockTerminalInst(errorHandler);
-            currentFunction.getEntranceBlock().addInstructionAtFront(new CallInst(currentBlock, function,
-                    new ArrayList<>(), null));
+            currentFunction.getEntranceBlock().addInstructionAtFront(
+                    new CallInst(currentFunction.getEntranceBlock(), function, new ArrayList<>(), null));
         }
 
         currentFunction = null;

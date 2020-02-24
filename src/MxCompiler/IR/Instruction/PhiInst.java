@@ -9,6 +9,7 @@ import MxCompiler.IR.Operand.Register;
 import MxCompiler.IR.TypeSystem.PointerType;
 import MxCompiler.Utilities.Pair;
 
+import java.util.Queue;
 import java.util.Set;
 
 public class PhiInst extends IRInstruction {
@@ -24,7 +25,6 @@ public class PhiInst extends IRInstruction {
             assert pair.getFirst().getType().equals(result.getType())
                     || (pair.getFirst() instanceof ConstNull && result.getType() instanceof PointerType);
         }
-        result.setDef(this);
     }
 
     @Override
@@ -42,6 +42,8 @@ public class PhiInst extends IRInstruction {
 
     public void addBranch(Operand operand, BasicBlock block) {
         branch.add(new Pair<>(operand, block));
+        operand.addUse(this);
+        block.addUse(this);
     }
 
     public void removeIncomingBlock(BasicBlock block) {
@@ -82,6 +84,12 @@ public class PhiInst extends IRInstruction {
             pair.getSecond().removeUse(this);
         }
         super.removeFromBlock();
+    }
+
+    @Override
+    public void markUseAsLive(Set<IRInstruction> live, Queue<IRInstruction> queue) {
+        for (Pair<Operand, BasicBlock> pair : branch)
+            pair.getFirst().markAsLive(live, queue);
     }
 
     @Override

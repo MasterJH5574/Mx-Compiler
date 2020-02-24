@@ -9,6 +9,9 @@ import MxCompiler.IR.Operand.Register;
 import MxCompiler.IR.TypeSystem.IRType;
 import MxCompiler.IR.TypeSystem.PointerType;
 
+import java.util.Queue;
+import java.util.Set;
+
 public class LoadInst extends IRInstruction {
     private IRType type;
     private Operand pointer;
@@ -59,6 +62,11 @@ public class LoadInst extends IRInstruction {
     public void removeFromBlock() {
         pointer.removeUse(this);
         super.removeFromBlock();
+    }
+
+    @Override
+    public void markUseAsLive(Set<IRInstruction> live, Queue<IRInstruction> queue) {
+        pointer.markAsLive(live, queue);
     }
 
     @Override

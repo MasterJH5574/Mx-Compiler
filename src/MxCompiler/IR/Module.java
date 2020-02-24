@@ -79,6 +79,7 @@ public class Module {
         parameters.add(new Parameter(new IntegerType(IntegerType.BitWidth.int32), "i"));
         function = new Function(this, "toString", returnType, parameters, true);
         externalFunctionMap.put(function.getName(), function);
+        function.setSideEffect(false);
 
         // byte* malloc(int size);
         returnType = new PointerType(new IntegerType(IntegerType.BitWidth.int8));
@@ -86,6 +87,7 @@ public class Module {
         parameters.add(new Parameter(new IntegerType(IntegerType.BitWidth.int32), "size"));
         function = new Function(this, "malloc", returnType, parameters, true);
         externalFunctionMap.put(function.getName(), function);
+        function.setSideEffect(false);
 
         // string string.concatenate(string str1, string str2);
         returnType = new PointerType(new IntegerType(IntegerType.BitWidth.int8));
@@ -94,6 +96,7 @@ public class Module {
         parameters.add(new Parameter(new PointerType(new IntegerType(IntegerType.BitWidth.int8)), "str2"));
         function = new Function(this, "__string_concatenate", returnType, parameters, true);
         externalFunctionMap.put(function.getName(), function);
+        function.setSideEffect(false);
 
         // bool string.equal(string str1, string str2);
         returnType = new IntegerType(IntegerType.BitWidth.int1);
@@ -102,6 +105,7 @@ public class Module {
         parameters.add(new Parameter(new PointerType(new IntegerType(IntegerType.BitWidth.int8)), "str2"));
         function = new Function(this, "__string_equal", returnType, parameters, true);
         externalFunctionMap.put(function.getName(), function);
+        function.setSideEffect(false);
 
         // bool string.notEqual(string str1, string str2);
         returnType = new IntegerType(IntegerType.BitWidth.int1);
@@ -110,6 +114,7 @@ public class Module {
         parameters.add(new Parameter(new PointerType(new IntegerType(IntegerType.BitWidth.int8)), "str2"));
         function = new Function(this, "__string_notEqual", returnType, parameters, true);
         externalFunctionMap.put(function.getName(), function);
+        function.setSideEffect(false);
 
         // bool string.lessThan(string str1, string str2);
         returnType = new IntegerType(IntegerType.BitWidth.int1);
@@ -118,6 +123,7 @@ public class Module {
         parameters.add(new Parameter(new PointerType(new IntegerType(IntegerType.BitWidth.int8)), "str2"));
         function = new Function(this, "__string_lessThan", returnType, parameters, true);
         externalFunctionMap.put(function.getName(), function);
+        function.setSideEffect(false);
 
         // bool string.greaterThan(string str1, string str2);
         returnType = new IntegerType(IntegerType.BitWidth.int1);
@@ -126,6 +132,7 @@ public class Module {
         parameters.add(new Parameter(new PointerType(new IntegerType(IntegerType.BitWidth.int8)), "str2"));
         function = new Function(this, "__string_greaterThan", returnType, parameters, true);
         externalFunctionMap.put(function.getName(), function);
+        function.setSideEffect(false);
 
         // bool string.lessEqual(string str1, string str2);
         returnType = new IntegerType(IntegerType.BitWidth.int1);
@@ -134,6 +141,7 @@ public class Module {
         parameters.add(new Parameter(new PointerType(new IntegerType(IntegerType.BitWidth.int8)), "str2"));
         function = new Function(this, "__string_lessEqual", returnType, parameters, true);
         externalFunctionMap.put(function.getName(), function);
+        function.setSideEffect(false);
 
         // bool string.greaterEqual(string str1, string str2);
         returnType = new IntegerType(IntegerType.BitWidth.int1);
@@ -142,6 +150,7 @@ public class Module {
         parameters.add(new Parameter(new PointerType(new IntegerType(IntegerType.BitWidth.int8)), "str2"));
         function = new Function(this, "__string_greaterEqual", returnType, parameters, true);
         externalFunctionMap.put(function.getName(), function);
+        function.setSideEffect(false);
 
         // int string.length(string str);
         returnType = new IntegerType(IntegerType.BitWidth.int32);
@@ -149,6 +158,7 @@ public class Module {
         parameters.add(new Parameter(new PointerType(new IntegerType(IntegerType.BitWidth.int8)), "str"));
         function = new Function(this, "__string_length", returnType, parameters, true);
         externalFunctionMap.put(function.getName(), function);
+        function.setSideEffect(false);
 
         // string string.substring(string str, int left, int right);
         returnType = new PointerType(new IntegerType(IntegerType.BitWidth.int8));
@@ -158,6 +168,7 @@ public class Module {
         parameters.add(new Parameter(new IntegerType(IntegerType.BitWidth.int32), "right"));
         function = new Function(this, "__string_substring", returnType, parameters, true);
         externalFunctionMap.put(function.getName(), function);
+        function.setSideEffect(false);
 
         // int string.parseInt(string str);
         returnType = new IntegerType(IntegerType.BitWidth.int32);
@@ -165,6 +176,7 @@ public class Module {
         parameters.add(new Parameter(new PointerType(new IntegerType(IntegerType.BitWidth.int8)), "str"));
         function = new Function(this, "__string_parseInt", returnType, parameters, true);
         externalFunctionMap.put(function.getName(), function);
+        function.setSideEffect(false);
 
         // int ord(string str, int pos);
         returnType = new IntegerType(IntegerType.BitWidth.int32);
@@ -173,6 +185,7 @@ public class Module {
         parameters.add(new Parameter(new IntegerType(IntegerType.BitWidth.int32), "pos"));
         function = new Function(this, "__string_ord", returnType, parameters, true);
         externalFunctionMap.put(function.getName(), function);
+        function.setSideEffect(false);
 
         // int array.size(array arr);
         returnType = new IntegerType(IntegerType.BitWidth.int32);
@@ -180,6 +193,7 @@ public class Module {
         parameters.add(new Parameter(new PointerType(new IntegerType(IntegerType.BitWidth.int8)), "arr"));
         function = new Function(this, "__array_size", returnType, parameters, true);
         externalFunctionMap.put(function.getName(), function);
+        function.setSideEffect(false);
     }
 
     public Map<String, Function> getFunctionMap() {

@@ -5,7 +5,9 @@ import MxCompiler.Frontend.ASTBuilder;
 import MxCompiler.Frontend.Checker;
 import MxCompiler.IR.IRBuilder;
 import MxCompiler.IR.IRPrinter;
+import MxCompiler.IR.Module;
 import MxCompiler.Optim.CFGSimplifier;
+import MxCompiler.Optim.DeadCodeEliminator;
 import MxCompiler.Optim.DominatorTreeConstructor;
 import MxCompiler.Optim.SSAConstructor;
 import MxCompiler.Parser.MxErrorListener;
@@ -84,13 +86,26 @@ public class Main {
             throw new RuntimeException();
         }
 
+        Module module = irBuilder.getModule();
         // ------ Simplify CFG, construct Dominator Tree & run SSAConstructor(mem2reg) ------
-        CFGSimplifier cfgSimplifier = new CFGSimplifier(irBuilder.getModule());
+        CFGSimplifier cfgSimplifier = new CFGSimplifier(module);
         cfgSimplifier.run();
-        DominatorTreeConstructor dominatorTreeConstructor = new DominatorTreeConstructor(irBuilder.getModule());
+        DominatorTreeConstructor dominatorTreeConstructor = new DominatorTreeConstructor(module);
         dominatorTreeConstructor.run();
-        SSAConstructor ssaConstructor = new SSAConstructor(irBuilder.getModule());
+        SSAConstructor ssaConstructor = new SSAConstructor(module);
         ssaConstructor.run();
+
+        // ------ Eliminate Dead Code ------
+        DeadCodeEliminator deadCodeEliminator = new DeadCodeEliminator(module);
+        while (true) {
+            boolean changed;
+            changed = deadCodeEliminator.run();
+            changed |= cfgSimplifier.run();
+
+            if (!changed)
+                break;
+        }
+
 
         IRPrinter irPrinter = new IRPrinter();
         irBuilder.getModule().accept(irPrinter);

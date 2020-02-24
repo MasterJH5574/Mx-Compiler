@@ -42,7 +42,7 @@ public class SSAConstructor extends Pass {
 
         for (AllocateInst alloca : allocaInst) {
             ArrayList<StoreInst> defs = new ArrayList<>();
-            for (IRInstruction useInst : alloca.getResult().getUse()) {
+            for (IRInstruction useInst : alloca.getResult().getUse().keySet()) {
                 assert useInst instanceof LoadInst || useInst instanceof StoreInst;
                 if (useInst instanceof LoadInst)
                     useAlloca.put((LoadInst) useInst, alloca);

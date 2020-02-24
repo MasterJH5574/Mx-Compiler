@@ -49,8 +49,11 @@
   * Fix a bug when removing a block from a function.
   * Fix a bug in CFGSimplifier so it can remove unreachable blocks correctly.
   * Fix a bug in SSAConstructor to collect all allocate instructions.
-  * Fix a bug in NewArrayMalloc to generate allocate and store instructions with correct BasicBlock.
+  * Fix bugs in NewArrayMalloc and IRBuilder to generate allocate and store instructions with correct BasicBlock.
   * It can generate LLVM IR for all semantic-pass test cases.
+* 2020.2.25	Debug. Add DeadCodeEliminator.
+  * Replace `Set<IRInstruction> use` with `Map<IRInstruction, Integer> use`.
+  * Fix a bug when adding a new branch to PhiInst(add use to operand and block).
 
 
 
@@ -363,3 +366,39 @@ Step 2: Regard <u>alloca instructions</u> as variables, its <u>load instructions
 Step 3: Insert **Phi-function** for each variable to its **Iterated Dominance Frontier(DF+)**.
 
 Step 4: "Rename". **Replace uses** of load instruction. Remove alloca, load and store instructions.
+
+### Dead Code Elimination
+
+##### Aggressive Dead Code Elimination
+
+```java
+private boolean deadCodeElimination(Function function) {
+    Set<IRInstruction> live = new HashSet<>();
+    Queue<IRInstruction> queue = new LinkedList<>();
+    for (BasicBlock block : function.getBlocks())
+        addLiveInstructions(block, live, queue);
+
+    while (!queue.isEmpty()) {
+        IRInstruction instruction = queue.poll();
+        instruction.markUseAsLive(live, queue);
+        for (BasicBlock predecessor : instruction.getBasicBlock().getPredecessors()) {
+            if (!live.contains(predecessor.getInstTail())) {
+                live.add(predecessor.getInstTail());
+                queue.offer(predecessor.getInstTail());
+            }
+        }
+    }
+
+    boolean changed = false;
+    for (BasicBlock block : function.getBlocks())
+        changed |= removeDeadInstructions(block, live);
+    return changed;
+}
+```
+
+##### Condition for "Live" instruction
+
+1. I/O
+2. Store instructions
+3. Return instructions.
+4. Instructions which call a function with potential side effect.

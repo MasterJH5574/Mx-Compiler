@@ -7,6 +7,9 @@ import MxCompiler.IR.Operand.Operand;
 import MxCompiler.IR.Operand.Register;
 import MxCompiler.IR.TypeSystem.IRType;
 
+import java.util.Queue;
+import java.util.Set;
+
 public class BitCastToInst extends IRInstruction {
     private Operand src;
     private IRType objectType;
@@ -49,6 +52,11 @@ public class BitCastToInst extends IRInstruction {
     public void removeFromBlock() {
         src.removeUse(this);
         super.removeFromBlock();
+    }
+
+    @Override
+    public void markUseAsLive(Set<IRInstruction> live, Queue<IRInstruction> queue) {
+        src.markAsLive(live, queue);
     }
 
     @Override

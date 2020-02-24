@@ -4,6 +4,9 @@ import MxCompiler.IR.BasicBlock;
 import MxCompiler.IR.IRObject;
 import MxCompiler.IR.IRVisitor;
 
+import java.util.Queue;
+import java.util.Set;
+
 abstract public class IRInstruction {
     private BasicBlock basicBlock;
 
@@ -57,6 +60,8 @@ abstract public class IRInstruction {
         else
             instNext.setInstPrev(instPrev);
     }
+
+    abstract public void markUseAsLive(Set<IRInstruction> live, Queue<IRInstruction> queue);
 
     @Override
     abstract public String toString();

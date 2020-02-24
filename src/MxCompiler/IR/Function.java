@@ -33,6 +33,8 @@ public class Function extends IRObject {
     private ArrayList<BasicBlock> dfsOrder;
     private HashSet<BasicBlock> dfsVisit;
 
+    private boolean sideEffect;
+
 
     public Function(Module module, String name, IRType returnType,
                     ArrayList<Parameter> parameters, boolean external) {
@@ -53,6 +55,7 @@ public class Function extends IRObject {
 
         symbolTable = new SymbolTable();
         this.external = external;
+        sideEffect = true;
 
         // Add parameters to symbol table.
         for (Parameter parameter : parameters)
@@ -97,6 +100,14 @@ public class Function extends IRObject {
 
     public SymbolTable getSymbolTable() {
         return symbolTable;
+    }
+
+    public boolean hasSideEffect() {
+        return sideEffect;
+    }
+
+    public void setSideEffect(boolean sideEffect) {
+        this.sideEffect = sideEffect;
     }
 
     public void addBasicBlock(BasicBlock block) {

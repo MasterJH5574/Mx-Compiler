@@ -6,6 +6,9 @@ import MxCompiler.IR.IRVisitor;
 import MxCompiler.IR.Operand.Operand;
 import MxCompiler.IR.TypeSystem.IntegerType;
 
+import java.util.Queue;
+import java.util.Set;
+
 public class BranchInst extends IRInstruction {
     private Operand cond;
     private BasicBlock thenBlock;
@@ -89,6 +92,12 @@ public class BranchInst extends IRInstruction {
         }
         thenBlock.removeUse(this);
         super.removeFromBlock();
+    }
+
+    @Override
+    public void markUseAsLive(Set<IRInstruction> live, Queue<IRInstruction> queue) {
+        if (cond != null)
+            cond.markAsLive(live, queue);
     }
 
     @Override

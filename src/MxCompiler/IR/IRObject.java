@@ -3,27 +3,34 @@ package MxCompiler.IR;
 import MxCompiler.IR.Instruction.IRInstruction;
 import MxCompiler.IR.Operand.Operand;
 
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 
 abstract public class IRObject {
-    private Set<IRInstruction> use;
+    private Map<IRInstruction, Integer> use;
 
     public IRObject() {
-        use = new LinkedHashSet<>();
+        use = new LinkedHashMap<>();
     }
 
     public void addUse(IRInstruction instruction) {
-        use.add(instruction);
+        if (!use.containsKey(instruction))
+            use.put(instruction, 1);
+        else
+            use.replace(instruction, use.get(instruction) + 1);
     }
 
     public void removeUse(IRInstruction instruction) {
-        assert use.contains(instruction);
-        use.remove(instruction);
+        int cnt = use.get(instruction);
+        assert use.containsKey(instruction) && cnt > 0;
+        if (cnt == 1)
+            use.remove(instruction);
+        else
+            use.replace(instruction, cnt - 1);
     }
 
-    public Set<IRInstruction> getUse() {
+    public Map<IRInstruction, Integer> getUse() {
         return use;
     }
 
@@ -31,7 +38,7 @@ abstract public class IRObject {
         assert (this instanceof Operand && newUse instanceof Operand)
                 || (this instanceof BasicBlock && newUse instanceof BasicBlock)
                 || (this instanceof Function && newUse instanceof Function);
-        for (IRInstruction instruction : use)
+        for (IRInstruction instruction : use.keySet())
             instruction.replaceUse(this, newUse);
         use.clear();
     }

@@ -12,6 +12,8 @@ import MxCompiler.IR.TypeSystem.IntegerType;
 import MxCompiler.IR.TypeSystem.PointerType;
 
 import java.util.ArrayList;
+import java.util.Queue;
+import java.util.Set;
 
 public class GetElementPtrInst extends IRInstruction {
     private Operand pointer;
@@ -73,6 +75,13 @@ public class GetElementPtrInst extends IRInstruction {
         for (Operand operand : index)
             operand.removeUse(this);
         super.removeFromBlock();
+    }
+
+    @Override
+    public void markUseAsLive(Set<IRInstruction> live, Queue<IRInstruction> queue) {
+        pointer.markAsLive(live, queue);
+        for (Operand operand : index)
+            operand.markAsLive(live, queue);
     }
 
     @Override

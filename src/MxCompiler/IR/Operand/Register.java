@@ -4,6 +4,9 @@ import MxCompiler.IR.IRVisitor;
 import MxCompiler.IR.Instruction.IRInstruction;
 import MxCompiler.IR.TypeSystem.IRType;
 
+import java.util.Queue;
+import java.util.Set;
+
 public class Register extends Operand {
     private String name;
     private IRInstruction def;
@@ -35,6 +38,15 @@ public class Register extends Operand {
     @Override
     public boolean isConstValue() {
         return false;
+    }
+
+    @Override
+    public void markAsLive(Set<IRInstruction> live, Queue<IRInstruction> queue) {
+        assert def != null;
+        if (!live.contains(def)) {
+            live.add(def);
+            queue.offer(def);
+        }
     }
 
     @Override

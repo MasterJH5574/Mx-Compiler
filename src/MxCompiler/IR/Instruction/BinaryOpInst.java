@@ -6,6 +6,9 @@ import MxCompiler.IR.IRVisitor;
 import MxCompiler.IR.Operand.Operand;
 import MxCompiler.IR.Operand.Register;
 
+import java.util.Queue;
+import java.util.Set;
+
 public class BinaryOpInst extends IRInstruction {
     public enum BinaryOpName {
         add, sub, mul, sdiv, srem,          // Binary Operations
@@ -68,6 +71,12 @@ public class BinaryOpInst extends IRInstruction {
         lhs.removeUse(this);
         rhs.removeUse(this);
         super.removeFromBlock();
+    }
+
+    @Override
+    public void markUseAsLive(Set<IRInstruction> live, Queue<IRInstruction> queue) {
+        lhs.markAsLive(live, queue);
+        rhs.markAsLive(live, queue);
     }
 
     @Override

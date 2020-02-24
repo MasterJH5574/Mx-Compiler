@@ -48,6 +48,8 @@
   * Store default value to new allocated register so that no exception will be throwed when the use is before the def.
   * Fix a bug when removing a block from a function.
   * Fix a bug in CFGSimplifier so it can remove unreachable blocks correctly.
+  * Fix a bug in SSAConstructor to collect all allocate instructions.
+  * Fix a bug in NewArrayMalloc to generate allocate and store instructions with correct BasicBlock.
   * It can generate LLVM IR for all semantic-pass test cases.
 
 

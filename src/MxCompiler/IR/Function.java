@@ -122,8 +122,9 @@ public class Function extends IRObject {
     public ArrayList<AllocateInst> getAllocaInstructions() {
         ArrayList<AllocateInst> allocaInst = new ArrayList<>();
         IRInstruction ptr = entranceBlock.getInstHead();
-        while (ptr instanceof AllocateInst) {
-            allocaInst.add((AllocateInst) ptr);
+        while (ptr != null) {
+            if (ptr instanceof AllocateInst)
+                allocaInst.add((AllocateInst) ptr);
             ptr = ptr.getInstNext();
         }
         return allocaInst;

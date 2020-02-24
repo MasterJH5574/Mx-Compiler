@@ -66,6 +66,8 @@ public class NewArrayMalloc {
             currentBlock.addInstruction(new GetElementPtrInst(currentBlock, arrayHead, index, arrayTail));
             // Allocate temporary variable arrayPointer
             Register arrayPtrAddr = new Register(new PointerType(irType), "arrayPtr$addr");
+            currentFunction.getEntranceBlock().addInstructionAtFront(new StoreInst(currentBlock,
+                    irType.getDefaultValue(), arrayPtrAddr));
             currentFunction.getEntranceBlock().addInstructionAtFront(new AllocateInst(currentBlock,
                     arrayPtrAddr, irType));
             // Store arrayHead to arrayPtrAddr

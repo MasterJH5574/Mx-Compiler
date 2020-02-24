@@ -75,8 +75,9 @@ public class CFGSimplifier extends Pass {
     private boolean removeUnreachableBlock(Function function) {
         boolean changed = false;
         BasicBlock block = function.getEntranceBlock();
+        ArrayList<BasicBlock> dfsOrder = function.getDFSOrder();
         while (block != null) {
-            if (!block.getNameWithoutDot().equals("entranceBlock") && block.getPredecessors().isEmpty()) {
+            if (!dfsOrder.contains(block)) {
                 block.removeFromFunction();
                 changed = true;
             } else if (block.getPredecessors().size() == 1) {

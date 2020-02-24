@@ -229,6 +229,9 @@ public class BasicBlock extends IRObject {
     }
 
     public void removeFromFunction() {
+        for (IRInstruction instruction : getInstructions())
+            instruction.removeFromBlock();
+
         if (prev == null) {
             function.setEntranceBlock(next);
             throw new RuntimeException();
@@ -265,6 +268,8 @@ public class BasicBlock extends IRObject {
             this.getSuccessors().add(successor);
             successor.getPredecessors().add(this);
         }
+        block.setInstHead(null);
+        block.setInstTail(null);
         block.removeFromFunction();
     }
 

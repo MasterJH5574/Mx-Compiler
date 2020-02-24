@@ -44,6 +44,11 @@
   * Fix bugs in DominatorTreeConstructor and add a CFG/Dominator Tree/Dominance Frontier printer.
   * Fix bugs in SSAConstructor and CFGSimplifier. Fix bugs when adding instructions and replacing uses. Add default value for return value in a function.
   * It can pass all codegen test with LLVM IR again by far.
+* 2020.2.24	Debug.
+  * Store default value to new allocated register so that no exception will be throwed when the use is before the def.
+  * Fix a bug when removing a block from a function.
+  * Fix a bug in CFGSimplifier so it can remove unreachable blocks correctly.
+  * It can generate LLVM IR for all semantic-pass test cases.
 
 
 

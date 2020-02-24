@@ -155,6 +155,7 @@ public class IRBuilder implements ASTVisitor {
         } else { // local variables
             Register allocaAddr = new Register(new PointerType(irType), name + "$addr");
             BasicBlock entranceBlock = currentFunction.getEntranceBlock();
+            entranceBlock.addInstructionAtFront(new StoreInst(entranceBlock, irType.getDefaultValue(), allocaAddr));
             entranceBlock.addInstructionAtFront(new AllocateInst(entranceBlock, allocaAddr, irType));
             currentFunction.getSymbolTable().put(allocaAddr.getName(), allocaAddr);
             variableEntity.setAllocaAddr(allocaAddr);

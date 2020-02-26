@@ -36,8 +36,8 @@
 * 2020.2.15	Debug. Pass all the semantic test cases. Fix [Pitfalls](#pitfalls) in semantic stage.
 * 2020.2.16	Debug. Generate correct LLVM IR to pass all codegen test cases.
 * 2020.2.17	Add class IRObject for use. Add def-use chains and use-def chain.
-* 2020.2.18	Add DominatorTreeConstructor and SSAConstructor(to be debugged).
-* 2020.2.19	Add CFGSimplifier(to be debugged).
+* 2020.2.18	Add DominatorTreeConstructor and [SSAConstructor](#ssa-constructionmem2reg-in-llvm-ir)(to be debugged).
+* 2020.2.19	Add [CFGSimplifier](#cfg-simplification)(to be debugged).
   * I need to spend more time on TA's task of CS158...See you later.
 * 2020.2.22	Debug. Fix bugs in CFGSimplifier.
 * 2020.2.23	Debug. 
@@ -51,9 +51,10 @@
   * Fix a bug in SSAConstructor to collect all allocate instructions.
   * Fix bugs in NewArrayMalloc and IRBuilder to generate allocate and store instructions with correct BasicBlock.
   * It can generate LLVM IR for all semantic-pass test cases.
-* 2020.2.25	Debug. Add DeadCodeEliminator.
+* 2020.2.25	Debug. Add [DeadCodeEliminator](#dead-code-elimination).
   * Replace `Set<IRInstruction> use` with `Map<IRInstruction, Integer> use`.
   * Fix a bug when adding a new branch to PhiInst(add use to operand and block).
+* 2020.2.26	Add [SCCP](#sparse-conditional-constant-propagation). Remove some redundant visits from IRVisitor.
 
 
 
@@ -353,7 +354,7 @@ By far, **CFG simplification** consists of **2 steps**.
 
 ### SSA Construction(Mem2Reg in LLVM IR)
 
-Note that LLVM IR is **in SSA form for registers,** but **not for memory**. So there are lots memory access in original LLVM IR. Hence we need to perform a SSA Construction **for memory** so that aaaaaaaaaaaaaaaaall alloca instructions, their corresponding load/store instructions can be removed.
+Note that LLVM IR is **in SSA form for registers,** but **not for memory**. So there are lots memory access in original LLVM IR. Hence we need to perform a SSA Construction **for memory** so that for all alloca instructions, their corresponding load/store instructions can be removed.
 
 #### Algorithm
 
@@ -369,30 +370,32 @@ Step 4: "Rename". **Replace uses** of load instruction. Remove alloca, load and 
 
 ### Dead Code Elimination
 
-##### Aggressive Dead Code Elimination
+**Aggressive Dead Code Elimination**: Assume a statement is **dead** until proven otherwise.
 
 ```java
-private boolean deadCodeElimination(Function function) {
-    Set<IRInstruction> live = new HashSet<>();
-    Queue<IRInstruction> queue = new LinkedList<>();
-    for (BasicBlock block : function.getBlocks())
-        addLiveInstructions(block, live, queue);
+public class DeadCodeEliminator extends Pass {
+    private boolean deadCodeElimination(Function function) {
+        Set<IRInstruction> live = new HashSet<>();
+        Queue<IRInstruction> queue = new LinkedList<>();
+        for (BasicBlock block : function.getBlocks())
+            addLiveInstructions(block, live, queue);
 
-    while (!queue.isEmpty()) {
-        IRInstruction instruction = queue.poll();
-        instruction.markUseAsLive(live, queue);
-        for (BasicBlock predecessor : instruction.getBasicBlock().getPredecessors()) {
-            if (!live.contains(predecessor.getInstTail())) {
-                live.add(predecessor.getInstTail());
-                queue.offer(predecessor.getInstTail());
+        while (!queue.isEmpty()) {
+            IRInstruction instruction = queue.poll();
+            instruction.markUseAsLive(live, queue);
+            for (BasicBlock predecessor : instruction.getBasicBlock().getPredecessors()) {
+                if (!live.contains(predecessor.getInstTail())) {
+                    live.add(predecessor.getInstTail());
+                    queue.offer(predecessor.getInstTail());
+                }
             }
         }
-    }
 
-    boolean changed = false;
-    for (BasicBlock block : function.getBlocks())
-        changed |= removeDeadInstructions(block, live);
-    return changed;
+        boolean changed = false;
+        for (BasicBlock block : function.getBlocks())
+            changed |= removeDeadInstructions(block, live);
+        return changed;
+    }
 }
 ```
 
@@ -402,3 +405,16 @@ private boolean deadCodeElimination(Function function) {
 2. Store instructions
 3. Return instructions.
 4. Instructions which call a function with potential side effect.
+
+### Sparse Conditional Constant Propagation
+
+For SCCP algorithm, see Tiger Book section 19.3: conditional constant propagation.
+
+1. Assume blocks are **unexecutable** until proven otherwise. When visiting a branch instruction, mark its successor(s) executable according to the condition of the branch.
+2. Assume registers are undefined. There are 3 statuses for registers: *undefined*, *constant*, and *multiDefined*. *Undefined* is the lowest status and *multiDefined* is the highest status. When visiting instructions, each time one can promote the status of a register to a higher status.
+3. Use two work lists (= queue) to store registers and blocks respectively. Entrance block is added to the queue of blocks at first.
+4. When popping a block out of the queue, visit all its instructions.
+5. When visiting an instruction, try to promote the status of the result according to the rules.
+6. Once the status of a register is promoted, push the register into the queue of registers.
+7. When popping a register out of the queue, visit all its use.
+

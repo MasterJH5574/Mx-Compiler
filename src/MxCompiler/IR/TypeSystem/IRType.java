@@ -1,6 +1,5 @@
 package MxCompiler.IR.TypeSystem;
 
-import MxCompiler.IR.IRVisitor;
 import MxCompiler.IR.Operand.Operand;
 
 abstract public class IRType {
@@ -18,6 +17,4 @@ abstract public class IRType {
         else
             return toString().equals(obj.toString());
     }
-
-    abstract public void accept(IRVisitor visitor);
 }

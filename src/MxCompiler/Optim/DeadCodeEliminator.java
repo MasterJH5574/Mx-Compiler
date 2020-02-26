@@ -108,14 +108,6 @@ public class DeadCodeEliminator extends Pass {
         boolean changed = false;
         while (ptr != null) {
             if (!live.contains(ptr)) {
-                if (ptr instanceof BranchInst) {
-                    ((BranchInst) ptr).getThenBlock().getPredecessors().remove(block);
-                    block.getSuccessors().remove(((BranchInst) ptr).getThenBlock());
-                    if (((BranchInst) ptr).isConditional()) {
-                        ((BranchInst) ptr).getElseBlock().getPredecessors().remove(block);
-                        block.getSuccessors().remove(((BranchInst) ptr).getElseBlock());
-                    }
-                }
                 ptr.removeFromBlock();
                 changed = true;
             }

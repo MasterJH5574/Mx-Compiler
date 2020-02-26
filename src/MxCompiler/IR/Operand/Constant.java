@@ -17,7 +17,12 @@ abstract public class Constant extends Operand {
     }
 
     @Override
-    public void markAsLive(Set<IRInstruction> live, Queue<IRInstruction> queue) {
+    public void markBaseAsLive(Set<IRInstruction> live, Queue<IRInstruction> queue) {
         // do nothing.
     }
+
+    abstract public Constant castToType(IRType objectType);
+
+    @Override
+    abstract public boolean equals(Object obj);
 }

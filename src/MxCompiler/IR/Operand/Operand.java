@@ -1,7 +1,6 @@
 package MxCompiler.IR.Operand;
 
 import MxCompiler.IR.IRObject;
-import MxCompiler.IR.IRVisitor;
 import MxCompiler.IR.Instruction.IRInstruction;
 import MxCompiler.IR.TypeSystem.IRType;
 
@@ -21,10 +20,8 @@ abstract public class Operand extends IRObject {
 
     abstract public boolean isConstValue();
 
-    abstract public void markAsLive(Set<IRInstruction> live, Queue<IRInstruction> queue);
+    abstract public void markBaseAsLive(Set<IRInstruction> live, Queue<IRInstruction> queue);
 
     @Override
     abstract public String toString();
-
-    abstract public void accept(IRVisitor visitor);
 }

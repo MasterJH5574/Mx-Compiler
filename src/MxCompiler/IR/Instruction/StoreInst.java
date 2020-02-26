@@ -7,6 +7,7 @@ import MxCompiler.IR.Operand.ConstNull;
 import MxCompiler.IR.Operand.GlobalVariable;
 import MxCompiler.IR.Operand.Operand;
 import MxCompiler.IR.TypeSystem.PointerType;
+import MxCompiler.Optim.SCCP;
 
 import java.util.Queue;
 import java.util.Set;
@@ -64,8 +65,14 @@ public class StoreInst extends IRInstruction {
 
     @Override
     public void markUseAsLive(Set<IRInstruction> live, Queue<IRInstruction> queue) {
-        value.markAsLive(live, queue);
-        pointer.markAsLive(live, queue);
+        value.markBaseAsLive(live, queue);
+        pointer.markBaseAsLive(live, queue);
+    }
+
+    @Override
+    public boolean replaceResultWithConstant(SCCP sccp) {
+        // Do nothing.
+        return false;
     }
 
     @Override

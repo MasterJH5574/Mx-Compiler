@@ -3,6 +3,7 @@ package MxCompiler.IR.Instruction;
 import MxCompiler.IR.BasicBlock;
 import MxCompiler.IR.IRObject;
 import MxCompiler.IR.IRVisitor;
+import MxCompiler.Optim.SCCP;
 
 import java.util.Queue;
 import java.util.Set;
@@ -62,6 +63,8 @@ abstract public class IRInstruction {
     }
 
     abstract public void markUseAsLive(Set<IRInstruction> live, Queue<IRInstruction> queue);
+
+    abstract public boolean replaceResultWithConstant(SCCP sccp);
 
     @Override
     abstract public String toString();

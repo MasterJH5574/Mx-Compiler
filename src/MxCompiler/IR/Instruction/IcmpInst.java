@@ -9,6 +9,7 @@ import MxCompiler.IR.Operand.Register;
 import MxCompiler.IR.TypeSystem.IRType;
 import MxCompiler.IR.TypeSystem.IntegerType;
 import MxCompiler.IR.TypeSystem.PointerType;
+import MxCompiler.Optim.SCCP;
 
 import java.util.Queue;
 import java.util.Set;
@@ -81,8 +82,19 @@ public class IcmpInst extends IRInstruction {
 
     @Override
     public void markUseAsLive(Set<IRInstruction> live, Queue<IRInstruction> queue) {
-        op1.markAsLive(live, queue);
-        op2.markAsLive(live, queue);
+        op1.markBaseAsLive(live, queue);
+        op2.markBaseAsLive(live, queue);
+    }
+
+    @Override
+    public boolean replaceResultWithConstant(SCCP sccp) {
+        SCCP.Status status = sccp.getStatus(result);
+        if (status.getOperandStatus() == SCCP.Status.OperandStatus.constant) {
+            result.replaceUse(status.getOperand());
+            this.removeFromBlock();
+            return true;
+        } else
+            return false;
     }
 
     @Override

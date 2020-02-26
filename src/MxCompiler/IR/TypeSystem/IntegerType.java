@@ -1,6 +1,5 @@
 package MxCompiler.IR.TypeSystem;
 
-import MxCompiler.IR.IRVisitor;
 import MxCompiler.IR.Operand.ConstBool;
 import MxCompiler.IR.Operand.ConstInt;
 import MxCompiler.IR.Operand.Operand;
@@ -44,10 +43,5 @@ public class IntegerType extends IRType {
             return "i8";
         else
             return "i32";
-    }
-
-    @Override
-    public void accept(IRVisitor visitor) {
-        visitor.visit(this);
     }
 }

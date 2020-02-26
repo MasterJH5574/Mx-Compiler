@@ -1,6 +1,5 @@
 package MxCompiler.IR.TypeSystem;
 
-import MxCompiler.IR.IRVisitor;
 import MxCompiler.IR.Operand.Operand;
 
 public class VoidType extends IRType {
@@ -18,10 +17,5 @@ public class VoidType extends IRType {
     @Override
     public String toString() {
         return "void";
-    }
-
-    @Override
-    public void accept(IRVisitor visitor) {
-        visitor.visit(this);
     }
 }

@@ -27,20 +27,20 @@ public interface IRVisitor {
     void visit(PhiInst inst);
     void visit(CallInst inst);
 
-    // ------ Type System ------
-    void visit(VoidType type);
-    void visit(FunctionType type);
-    void visit(IntegerType type);
-    void visit(PointerType type);
-    void visit(ArrayType type);
-    void visit(StructureType type);
-
-    // ------ Operand ------
-    void visit(GlobalVariable globalVariable);
-    void visit(Register register);
-    void visit(Parameter parameter);
-    void visit(ConstInt constInt);
-    void visit(ConstBool constBool);
-    void visit(ConstString constString);
-    void visit(ConstNull constNull);
+//    // ------ Type System ------
+//    void visit(VoidType type);
+//    void visit(FunctionType type);
+//    void visit(IntegerType type);
+//    void visit(PointerType type);
+//    void visit(ArrayType type);
+//    void visit(StructureType type);
+//
+//    // ------ Operand ------
+//    void visit(GlobalVariable globalVariable);
+//    void visit(Register register);
+//    void visit(Parameter parameter);
+//    void visit(ConstInt constInt);
+//    void visit(ConstBool constBool);
+//    void visit(ConstString constString);
+//    void visit(ConstNull constNull);
 }

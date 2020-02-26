@@ -5,6 +5,7 @@ import MxCompiler.IR.IRObject;
 import MxCompiler.IR.IRVisitor;
 import MxCompiler.IR.Operand.Operand;
 import MxCompiler.IR.TypeSystem.IntegerType;
+import MxCompiler.Optim.SCCP;
 
 import java.util.Queue;
 import java.util.Set;
@@ -97,7 +98,13 @@ public class BranchInst extends IRInstruction {
     @Override
     public void markUseAsLive(Set<IRInstruction> live, Queue<IRInstruction> queue) {
         if (cond != null)
-            cond.markAsLive(live, queue);
+            cond.markBaseAsLive(live, queue);
+    }
+
+    @Override
+    public boolean replaceResultWithConstant(SCCP sccp) {
+        // Do nothing.
+        return false;
     }
 
     @Override

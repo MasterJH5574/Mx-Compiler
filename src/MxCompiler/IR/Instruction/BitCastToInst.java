@@ -6,6 +6,7 @@ import MxCompiler.IR.IRVisitor;
 import MxCompiler.IR.Operand.Operand;
 import MxCompiler.IR.Operand.Register;
 import MxCompiler.IR.TypeSystem.IRType;
+import MxCompiler.Optim.SCCP;
 
 import java.util.Queue;
 import java.util.Set;
@@ -56,7 +57,18 @@ public class BitCastToInst extends IRInstruction {
 
     @Override
     public void markUseAsLive(Set<IRInstruction> live, Queue<IRInstruction> queue) {
-        src.markAsLive(live, queue);
+        src.markBaseAsLive(live, queue);
+    }
+
+    @Override
+    public boolean replaceResultWithConstant(SCCP sccp) {
+        SCCP.Status status = sccp.getStatus(result);
+        if (status.getOperandStatus() == SCCP.Status.OperandStatus.constant) {
+            result.replaceUse(status.getOperand());
+            this.removeFromBlock();
+            return true;
+        } else
+            return false;
     }
 
     @Override

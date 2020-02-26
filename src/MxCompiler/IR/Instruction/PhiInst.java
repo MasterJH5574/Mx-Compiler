@@ -7,6 +7,7 @@ import MxCompiler.IR.Operand.ConstNull;
 import MxCompiler.IR.Operand.Operand;
 import MxCompiler.IR.Operand.Register;
 import MxCompiler.IR.TypeSystem.PointerType;
+import MxCompiler.Optim.SCCP;
 import MxCompiler.Utilities.Pair;
 
 import java.util.Queue;
@@ -89,7 +90,18 @@ public class PhiInst extends IRInstruction {
     @Override
     public void markUseAsLive(Set<IRInstruction> live, Queue<IRInstruction> queue) {
         for (Pair<Operand, BasicBlock> pair : branch)
-            pair.getFirst().markAsLive(live, queue);
+            pair.getFirst().markBaseAsLive(live, queue);
+    }
+
+    @Override
+    public boolean replaceResultWithConstant(SCCP sccp) {
+        SCCP.Status status = sccp.getStatus(result);
+        if (status.getOperandStatus() == SCCP.Status.OperandStatus.constant) {
+            result.replaceUse(status.getOperand());
+            this.removeFromBlock();
+            return true;
+        } else
+            return false;
     }
 
     @Override

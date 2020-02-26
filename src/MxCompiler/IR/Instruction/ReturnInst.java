@@ -8,6 +8,7 @@ import MxCompiler.IR.Operand.Operand;
 import MxCompiler.IR.TypeSystem.IRType;
 import MxCompiler.IR.TypeSystem.PointerType;
 import MxCompiler.IR.TypeSystem.VoidType;
+import MxCompiler.Optim.SCCP;
 
 import java.util.Queue;
 import java.util.Set;
@@ -60,7 +61,13 @@ public class ReturnInst extends IRInstruction {
     @Override
     public void markUseAsLive(Set<IRInstruction> live, Queue<IRInstruction> queue) {
         if (returnValue != null)
-            returnValue.markAsLive(live, queue);
+            returnValue.markBaseAsLive(live, queue);
+    }
+
+    @Override
+    public boolean replaceResultWithConstant(SCCP sccp) {
+        // Do nothing.
+        return false;
     }
 
     @Override

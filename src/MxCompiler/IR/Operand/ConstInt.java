@@ -1,6 +1,6 @@
 package MxCompiler.IR.Operand;
 
-import MxCompiler.IR.IRVisitor;
+import MxCompiler.IR.TypeSystem.IRType;
 import MxCompiler.IR.TypeSystem.IntegerType;
 
 public class ConstInt extends Constant {
@@ -16,12 +16,25 @@ public class ConstInt extends Constant {
     }
 
     @Override
+    public Constant castToType(IRType objectType) {
+        if (objectType instanceof IntegerType) {
+            if (((IntegerType) objectType).getBitWidth() == IntegerType.BitWidth.int1)
+                return new ConstBool(value == 0);
+            else if (((IntegerType) objectType).getBitWidth() == IntegerType.BitWidth.int8)
+                return new ConstInt(IntegerType.BitWidth.int8, value);
+            else if (((IntegerType) objectType).getBitWidth() == IntegerType.BitWidth.int32)
+                return new ConstInt(IntegerType.BitWidth.int32, value);
+        }
+        throw new RuntimeException("ConstBool cast to " + objectType.toString());
+    }
+
+    @Override
     public String toString() {
         return String.valueOf(value);
     }
 
     @Override
-    public void accept(IRVisitor visitor) {
-        visitor.visit(this);
+    public boolean equals(Object obj) {
+        return obj instanceof ConstInt && value == ((ConstInt) obj).value;
     }
 }

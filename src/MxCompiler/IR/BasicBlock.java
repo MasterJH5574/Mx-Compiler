@@ -188,6 +188,10 @@ public class BasicBlock extends IRObject {
         this.dfsFather = dfsFather;
     }
 
+    public boolean hasIdom() {
+        return idom != null;
+    }
+
     public BasicBlock getIdom() {
         return idom;
     }

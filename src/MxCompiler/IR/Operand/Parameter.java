@@ -1,7 +1,6 @@
 package MxCompiler.IR.Operand;
 
 import MxCompiler.IR.Function;
-import MxCompiler.IR.IRVisitor;
 import MxCompiler.IR.Instruction.IRInstruction;
 import MxCompiler.IR.TypeSystem.IRType;
 
@@ -42,17 +41,12 @@ public class Parameter extends Operand {
     }
 
     @Override
-    public void markAsLive(Set<IRInstruction> live, Queue<IRInstruction> queue) {
+    public void markBaseAsLive(Set<IRInstruction> live, Queue<IRInstruction> queue) {
         // do nothing.
     }
 
     @Override
     public String toString() {
         return "%" + name;
-    }
-
-    @Override
-    public void accept(IRVisitor visitor) {
-        visitor.visit(this);
     }
 }

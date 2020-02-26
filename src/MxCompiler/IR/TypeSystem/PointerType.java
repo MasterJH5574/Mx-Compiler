@@ -1,6 +1,5 @@
 package MxCompiler.IR.TypeSystem;
 
-import MxCompiler.IR.IRVisitor;
 import MxCompiler.IR.Operand.ConstNull;
 import MxCompiler.IR.Operand.Operand;
 
@@ -28,10 +27,5 @@ public class PointerType extends IRType {
     @Override
     public String toString() {
         return baseType.toString() + "*";
-    }
-
-    @Override
-    public void accept(IRVisitor visitor) {
-        visitor.visit(this);
     }
 }

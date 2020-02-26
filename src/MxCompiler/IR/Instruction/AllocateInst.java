@@ -3,10 +3,10 @@ package MxCompiler.IR.Instruction;
 import MxCompiler.IR.BasicBlock;
 import MxCompiler.IR.IRObject;
 import MxCompiler.IR.IRVisitor;
-import MxCompiler.IR.Operand.Operand;
 import MxCompiler.IR.Operand.Register;
 import MxCompiler.IR.TypeSystem.PointerType;
 import MxCompiler.IR.TypeSystem.IRType;
+import MxCompiler.Optim.SCCP;
 
 import java.util.Queue;
 import java.util.Set;
@@ -45,6 +45,17 @@ public class AllocateInst extends IRInstruction {
     @Override
     public void markUseAsLive(Set<IRInstruction> live, Queue<IRInstruction> queue) {
         // do nothing.
+    }
+
+    @Override
+    public boolean replaceResultWithConstant(SCCP sccp) {
+        SCCP.Status status = sccp.getStatus(result);
+        if (status.getOperandStatus() == SCCP.Status.OperandStatus.constant) {
+            result.replaceUse(status.getOperand());
+            this.removeFromBlock();
+            return true;
+        } else
+            return false;
     }
 
     @Override

@@ -6,10 +6,10 @@ import MxCompiler.IR.IRObject;
 import MxCompiler.IR.IRVisitor;
 import MxCompiler.IR.Operand.ConstNull;
 import MxCompiler.IR.Operand.Operand;
-import MxCompiler.IR.Operand.Parameter;
 import MxCompiler.IR.Operand.Register;
 import MxCompiler.IR.TypeSystem.PointerType;
 import MxCompiler.IR.TypeSystem.VoidType;
+import MxCompiler.Optim.SCCP;
 
 import java.util.ArrayList;
 import java.util.Queue;
@@ -68,6 +68,10 @@ public class CallInst extends IRInstruction {
         return result;
     }
 
+    public boolean isVoidCall() {
+        return result == null;
+    }
+
     @Override
     public void replaceUse(IRObject oldUse, IRObject newUse) {
         if (function == oldUse) {
@@ -93,7 +97,20 @@ public class CallInst extends IRInstruction {
     @Override
     public void markUseAsLive(Set<IRInstruction> live, Queue<IRInstruction> queue) {
         for (Operand parameter : parameters)
-            parameter.markAsLive(live, queue);
+            parameter.markBaseAsLive(live, queue);
+    }
+
+    @Override
+    public boolean replaceResultWithConstant(SCCP sccp) {
+        if (this.isVoidCall())
+            return false;
+        SCCP.Status status = sccp.getStatus(result);
+        if (status.getOperandStatus() == SCCP.Status.OperandStatus.constant) {
+            result.replaceUse(status.getOperand());
+            this.removeFromBlock();
+            return true;
+        } else
+            return false;
     }
 
     @Override

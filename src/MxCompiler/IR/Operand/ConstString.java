@@ -1,6 +1,5 @@
 package MxCompiler.IR.Operand;
 
-import MxCompiler.IR.IRVisitor;
 import MxCompiler.IR.TypeSystem.IRType;
 
 public class ConstString extends Constant {
@@ -16,6 +15,12 @@ public class ConstString extends Constant {
     }
 
     @Override
+    public Constant castToType(IRType objectType) {
+        // This method will never be called.
+        throw new RuntimeException("ConstString cast to " + objectType.toString());
+    }
+
+    @Override
     public String toString() {
         String text = value;
         text = text.replace("\\", "\\5C");
@@ -27,7 +32,7 @@ public class ConstString extends Constant {
     }
 
     @Override
-    public void accept(IRVisitor visitor) {
-        visitor.visit(this);
+    public boolean equals(Object obj) {
+        return obj instanceof ConstString && value.equals(((ConstString) obj).value);
     }
 }

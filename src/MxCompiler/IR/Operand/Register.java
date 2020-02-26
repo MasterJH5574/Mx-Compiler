@@ -1,6 +1,5 @@
 package MxCompiler.IR.Operand;
 
-import MxCompiler.IR.IRVisitor;
 import MxCompiler.IR.Instruction.IRInstruction;
 import MxCompiler.IR.TypeSystem.IRType;
 
@@ -41,7 +40,7 @@ public class Register extends Operand {
     }
 
     @Override
-    public void markAsLive(Set<IRInstruction> live, Queue<IRInstruction> queue) {
+    public void markBaseAsLive(Set<IRInstruction> live, Queue<IRInstruction> queue) {
         assert def != null;
         if (!live.contains(def)) {
             live.add(def);
@@ -52,10 +51,5 @@ public class Register extends Operand {
     @Override
     public String toString() {
         return "%" + name;
-    }
-
-    @Override
-    public void accept(IRVisitor visitor) {
-        visitor.visit(this);
     }
 }

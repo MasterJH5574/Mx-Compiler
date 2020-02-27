@@ -257,15 +257,23 @@ public class BasicBlock extends IRObject {
         this.instTail.removeFromBlock();
         IRInstruction ptr = block.getInstHead();
         while (ptr != null) {
-            ptr.setBasicBlock(this);
-            ptr.setInstPrev(this.instTail);
-            if (this.isEmpty())
-                this.instHead = ptr;
-            else
-                this.instTail.setInstNext(ptr);
+            if (ptr instanceof PhiInst) {
+                IRInstruction next = ptr.getInstNext();
+                assert ((PhiInst) ptr).getBranch().size() == 1;
+                ((PhiInst) ptr).getResult().replaceUse(((PhiInst) ptr).getBranch().iterator().next().getFirst());
+                ptr.removeFromBlock();
+                ptr = next;
+            } else {
+                ptr.setBasicBlock(this);
+                ptr.setInstPrev(this.instTail);
+                if (this.isEmpty())
+                    this.instHead = ptr;
+                else
+                    this.instTail.setInstNext(ptr);
 
-            this.instTail = ptr;
-            ptr = ptr.getInstNext();
+                this.instTail = ptr;
+                ptr = ptr.getInstNext();
+            }
         }
 
         for (BasicBlock successor : block.getSuccessors()) {
@@ -274,6 +282,7 @@ public class BasicBlock extends IRObject {
         }
         block.setInstHead(null);
         block.setInstTail(null);
+        block.replaceUse(this);
         block.removeFromFunction();
     }
 

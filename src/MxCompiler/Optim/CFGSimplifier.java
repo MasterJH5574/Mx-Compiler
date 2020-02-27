@@ -3,6 +3,8 @@ package MxCompiler.Optim;
 import MxCompiler.IR.BasicBlock;
 import MxCompiler.IR.Function;
 import MxCompiler.IR.Instruction.BranchInst;
+import MxCompiler.IR.Instruction.IRInstruction;
+import MxCompiler.IR.Instruction.PhiInst;
 import MxCompiler.IR.Module;
 import MxCompiler.IR.Operand.ConstBool;
 
@@ -28,6 +30,7 @@ public class CFGSimplifier extends Pass {
             boolean loopChanged;
             loopChanged = removeRedundantBranch(function);
             loopChanged |= removeUnreachableBlock(function);
+            loopChanged |= removePhiInstWithSingleBranch(function);
             if (loopChanged)
                 changed = true;
             else
@@ -87,6 +90,25 @@ public class CFGSimplifier extends Pass {
                 }
             }
             block = block.getNext();
+        }
+        return changed;
+    }
+
+    private boolean removePhiInstWithSingleBranch(Function function) {
+        boolean changed = false;
+        ArrayList<BasicBlock> blocks = function.getBlocks();
+        for (BasicBlock block : blocks) {
+            IRInstruction ptr = block.getInstHead();
+            while (ptr instanceof PhiInst) {
+                IRInstruction next = ptr.getInstNext();
+                if (((PhiInst) ptr).getBranch().size() == 1) {
+                    assert block.getPredecessors().size() == 1;
+                    ((PhiInst) ptr).getResult().replaceUse(((PhiInst) ptr).getBranch().iterator().next().getFirst());
+                    ptr.removeFromBlock();
+                    changed = true;
+                }
+                ptr = next;
+            }
         }
         return changed;
     }

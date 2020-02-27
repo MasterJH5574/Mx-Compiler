@@ -55,6 +55,9 @@
   * Replace `Set<IRInstruction> use` with `Map<IRInstruction, Integer> use`.
   * Fix a bug when adding a new branch to PhiInst(add use to operand and block).
 * 2020.2.26	Add [SCCP](#sparse-conditional-constant-propagation). Remove some redundant visits from IRVisitor.
+* 2020.2.27	Add something and debug.
+  * Remove phi functions with single incoming value in CFGSimplifier.
+  * Fix two bugs when merging blocks(removing single incoming value phi functions, remove uses of the merged block).
 
 
 

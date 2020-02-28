@@ -58,6 +58,7 @@
 * 2020.2.27	Add something and debug.
   * Remove phi functions with single incoming value in CFGSimplifier.
   * Fix two bugs when merging blocks(removing single incoming value phi functions, remove uses of the merged block).
+* 2020.2.28	Add [CSE](#common-subexpression-elimination)(without Alias Analysis).
 
 
 
@@ -402,7 +403,7 @@ public class DeadCodeEliminator extends Pass {
 }
 ```
 
-##### Condition for "Live" instruction
+#### Conditi+on for "Live" instruction
 
 1. I/O
 2. Store instructions
@@ -420,4 +421,14 @@ For SCCP algorithm, see Tiger Book section 19.3: conditional constant propagatio
 5. When visiting an instruction, try to promote the status of the result according to the rules.
 6. Once the status of a register is promoted, push the register into the queue of registers.
 7. When popping a register out of the queue, visit all its use.
+
+### Common Subexpression Elimination
+
+**Need Dominance Analysis.**
+
+Use a map to collect all different expressions appeared.
+
+If instruction k dominates instruction l, and k and l share the same expression, then there is no need to recalculate the expression for k. It is enough to replace the use of the result of instruction l with the result of instruction k.
+
+**Since I don't implement Alias Analysis, load instructions cannot be optimized by CSE.**
 

@@ -9,6 +9,7 @@ import MxCompiler.IR.Operand.Operand;
 import MxCompiler.IR.Operand.Register;
 import MxCompiler.IR.TypeSystem.PointerType;
 import MxCompiler.IR.TypeSystem.VoidType;
+import MxCompiler.Optim.CSE;
 import MxCompiler.Optim.SCCP;
 
 import java.util.ArrayList;
@@ -18,7 +19,7 @@ import java.util.Set;
 public class CallInst extends IRInstruction {
     private Function function;
     private ArrayList<Operand> parameters;
-    private Operand result;
+    private Register result;
 
     public CallInst(BasicBlock basicBlock, Function function, ArrayList<Operand> parameters, Register result) {
         super(basicBlock);
@@ -51,7 +52,7 @@ public class CallInst extends IRInstruction {
             parameter.addUse(this);
 
         if (result != null)
-            ((Register) result).setDef(this);
+            result.setDef(this);
 
         function.addUse(this);
     }
@@ -64,7 +65,8 @@ public class CallInst extends IRInstruction {
         return parameters;
     }
 
-    public Operand getResult() {
+    @Override
+    public Register getResult() {
         return result;
     }
 
@@ -111,6 +113,11 @@ public class CallInst extends IRInstruction {
             return true;
         } else
             return false;
+    }
+
+    @Override
+    public CSE.Expression convertToExpression() {
+        throw new RuntimeException("Convert call instruction to expression.");
     }
 
     @Override

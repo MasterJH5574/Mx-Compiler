@@ -6,6 +6,7 @@ import MxCompiler.IR.IRVisitor;
 import MxCompiler.IR.Operand.Register;
 import MxCompiler.IR.TypeSystem.PointerType;
 import MxCompiler.IR.TypeSystem.IRType;
+import MxCompiler.Optim.CSE;
 import MxCompiler.Optim.SCCP;
 
 import java.util.Queue;
@@ -29,6 +30,7 @@ public class AllocateInst extends IRInstruction {
         result.setDef(this);
     }
 
+    @Override
     public Register getResult() {
         return result;
     }
@@ -56,6 +58,11 @@ public class AllocateInst extends IRInstruction {
             return true;
         } else
             return false;
+    }
+
+    @Override
+    public CSE.Expression convertToExpression() {
+        throw new RuntimeException("Convert alloca to expression.");
     }
 
     @Override

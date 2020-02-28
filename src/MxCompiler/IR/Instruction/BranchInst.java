@@ -4,7 +4,9 @@ import MxCompiler.IR.BasicBlock;
 import MxCompiler.IR.IRObject;
 import MxCompiler.IR.IRVisitor;
 import MxCompiler.IR.Operand.Operand;
+import MxCompiler.IR.Operand.Register;
 import MxCompiler.IR.TypeSystem.IntegerType;
+import MxCompiler.Optim.CSE;
 import MxCompiler.Optim.SCCP;
 
 import java.util.Queue;
@@ -53,6 +55,11 @@ public class BranchInst extends IRInstruction {
 
     public BasicBlock getElseBlock() {
         return elseBlock;
+    }
+
+    @Override
+    public Register getResult() {
+        throw new RuntimeException("Get result of branch instruction.");
     }
 
     public void setUnconditionalBranch(BasicBlock thenBlock) {
@@ -105,6 +112,11 @@ public class BranchInst extends IRInstruction {
     public boolean replaceResultWithConstant(SCCP sccp) {
         // Do nothing.
         return false;
+    }
+
+    @Override
+    public CSE.Expression convertToExpression() {
+        throw new RuntimeException("Convert branch instruction to expression.");
     }
 
     @Override

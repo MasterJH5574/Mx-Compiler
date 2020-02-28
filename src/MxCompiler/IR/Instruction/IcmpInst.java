@@ -9,8 +9,10 @@ import MxCompiler.IR.Operand.Register;
 import MxCompiler.IR.TypeSystem.IRType;
 import MxCompiler.IR.TypeSystem.IntegerType;
 import MxCompiler.IR.TypeSystem.PointerType;
+import MxCompiler.Optim.CSE;
 import MxCompiler.Optim.SCCP;
 
+import java.util.ArrayList;
 import java.util.Queue;
 import java.util.Set;
 
@@ -23,7 +25,7 @@ public class IcmpInst extends IRInstruction {
     private IRType irType;
     private Operand op1;
     private Operand op2;
-    private Operand result;
+    private Register result;
 
     public IcmpInst(BasicBlock basicBlock, IcmpName operator, IRType irType, Operand op1, Operand op2, Register result) {
         super(basicBlock);
@@ -40,7 +42,7 @@ public class IcmpInst extends IRInstruction {
 
     @Override
     public void successfullyAdd() {
-        ((Register) result).setDef(this);
+        result.setDef(this);
         op1.addUse(this);
         op2.addUse(this);
     }
@@ -57,7 +59,8 @@ public class IcmpInst extends IRInstruction {
         return op2;
     }
 
-    public Operand getResult() {
+    @Override
+    public Register getResult() {
         return result;
     }
 
@@ -95,6 +98,15 @@ public class IcmpInst extends IRInstruction {
             return true;
         } else
             return false;
+    }
+
+    @Override
+    public CSE.Expression convertToExpression() {
+        String instructionName = operator.name();
+        ArrayList<String> operands = new ArrayList<>();
+        operands.add(op1.toString());
+        operands.add(op2.toString());
+        return new CSE.Expression(instructionName, operands);
     }
 
     @Override

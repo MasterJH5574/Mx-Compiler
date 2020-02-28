@@ -5,9 +5,11 @@ import MxCompiler.IR.IRObject;
 import MxCompiler.IR.IRVisitor;
 import MxCompiler.IR.Operand.ConstNull;
 import MxCompiler.IR.Operand.Operand;
+import MxCompiler.IR.Operand.Register;
 import MxCompiler.IR.TypeSystem.IRType;
 import MxCompiler.IR.TypeSystem.PointerType;
 import MxCompiler.IR.TypeSystem.VoidType;
+import MxCompiler.Optim.CSE;
 import MxCompiler.Optim.SCCP;
 
 import java.util.Queue;
@@ -44,6 +46,11 @@ public class ReturnInst extends IRInstruction {
     }
 
     @Override
+    public Register getResult() {
+        throw new RuntimeException("Get result of return instruction.");
+    }
+
+    @Override
     public void replaceUse(IRObject oldUse, IRObject newUse) {
         if (returnValue != null && returnValue == oldUse) {
             returnValue = (Operand) newUse;
@@ -68,6 +75,11 @@ public class ReturnInst extends IRInstruction {
     public boolean replaceResultWithConstant(SCCP sccp) {
         // Do nothing.
         return false;
+    }
+
+    @Override
+    public CSE.Expression convertToExpression() {
+        throw new RuntimeException("Convert return instruction to expression");
     }
 
     @Override

@@ -30,6 +30,10 @@ public class Register extends Operand {
         this.name = name;
     }
 
+    public IRInstruction getDef() {
+        return def;
+    }
+
     public void setDef(IRInstruction def) {
         this.def = def;
     }

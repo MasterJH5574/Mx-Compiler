@@ -260,7 +260,7 @@ public class BasicBlock extends IRObject {
             if (ptr instanceof PhiInst) {
                 IRInstruction next = ptr.getInstNext();
                 assert ((PhiInst) ptr).getBranch().size() == 1;
-                ((PhiInst) ptr).getResult().replaceUse(((PhiInst) ptr).getBranch().iterator().next().getFirst());
+                ptr.getResult().replaceUse(((PhiInst) ptr).getBranch().iterator().next().getFirst());
                 ptr.removeFromBlock();
                 ptr = next;
             } else {

@@ -98,7 +98,7 @@ public class SSAConstructor extends Pass {
         for (BasicBlock block : function.getBlocks()) {
             ArrayList<IRInstruction> instructions = block.getInstructions();
             for (IRInstruction instruction : instructions) {
-                if (instruction instanceof LoadInst && ((LoadInst) instruction).getResult().getUse().isEmpty())
+                if (instruction instanceof LoadInst && instruction.getResult().getUse().isEmpty())
                     instruction.removeFromBlock();
             }
         }
@@ -137,7 +137,7 @@ public class SSAConstructor extends Pass {
                 assert renameTable.containsKey(block);
                 assert renameTable.get(block).containsKey(alloca);
                 Operand value = renameTable.get(block).get(alloca);
-                ((LoadInst) instruction).getResult().replaceUse(value);
+                instruction.getResult().replaceUse(value);
                 instruction.removeFromBlock();
             } else if (instruction instanceof StoreInst && defAlloca.containsKey(instruction)) {
                 AllocateInst alloca = defAlloca.get(instruction);

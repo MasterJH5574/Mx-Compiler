@@ -8,6 +8,7 @@ import MxCompiler.IR.Operand.Operand;
 import MxCompiler.IR.Operand.Register;
 import MxCompiler.IR.TypeSystem.IRType;
 import MxCompiler.IR.TypeSystem.PointerType;
+import MxCompiler.Optim.CSE;
 import MxCompiler.Optim.SCCP;
 
 import java.util.Queue;
@@ -16,7 +17,7 @@ import java.util.Set;
 public class LoadInst extends IRInstruction {
     private IRType type;
     private Operand pointer;
-    private Operand result;
+    private Register result;
 
     public LoadInst(BasicBlock basicBlock, IRType type, Operand pointer, Register result) {
         super(basicBlock);
@@ -35,7 +36,7 @@ public class LoadInst extends IRInstruction {
 
     @Override
     public void successfullyAdd() {
-        ((Register) result).setDef(this);
+        result.setDef(this);
         pointer.addUse(this);
     }
 
@@ -47,7 +48,8 @@ public class LoadInst extends IRInstruction {
         return pointer;
     }
 
-    public Operand getResult() {
+    @Override
+    public Register getResult() {
         return result;
     }
 
@@ -79,6 +81,12 @@ public class LoadInst extends IRInstruction {
             return true;
         } else
             return false;
+    }
+
+    @Override
+    public CSE.Expression convertToExpression() {
+        // Without alias analysis, load instruction cannot be used for CSE.
+        throw new RuntimeException("Convert load instruction to expression.");
     }
 
     @Override

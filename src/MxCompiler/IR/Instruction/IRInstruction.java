@@ -3,6 +3,8 @@ package MxCompiler.IR.Instruction;
 import MxCompiler.IR.BasicBlock;
 import MxCompiler.IR.IRObject;
 import MxCompiler.IR.IRVisitor;
+import MxCompiler.IR.Operand.Register;
+import MxCompiler.Optim.CSE;
 import MxCompiler.Optim.SCCP;
 
 import java.util.Queue;
@@ -44,6 +46,8 @@ abstract public class IRInstruction {
         return basicBlock;
     }
 
+    abstract public Register getResult();
+
     public boolean isTerminalInst() {
         return this instanceof BranchInst || this instanceof ReturnInst;
     }
@@ -65,6 +69,16 @@ abstract public class IRInstruction {
     abstract public void markUseAsLive(Set<IRInstruction> live, Queue<IRInstruction> queue);
 
     abstract public boolean replaceResultWithConstant(SCCP sccp);
+
+    public boolean canConvertToExpression() {
+        assert !(this instanceof AllocateInst);
+        return this instanceof BinaryOpInst
+                || this instanceof BitCastToInst
+                || this instanceof GetElementPtrInst
+                || this instanceof IcmpInst;
+    }
+
+    abstract public CSE.Expression convertToExpression();
 
     @Override
     abstract public String toString();

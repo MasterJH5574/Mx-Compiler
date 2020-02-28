@@ -6,15 +6,17 @@ import MxCompiler.IR.IRVisitor;
 import MxCompiler.IR.Operand.Operand;
 import MxCompiler.IR.Operand.Register;
 import MxCompiler.IR.TypeSystem.IRType;
+import MxCompiler.Optim.CSE;
 import MxCompiler.Optim.SCCP;
 
+import java.util.ArrayList;
 import java.util.Queue;
 import java.util.Set;
 
 public class BitCastToInst extends IRInstruction {
     private Operand src;
     private IRType objectType;
-    private Operand result;
+    private Register result;
 
     public BitCastToInst(BasicBlock basicBlock, Operand src, IRType objectType, Register result) {
         super(basicBlock);
@@ -25,7 +27,7 @@ public class BitCastToInst extends IRInstruction {
 
     @Override
     public void successfullyAdd() {
-        ((Register) result).setDef(this);
+        result.setDef(this);
         src.addUse(this);
     }
 
@@ -37,7 +39,8 @@ public class BitCastToInst extends IRInstruction {
         return objectType;
     }
 
-    public Operand getResult() {
+    @Override
+    public Register getResult() {
         return result;
     }
 
@@ -69,6 +72,15 @@ public class BitCastToInst extends IRInstruction {
             return true;
         } else
             return false;
+    }
+
+    @Override
+    public CSE.Expression convertToExpression() {
+        String instructionName = "bitcast";
+        ArrayList<String> operands = new ArrayList<>();
+        operands.add(src.toString());
+        operands.add(objectType.toString());
+        return new CSE.Expression(instructionName, operands);
     }
 
     @Override

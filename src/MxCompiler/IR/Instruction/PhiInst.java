@@ -7,6 +7,7 @@ import MxCompiler.IR.Operand.ConstNull;
 import MxCompiler.IR.Operand.Operand;
 import MxCompiler.IR.Operand.Register;
 import MxCompiler.IR.TypeSystem.PointerType;
+import MxCompiler.Optim.CSE;
 import MxCompiler.Optim.SCCP;
 import MxCompiler.Utilities.Pair;
 
@@ -15,7 +16,7 @@ import java.util.Set;
 
 public class PhiInst extends IRInstruction {
     private Set<Pair<Operand, BasicBlock>> branch;
-    private Operand result;
+    private Register result;
 
     public PhiInst(BasicBlock basicBlock, Set<Pair<Operand, BasicBlock>> branch, Register result) {
         super(basicBlock);
@@ -34,7 +35,7 @@ public class PhiInst extends IRInstruction {
             pair.getFirst().addUse(this);
             pair.getSecond().addUse(this);
         }
-        ((Register) result).setDef(this);
+        result.setDef(this);
     }
 
     public Set<Pair<Operand, BasicBlock>> getBranch() {
@@ -61,7 +62,8 @@ public class PhiInst extends IRInstruction {
         branch.remove(pair);
     }
 
-    public Operand getResult() {
+    @Override
+    public Register getResult() {
         return result;
     }
 
@@ -102,6 +104,11 @@ public class PhiInst extends IRInstruction {
             return true;
         } else
             return false;
+    }
+
+    @Override
+    public CSE.Expression convertToExpression() {
+        throw new RuntimeException("Convert phi instruction to expression");
     }
 
     @Override

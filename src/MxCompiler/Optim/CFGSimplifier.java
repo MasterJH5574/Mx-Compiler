@@ -103,7 +103,7 @@ public class CFGSimplifier extends Pass {
                 IRInstruction next = ptr.getInstNext();
                 if (((PhiInst) ptr).getBranch().size() == 1) {
                     assert block.getPredecessors().size() == 1;
-                    ((PhiInst) ptr).getResult().replaceUse(((PhiInst) ptr).getBranch().iterator().next().getFirst());
+                    ptr.getResult().replaceUse(((PhiInst) ptr).getBranch().iterator().next().getFirst());
                     ptr.removeFromBlock();
                     changed = true;
                 }

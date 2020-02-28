@@ -6,7 +6,9 @@ import MxCompiler.IR.IRVisitor;
 import MxCompiler.IR.Operand.ConstNull;
 import MxCompiler.IR.Operand.GlobalVariable;
 import MxCompiler.IR.Operand.Operand;
+import MxCompiler.IR.Operand.Register;
 import MxCompiler.IR.TypeSystem.PointerType;
+import MxCompiler.Optim.CSE;
 import MxCompiler.Optim.SCCP;
 
 import java.util.Queue;
@@ -45,6 +47,11 @@ public class StoreInst extends IRInstruction {
     }
 
     @Override
+    public Register getResult() {
+        throw new RuntimeException("Get result of store instruction");
+    }
+
+    @Override
     public void replaceUse(IRObject oldUse, IRObject newUse) {
         if (value == oldUse) {
             value = (Operand) newUse;
@@ -73,6 +80,11 @@ public class StoreInst extends IRInstruction {
     public boolean replaceResultWithConstant(SCCP sccp) {
         // Do nothing.
         return false;
+    }
+
+    @Override
+    public CSE.Expression convertToExpression() {
+        throw new RuntimeException("Convert store instruction to expression.");
     }
 
     @Override

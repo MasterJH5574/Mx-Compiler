@@ -10,6 +10,7 @@ import MxCompiler.IR.TypeSystem.ArrayType;
 import MxCompiler.IR.TypeSystem.IRType;
 import MxCompiler.IR.TypeSystem.IntegerType;
 import MxCompiler.IR.TypeSystem.PointerType;
+import MxCompiler.Optim.CSE;
 import MxCompiler.Optim.SCCP;
 
 import java.util.ArrayList;
@@ -19,7 +20,7 @@ import java.util.Set;
 public class GetElementPtrInst extends IRInstruction {
     private Operand pointer;
     private ArrayList<Operand> index;
-    private Operand result;
+    private Register result;
 
     public GetElementPtrInst(BasicBlock basicBlock, Operand pointer, ArrayList<Operand> index, Register result) {
         super(basicBlock);
@@ -37,7 +38,7 @@ public class GetElementPtrInst extends IRInstruction {
 
     @Override
     public void successfullyAdd() {
-        ((Register) result).setDef(this);
+        result.setDef(this);
 
         pointer.addUse(this);
         for (Operand operand : index)
@@ -52,7 +53,8 @@ public class GetElementPtrInst extends IRInstruction {
         return index;
     }
 
-    public Operand getResult() {
+    @Override
+    public Register getResult() {
         return result;
     }
 
@@ -94,6 +96,16 @@ public class GetElementPtrInst extends IRInstruction {
             return true;
         } else
             return false;
+    }
+
+    @Override
+    public CSE.Expression convertToExpression() {
+        String instructionName = "getelementptr";
+        ArrayList<String> operands = new ArrayList<>();
+        operands.add(pointer.toString());
+        for (Operand operand : index)
+            operands.add(operand.toString());
+        return new CSE.Expression(instructionName, operands);
     }
 
     @Override

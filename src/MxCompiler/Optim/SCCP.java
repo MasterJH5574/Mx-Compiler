@@ -192,16 +192,16 @@ public class SCCP extends Pass implements IRVisitor {
             Constant foldResult = foldConstant(inst, (Constant) lhsStatus.operand, (Constant) rhsStatus.operand);
             if (foldResult != null) {
                 // If the binary operation will cause any error, foldResult will be null.
-                markConstant((Register) inst.getResult(), foldResult);
+                markConstant(inst.getResult(), foldResult);
             }
         } else if (lhsStatus.operandStatus == Status.OperandStatus.multiDefined
                 || rhsStatus.operandStatus == Status.OperandStatus.multiDefined)
-            markMultiDefined((Register) inst.getResult());
+            markMultiDefined(inst.getResult());
     }
 
     @Override
     public void visit(LoadInst inst) {
-        markMultiDefined((Register) inst.getResult());
+        markMultiDefined(inst.getResult());
     }
 
     @Override
@@ -216,7 +216,7 @@ public class SCCP extends Pass implements IRVisitor {
 
     @Override
     public void visit(GetElementPtrInst inst) {
-        markMultiDefined((Register) inst.getResult());
+        markMultiDefined(inst.getResult());
     }
 
     @Override
@@ -228,9 +228,9 @@ public class SCCP extends Pass implements IRVisitor {
                 constant = new ConstNull();
             else
                 constant = ((Constant) srcStatus.operand).castToType(inst.getObjectType());
-            markConstant((Register) inst.getResult(), constant);
+            markConstant(inst.getResult(), constant);
         } else if (srcStatus.operandStatus == Status.OperandStatus.multiDefined)
-            markMultiDefined((Register) inst.getResult());
+            markMultiDefined(inst.getResult());
     }
 
     @Override
@@ -246,10 +246,10 @@ public class SCCP extends Pass implements IRVisitor {
             assert op2Status.operand instanceof Constant;
             Constant foldResult = foldConstant(inst, (Constant) op1Status.operand, (Constant) op2Status.operand);
             assert foldResult != null;
-            markConstant((Register) inst.getResult(), foldResult);
+            markConstant(inst.getResult(), foldResult);
         } else if (op1Status.operandStatus == Status.OperandStatus.multiDefined
                 || op2Status.operandStatus == Status.OperandStatus.multiDefined)
-            markMultiDefined((Register) inst.getResult());
+            markMultiDefined(inst.getResult());
     }
 
     @Override
@@ -260,12 +260,12 @@ public class SCCP extends Pass implements IRVisitor {
                 continue;
             Status operandStatus = getStatus(pair.getFirst());
             if (operandStatus.operandStatus == Status.OperandStatus.multiDefined) {
-                markMultiDefined((Register) inst.getResult());
+                markMultiDefined(inst.getResult());
                 return;
             } else if (operandStatus.operandStatus == Status.OperandStatus.constant) {
                 if (constant != null) {
                     if (!constant.equals(pair.getFirst())) {
-                        markMultiDefined((Register) inst.getResult());
+                        markMultiDefined(inst.getResult());
                         return;
                     }
                 } else
@@ -274,13 +274,13 @@ public class SCCP extends Pass implements IRVisitor {
         }
 
         if (constant != null)
-            markConstant((Register) inst.getResult(), constant);
+            markConstant(inst.getResult(), constant);
     }
 
     @Override
     public void visit(CallInst inst) {
         if (!inst.isVoidCall())
-            markMultiDefined((Register) inst.getResult());
+            markMultiDefined(inst.getResult());
     }
 
     private Constant foldConstant(IRInstruction inst, Constant lhs, Constant rhs) {

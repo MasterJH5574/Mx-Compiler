@@ -97,10 +97,13 @@ public class Main {
 
         DeadCodeEliminator deadCodeEliminator = new DeadCodeEliminator(module);
         SCCP sccp = new SCCP(module);
+        CSE cse = new CSE(module);
         while (true) {
             boolean changed;
+            dominatorTreeConstructor.run();
             changed = sccp.run();
             changed |= deadCodeEliminator.run();
+            changed |= cse.run();
             changed |= cfgSimplifier.run();
 
             if (!changed)

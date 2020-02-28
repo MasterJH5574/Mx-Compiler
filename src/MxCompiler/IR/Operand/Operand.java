@@ -24,4 +24,11 @@ abstract public class Operand extends IRObject {
 
     @Override
     abstract public String toString();
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof Operand))
+            return false;
+        return this.toString().equals(obj.toString());
+    }
 }

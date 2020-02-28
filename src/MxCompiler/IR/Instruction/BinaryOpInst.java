@@ -5,8 +5,10 @@ import MxCompiler.IR.IRObject;
 import MxCompiler.IR.IRVisitor;
 import MxCompiler.IR.Operand.Operand;
 import MxCompiler.IR.Operand.Register;
+import MxCompiler.Optim.CSE;
 import MxCompiler.Optim.SCCP;
 
+import java.util.ArrayList;
 import java.util.Queue;
 import java.util.Set;
 
@@ -19,7 +21,7 @@ public class BinaryOpInst extends IRInstruction {
     private BinaryOpName op;
     private Operand lhs;
     private Operand rhs;
-    private Operand result;
+    private Register result;
 
     public BinaryOpInst(BasicBlock basicBlock, BinaryOpName op, Operand lhs, Operand rhs, Register result) {
         super(basicBlock);
@@ -34,7 +36,7 @@ public class BinaryOpInst extends IRInstruction {
 
     @Override
     public void successfullyAdd() {
-        ((Register) result).setDef(this);
+        result.setDef(this);
         lhs.addUse(this);
         rhs.addUse(this);
     }
@@ -51,7 +53,8 @@ public class BinaryOpInst extends IRInstruction {
         return rhs;
     }
 
-    public Operand getResult() {
+    @Override
+    public Register getResult() {
         return result;
     }
 
@@ -89,6 +92,15 @@ public class BinaryOpInst extends IRInstruction {
             return true;
         } else
             return false;
+    }
+
+    @Override
+    public CSE.Expression convertToExpression() {
+        String instructionName = op.name();
+        ArrayList<String> operands = new ArrayList<>();
+        operands.add(lhs.toString());
+        operands.add(rhs.toString());
+        return new CSE.Expression(instructionName, operands);
     }
 
     @Override

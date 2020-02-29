@@ -128,6 +128,16 @@ public class BranchInst extends IRInstruction {
     }
 
     @Override
+    public Object clone() {
+        BranchInst branchInst = (BranchInst) super.clone();
+        branchInst.cond = this.cond;
+        branchInst.thenBlock = this.thenBlock;
+        branchInst.elseBlock = this.elseBlock;
+
+        return branchInst;
+    }
+
+    @Override
     public void accept(IRVisitor visitor) {
         visitor.visit(this);
     }

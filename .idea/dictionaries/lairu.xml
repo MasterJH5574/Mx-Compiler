@@ -4,6 +4,7 @@
       <w>alloca</w>
       <w>ashr</w>
       <w>bitcast</w>
+      <w>callees</w>
       <w>datalayout</w>
       <w>getelementptr</w>
       <w>icmp</w>

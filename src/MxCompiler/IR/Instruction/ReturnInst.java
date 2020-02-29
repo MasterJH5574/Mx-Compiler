@@ -91,6 +91,15 @@ public class ReturnInst extends IRInstruction {
     }
 
     @Override
+    public Object clone() {
+        ReturnInst returnInst = (ReturnInst) super.clone();
+        returnInst.type = this.type;
+        returnInst.returnValue = this.returnValue;
+
+        return returnInst;
+    }
+
+    @Override
     public void accept(IRVisitor visitor) {
         visitor.visit(this);
     }

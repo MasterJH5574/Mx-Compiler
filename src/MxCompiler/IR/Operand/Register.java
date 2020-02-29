@@ -56,4 +56,18 @@ public class Register extends Operand {
     public String toString() {
         return "%" + name;
     }
+
+    @Override
+    public Object clone() {
+        Register register;
+        try {
+            register = (Register) super.clone();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException(e.getMessage());
+        }
+        register.name = this.name;
+        register.def = this.def;
+        return register;
+    }
 }

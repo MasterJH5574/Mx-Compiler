@@ -10,7 +10,7 @@ import MxCompiler.Optim.SCCP;
 import java.util.Queue;
 import java.util.Set;
 
-abstract public class IRInstruction {
+abstract public class IRInstruction implements Cloneable {
     private BasicBlock basicBlock;
 
     private IRInstruction instPrev;
@@ -44,6 +44,17 @@ abstract public class IRInstruction {
 
     public BasicBlock getBasicBlock() {
         return basicBlock;
+    }
+
+    public boolean hasResult() {
+        return this instanceof AllocateInst
+                || this instanceof BinaryOpInst
+                || this instanceof BitCastToInst
+                || this instanceof CallInst
+                || this instanceof GetElementPtrInst
+                || this instanceof IcmpInst
+                || this instanceof LoadInst
+                || this instanceof PhiInst;
     }
 
     abstract public Register getResult();
@@ -82,6 +93,22 @@ abstract public class IRInstruction {
 
     @Override
     abstract public String toString();
+
+    @Override
+    public Object clone() {
+        IRInstruction instruction;
+        try {
+            instruction = (IRInstruction) super.clone();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException(e.getMessage());
+        }
+
+        instruction.basicBlock = this.basicBlock;
+        instruction.instPrev = this.instPrev;
+        instruction.instNext = this.instNext;
+        return instruction;
+    }
 
     abstract public void accept(IRVisitor visitor);
 }

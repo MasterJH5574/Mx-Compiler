@@ -141,6 +141,17 @@ public class CallInst extends IRInstruction {
     }
 
     @Override
+    public Object clone() {
+        CallInst callInst = (CallInst) super.clone();
+        callInst.function = this.function;
+        callInst.parameters = new ArrayList<>(this.parameters);
+        callInst.result = (Register) this.result.clone();
+
+        callInst.result.setDef(callInst);
+        return callInst;
+    }
+
+    @Override
     public void accept(IRVisitor visitor) {
         visitor.visit(this);
     }

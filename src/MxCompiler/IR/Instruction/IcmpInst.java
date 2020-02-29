@@ -116,6 +116,19 @@ public class IcmpInst extends IRInstruction {
     }
 
     @Override
+    public Object clone() {
+        IcmpInst icmpInst = (IcmpInst) super.clone();
+        icmpInst.operator = this.operator;
+        icmpInst.irType = this.irType;
+        icmpInst.op1 = this.op1;
+        icmpInst.op2 = this.op2;
+        icmpInst.result = (Register) this.result.clone();
+
+        icmpInst.result.setDef(icmpInst);
+        return icmpInst;
+    }
+
+    @Override
     public void accept(IRVisitor visitor) {
         visitor.visit(this);
     }

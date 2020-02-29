@@ -11,6 +11,7 @@ import MxCompiler.Optim.CSE;
 import MxCompiler.Optim.SCCP;
 import MxCompiler.Utilities.Pair;
 
+import java.util.LinkedHashSet;
 import java.util.Queue;
 import java.util.Set;
 
@@ -124,6 +125,16 @@ public class PhiInst extends IRInstruction {
                 string.append(", ");
         }
         return string.toString();
+    }
+
+    @Override
+    public Object clone() {
+        PhiInst phiInst = (PhiInst) super.clone();
+        phiInst.branch = new LinkedHashSet<>(this.branch);
+        phiInst.result = (Register) this.result.clone();
+
+        phiInst.result.setDef(phiInst);
+        return phiInst;
     }
 
     @Override

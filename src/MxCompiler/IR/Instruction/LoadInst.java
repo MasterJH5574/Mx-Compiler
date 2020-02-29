@@ -100,6 +100,17 @@ public class LoadInst extends IRInstruction {
     }
 
     @Override
+    public Object clone() {
+        LoadInst loadInst = (LoadInst) super.clone();
+        loadInst.type = this.type;
+        loadInst.pointer = this.pointer;
+        loadInst.result = (Register) this.result.clone();
+
+        loadInst.result.setDef(loadInst);
+        return loadInst;
+    }
+
+    @Override
     public void accept(IRVisitor visitor) {
         visitor.visit(this);
     }

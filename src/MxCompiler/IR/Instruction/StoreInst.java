@@ -98,6 +98,15 @@ public class StoreInst extends IRInstruction {
     }
 
     @Override
+    public Object clone() {
+        StoreInst storeInst = (StoreInst) super.clone();
+        storeInst.value = this.value;
+        storeInst.pointer = this.pointer;
+
+        return storeInst;
+    }
+
+    @Override
     public void accept(IRVisitor visitor) {
         visitor.visit(this);
     }

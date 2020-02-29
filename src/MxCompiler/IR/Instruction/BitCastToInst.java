@@ -90,6 +90,17 @@ public class BitCastToInst extends IRInstruction {
     }
 
     @Override
+    public Object clone() {
+        BitCastToInst bitCastToInst = ((BitCastToInst) super.clone());
+        bitCastToInst.src = this.src;
+        bitCastToInst.objectType = this.objectType;
+        bitCastToInst.result = (Register) this.result.clone();
+
+        bitCastToInst.result.setDef(bitCastToInst);
+        return bitCastToInst;
+    }
+
+    @Override
     public void accept(IRVisitor visitor) {
         visitor.visit(this);
     }

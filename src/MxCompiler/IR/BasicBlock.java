@@ -8,7 +8,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-public class BasicBlock extends IRObject {
+public class BasicBlock extends IRObject implements Cloneable {
     private Function function;
 
     private String name;
@@ -47,6 +47,10 @@ public class BasicBlock extends IRObject {
 
     public Function getFunction() {
         return function;
+    }
+
+    public void setFunction(Function function) {
+        this.function = function;
     }
 
     public String getName() {
@@ -108,8 +112,16 @@ public class BasicBlock extends IRObject {
         return predecessors;
     }
 
+    public void setPredecessors(Set<BasicBlock> predecessors) {
+        this.predecessors = predecessors;
+    }
+
     public Set<BasicBlock> getSuccessors() {
         return successors;
+    }
+
+    public void setSuccessors(Set<BasicBlock> successors) {
+        this.successors = successors;
     }
 
     public void appendBlock(BasicBlock block) {
@@ -289,6 +301,42 @@ public class BasicBlock extends IRObject {
     @Override
     public String toString() {
         return "%" + name;
+    }
+
+    @Override
+    public Object clone() {
+        BasicBlock block;
+        try {
+            block = ((BasicBlock) super.clone());
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException(e.getMessage());
+        }
+
+        ArrayList<IRInstruction> instructions = new ArrayList<>();
+        IRInstruction ptr = this.instHead;
+        while (ptr != null) {
+            instructions.add((IRInstruction) ptr.clone());
+            ptr = ptr.getInstNext();
+        }
+        for (int i = 0; i < instructions.size(); i++) {
+            IRInstruction instruction = instructions.get(i);
+            if (i != 0)
+                instruction.setInstPrev(instructions.get(i - 1));
+            if (i != instructions.size() - 1)
+                instruction.setInstNext(instructions.get(i + 1));
+            instruction.setBasicBlock(block);
+        }
+
+        block.function = this.function;
+        block.name = this.name;
+        block.instHead = instructions.get(0);
+        block.instTail = instructions.get(instructions.size() - 1);
+        block.prev = this.prev;
+        block.next = this.next;
+        block.predecessors = new HashSet<>(this.predecessors);
+        block.successors = new HashSet<>(this.successors);
+        return block;
     }
 
     public void accept(IRVisitor visitor) {

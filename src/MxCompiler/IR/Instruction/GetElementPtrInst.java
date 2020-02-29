@@ -129,6 +129,17 @@ public class GetElementPtrInst extends IRInstruction {
     }
 
     @Override
+    public Object clone() {
+        GetElementPtrInst getElementPtrInst = (GetElementPtrInst) super.clone();
+        getElementPtrInst.pointer = this.pointer;
+        getElementPtrInst.index = new ArrayList<>(index);
+        getElementPtrInst.result = (Register) this.result.clone();
+
+        getElementPtrInst.result.setDef(getElementPtrInst);
+        return getElementPtrInst;
+    }
+
+    @Override
     public void accept(IRVisitor visitor) {
         visitor.visit(this);
     }

@@ -14,10 +14,7 @@ import MxCompiler.Utilities.CompilationError;
 import MxCompiler.Utilities.ErrorHandler;
 import MxCompiler.Utilities.Pair;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.Stack;
+import java.util.*;
 
 public class IRBuilder implements ASTVisitor {
     private Module module;
@@ -899,7 +896,7 @@ public class IRBuilder implements ASTVisitor {
 
             currentBlock = mergeBlock;
             Register result = new Register(new IntegerType(IntegerType.BitWidth.int1), "logicalAnd");
-            Set<Pair<Operand, BasicBlock>> branch = new HashSet<>();
+            Set<Pair<Operand, BasicBlock>> branch = new LinkedHashSet<>();
             branch.add(new Pair<>(new ConstBool(false), phi1));
             branch.add(new Pair<>(rhsResult, phi2));
             currentBlock.addInstruction(new PhiInst(currentBlock, branch, result));
@@ -930,7 +927,7 @@ public class IRBuilder implements ASTVisitor {
 
             currentBlock = mergeBlock;
             Register result = new Register(new IntegerType(IntegerType.BitWidth.int1), "logicalOr");
-            Set<Pair<Operand, BasicBlock>> branch = new HashSet<>();
+            Set<Pair<Operand, BasicBlock>> branch = new LinkedHashSet<>();
             branch.add(new Pair<>(new ConstBool(true), phi1));
             branch.add(new Pair<>(rhsResult, phi2));
             currentBlock.addInstruction(new PhiInst(currentBlock, branch, result));

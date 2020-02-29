@@ -71,6 +71,16 @@ public class AllocateInst extends IRInstruction {
     }
 
     @Override
+    public Object clone() {
+        AllocateInst allocateInst = (AllocateInst) super.clone();
+        allocateInst.result = (Register) this.result.clone();
+        allocateInst.type = this.type;
+
+        allocateInst.result.setDef(allocateInst);
+        return allocateInst;
+    }
+
+    @Override
     public void accept(IRVisitor visitor) {
         visitor.visit(this);
     }

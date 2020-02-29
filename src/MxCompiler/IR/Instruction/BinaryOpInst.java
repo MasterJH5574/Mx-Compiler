@@ -110,6 +110,18 @@ public class BinaryOpInst extends IRInstruction {
     }
 
     @Override
+    public Object clone() {
+        BinaryOpInst binaryOpInst = (BinaryOpInst) super.clone();
+        binaryOpInst.op = this.op;
+        binaryOpInst.lhs = this.lhs;
+        binaryOpInst.rhs = this.rhs;
+        binaryOpInst.result = (Register) this.result.clone();
+
+        binaryOpInst.result.setDef(binaryOpInst);
+        return binaryOpInst;
+    }
+
+    @Override
     public void accept(IRVisitor visitor) {
         visitor.visit(this);
     }

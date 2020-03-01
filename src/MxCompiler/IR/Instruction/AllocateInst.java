@@ -3,12 +3,14 @@ package MxCompiler.IR.Instruction;
 import MxCompiler.IR.BasicBlock;
 import MxCompiler.IR.IRObject;
 import MxCompiler.IR.IRVisitor;
+import MxCompiler.IR.Operand.Operand;
 import MxCompiler.IR.Operand.Register;
 import MxCompiler.IR.TypeSystem.PointerType;
 import MxCompiler.IR.TypeSystem.IRType;
 import MxCompiler.Optim.CSE;
 import MxCompiler.Optim.SCCP;
 
+import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
@@ -63,6 +65,11 @@ public class AllocateInst extends IRInstruction {
     @Override
     public CSE.Expression convertToExpression() {
         throw new RuntimeException("Convert alloca to expression.");
+    }
+
+    @Override
+    public void clonedUseReplace(Map<BasicBlock, BasicBlock> blockMap, Map<Operand, Operand> operandMap) {
+        // Do nothing.
     }
 
     @Override

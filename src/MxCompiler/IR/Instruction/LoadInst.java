@@ -5,12 +5,14 @@ import MxCompiler.IR.IRObject;
 import MxCompiler.IR.IRVisitor;
 import MxCompiler.IR.Operand.GlobalVariable;
 import MxCompiler.IR.Operand.Operand;
+import MxCompiler.IR.Operand.Parameter;
 import MxCompiler.IR.Operand.Register;
 import MxCompiler.IR.TypeSystem.IRType;
 import MxCompiler.IR.TypeSystem.PointerType;
 import MxCompiler.Optim.CSE;
 import MxCompiler.Optim.SCCP;
 
+import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
@@ -97,6 +99,15 @@ public class LoadInst extends IRInstruction {
         else
             return result.toString() + " = load "
                     + type.toString() + ", " + pointer.getType().toString() + " " + pointer.toString();
+    }
+
+    @Override
+    public void clonedUseReplace(Map<BasicBlock, BasicBlock> blockMap, Map<Operand, Operand> operandMap) {
+        if (pointer instanceof Parameter || pointer instanceof Register) {
+            assert operandMap.containsKey(pointer);
+            pointer = operandMap.get(pointer);
+            pointer.addUse(this);
+        }
     }
 
     @Override

@@ -4,11 +4,13 @@ import MxCompiler.IR.BasicBlock;
 import MxCompiler.IR.IRObject;
 import MxCompiler.IR.IRVisitor;
 import MxCompiler.IR.Operand.Operand;
+import MxCompiler.IR.Operand.Parameter;
 import MxCompiler.IR.Operand.Register;
 import MxCompiler.IR.TypeSystem.IntegerType;
 import MxCompiler.Optim.CSE;
 import MxCompiler.Optim.SCCP;
 
+import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
@@ -117,6 +119,24 @@ public class BranchInst extends IRInstruction {
     @Override
     public CSE.Expression convertToExpression() {
         throw new RuntimeException("Convert branch instruction to expression.");
+    }
+
+    @Override
+    public void clonedUseReplace(Map<BasicBlock, BasicBlock> blockMap, Map<Operand, Operand> operandMap) {
+        if (cond != null) {
+            if (cond instanceof Parameter || cond instanceof Register) {
+                assert operandMap.containsKey(cond);
+                cond = operandMap.get(cond);
+                cond.addUse(this);
+            }
+
+            assert blockMap.containsKey(elseBlock);
+            elseBlock = blockMap.get(elseBlock);
+            elseBlock.addUse(this);
+        }
+        assert blockMap.containsKey(thenBlock);
+        thenBlock = blockMap.get(thenBlock);
+        thenBlock.addUse(this);
     }
 
     @Override

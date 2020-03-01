@@ -4,11 +4,13 @@ import MxCompiler.IR.BasicBlock;
 import MxCompiler.IR.IRObject;
 import MxCompiler.IR.IRVisitor;
 import MxCompiler.IR.Operand.Operand;
+import MxCompiler.IR.Operand.Parameter;
 import MxCompiler.IR.Operand.Register;
 import MxCompiler.Optim.CSE;
 import MxCompiler.Optim.SCCP;
 
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
@@ -101,6 +103,20 @@ public class BinaryOpInst extends IRInstruction {
         operands.add(lhs.toString());
         operands.add(rhs.toString());
         return new CSE.Expression(instructionName, operands);
+    }
+
+    @Override
+    public void clonedUseReplace(Map<BasicBlock, BasicBlock> blockMap, Map<Operand, Operand> operandMap) {
+        if (lhs instanceof Parameter || lhs instanceof Register) {
+            assert operandMap.containsKey(lhs);
+            lhs = operandMap.get(lhs);
+            lhs.addUse(this);
+        }
+        if (rhs instanceof Parameter || rhs instanceof Register) {
+            assert operandMap.containsKey(rhs);
+            rhs = operandMap.get(rhs);
+            rhs.addUse(this);
+        }
     }
 
     @Override

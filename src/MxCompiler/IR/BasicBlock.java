@@ -2,6 +2,8 @@ package MxCompiler.IR;
 
 import MxCompiler.IR.Instruction.IRInstruction;
 import MxCompiler.IR.Instruction.PhiInst;
+import MxCompiler.IR.Operand.Operand;
+import MxCompiler.Utilities.Pair;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -298,6 +300,54 @@ public class BasicBlock extends IRObject implements Cloneable {
         block.removeFromFunction();
     }
 
+    public BasicBlock split(IRInstruction instruction) {
+        BasicBlock splitBlock = new BasicBlock(function, "inlineMergedBlock");
+        function.getSymbolTable().put(splitBlock.getName(), splitBlock);
+
+        splitBlock.setInstHead(instruction.getInstNext());
+        splitBlock.setInstTail(this.instTail);
+        this.setInstTail(instruction);
+
+        instruction.getInstNext().setInstPrev(null);
+        instruction.setInstNext(null);
+
+        splitBlock.setNext(this.next);
+        if (this.next != null)
+            this.next.setPrev(splitBlock);
+        splitBlock.setPrev(this);
+        this.setNext(splitBlock);
+
+        for (BasicBlock successor : this.successors) {
+            splitBlock.getSuccessors().add(successor);
+            successor.getPredecessors().remove(this);
+            successor.getPredecessors().add(splitBlock);
+
+            IRInstruction ptr = successor.getInstHead();
+            while (ptr instanceof PhiInst) {
+                Operand operand = null;
+                for (Pair<Operand, BasicBlock> pair : ((PhiInst) ptr).getBranch()) {
+                    if (pair.getSecond() == this) {
+                        operand = pair.getFirst();
+                        break;
+                    }
+                }
+                assert operand != null;
+                ((PhiInst) ptr).removeIncomingBlock(this);
+                ((PhiInst) ptr).addBranch(operand, splitBlock);
+                ptr = ptr.getInstNext();
+            }
+        }
+        this.successors = new LinkedHashSet<>();
+
+        IRInstruction ptr = splitBlock.getInstHead();
+        while (ptr != null) {
+            ptr.setBasicBlock(splitBlock);
+            ptr = ptr.getInstNext();
+        }
+
+        return splitBlock;
+    }
+
     @Override
     public String toString() {
         return "%" + name;
@@ -321,10 +371,8 @@ public class BasicBlock extends IRObject implements Cloneable {
         }
         for (int i = 0; i < instructions.size(); i++) {
             IRInstruction instruction = instructions.get(i);
-            if (i != 0)
-                instruction.setInstPrev(instructions.get(i - 1));
-            if (i != instructions.size() - 1)
-                instruction.setInstNext(instructions.get(i + 1));
+            instruction.setInstPrev(i != 0 ? instructions.get(i - 1) : null);
+            instruction.setInstNext(i != instructions.size() - 1 ? instructions.get(i + 1) : null);
             instruction.setBasicBlock(block);
         }
 

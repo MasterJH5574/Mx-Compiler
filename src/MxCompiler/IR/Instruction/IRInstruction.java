@@ -3,10 +3,12 @@ package MxCompiler.IR.Instruction;
 import MxCompiler.IR.BasicBlock;
 import MxCompiler.IR.IRObject;
 import MxCompiler.IR.IRVisitor;
+import MxCompiler.IR.Operand.Operand;
 import MxCompiler.IR.Operand.Register;
 import MxCompiler.Optim.CSE;
 import MxCompiler.Optim.SCCP;
 
+import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
@@ -90,6 +92,8 @@ abstract public class IRInstruction implements Cloneable {
     }
 
     abstract public CSE.Expression convertToExpression();
+
+    abstract public void clonedUseReplace(Map<BasicBlock, BasicBlock> blockMap, Map<Operand, Operand> operandMap);
 
     @Override
     abstract public String toString();

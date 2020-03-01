@@ -5,6 +5,7 @@ import MxCompiler.IR.IRObject;
 import MxCompiler.IR.IRVisitor;
 import MxCompiler.IR.Operand.GlobalVariable;
 import MxCompiler.IR.Operand.Operand;
+import MxCompiler.IR.Operand.Parameter;
 import MxCompiler.IR.Operand.Register;
 import MxCompiler.IR.TypeSystem.ArrayType;
 import MxCompiler.IR.TypeSystem.IRType;
@@ -14,6 +15,7 @@ import MxCompiler.Optim.CSE;
 import MxCompiler.Optim.SCCP;
 
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
@@ -106,6 +108,23 @@ public class GetElementPtrInst extends IRInstruction {
         for (Operand operand : index)
             operands.add(operand.toString());
         return new CSE.Expression(instructionName, operands);
+    }
+
+    @Override
+    public void clonedUseReplace(Map<BasicBlock, BasicBlock> blockMap, Map<Operand, Operand> operandMap) {
+        if (pointer instanceof Parameter || pointer instanceof Register) {
+            assert operandMap.containsKey(pointer);
+            pointer = operandMap.get(pointer);
+            pointer.addUse(this);
+        }
+        for (int i = 0; i < index.size(); i++) {
+            Operand aIndex = index.get(i);
+            if (aIndex instanceof Parameter || aIndex instanceof Register) {
+                assert operandMap.containsKey(aIndex);
+                index.set(i, operandMap.get(aIndex));
+                index.get(i).addUse(this);
+            }
+        }
     }
 
     @Override

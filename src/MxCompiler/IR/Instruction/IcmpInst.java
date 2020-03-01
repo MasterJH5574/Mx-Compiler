@@ -5,6 +5,7 @@ import MxCompiler.IR.IRObject;
 import MxCompiler.IR.IRVisitor;
 import MxCompiler.IR.Operand.ConstNull;
 import MxCompiler.IR.Operand.Operand;
+import MxCompiler.IR.Operand.Parameter;
 import MxCompiler.IR.Operand.Register;
 import MxCompiler.IR.TypeSystem.IRType;
 import MxCompiler.IR.TypeSystem.IntegerType;
@@ -13,6 +14,7 @@ import MxCompiler.Optim.CSE;
 import MxCompiler.Optim.SCCP;
 
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
@@ -107,6 +109,20 @@ public class IcmpInst extends IRInstruction {
         operands.add(op1.toString());
         operands.add(op2.toString());
         return new CSE.Expression(instructionName, operands);
+    }
+
+    @Override
+    public void clonedUseReplace(Map<BasicBlock, BasicBlock> blockMap, Map<Operand, Operand> operandMap) {
+        if (op1 instanceof Parameter || op1 instanceof Register) {
+            assert operandMap.containsKey(op1);
+            op1 = operandMap.get(op1);
+            op1.addUse(this);
+        }
+        if (op2 instanceof Parameter || op2 instanceof Register) {
+            assert operandMap.containsKey(op2);
+            op2 = operandMap.get(op2);
+            op2.addUse(this);
+        }
     }
 
     @Override

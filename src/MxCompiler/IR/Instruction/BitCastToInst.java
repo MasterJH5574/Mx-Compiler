@@ -4,12 +4,14 @@ import MxCompiler.IR.BasicBlock;
 import MxCompiler.IR.IRObject;
 import MxCompiler.IR.IRVisitor;
 import MxCompiler.IR.Operand.Operand;
+import MxCompiler.IR.Operand.Parameter;
 import MxCompiler.IR.Operand.Register;
 import MxCompiler.IR.TypeSystem.IRType;
 import MxCompiler.Optim.CSE;
 import MxCompiler.Optim.SCCP;
 
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
@@ -81,6 +83,15 @@ public class BitCastToInst extends IRInstruction {
         operands.add(src.toString());
         operands.add(objectType.toString());
         return new CSE.Expression(instructionName, operands);
+    }
+
+    @Override
+    public void clonedUseReplace(Map<BasicBlock, BasicBlock> blockMap, Map<Operand, Operand> operandMap) {
+        if (src instanceof Parameter || src instanceof Register) {
+            assert operandMap.containsKey(src);
+            src = operandMap.get(src);
+            src.addUse(this);
+        }
     }
 
     @Override

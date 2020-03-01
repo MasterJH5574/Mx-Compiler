@@ -6,7 +6,7 @@ import MxCompiler.IR.TypeSystem.IRType;
 import java.util.Queue;
 import java.util.Set;
 
-public class Register extends Operand {
+public class Register extends Operand implements Cloneable {
     private String name;
     private IRInstruction def;
 

@@ -109,6 +109,9 @@ public class Main {
             if (!changed)
                 break;
         }
+        InlineExpander inlineExpander = new InlineExpander(module);
+        inlineExpander.run();
+
 
 
         IRPrinter irPrinter = new IRPrinter();

@@ -59,6 +59,8 @@
   * Remove phi functions with single incoming value in CFGSimplifier.
   * Fix two bugs when merging blocks(removing single incoming value phi functions, remove uses of the merged block).
 * 2020.2.28	Add [CSE](#common-subexpression-elimination)(without Alias Analysis).
+* 2020.2.29	Overload `public Object clone()` for BasicBlock, IRInstruction and Register.
+* 2020.3.1	Add InlineExpander(to be debugged).
 
 
 

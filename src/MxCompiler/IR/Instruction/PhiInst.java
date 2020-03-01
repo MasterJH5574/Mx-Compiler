@@ -5,6 +5,7 @@ import MxCompiler.IR.IRObject;
 import MxCompiler.IR.IRVisitor;
 import MxCompiler.IR.Operand.ConstNull;
 import MxCompiler.IR.Operand.Operand;
+import MxCompiler.IR.Operand.Parameter;
 import MxCompiler.IR.Operand.Register;
 import MxCompiler.IR.TypeSystem.PointerType;
 import MxCompiler.Optim.CSE;
@@ -12,6 +13,7 @@ import MxCompiler.Optim.SCCP;
 import MxCompiler.Utilities.Pair;
 
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
@@ -110,6 +112,28 @@ public class PhiInst extends IRInstruction {
     @Override
     public CSE.Expression convertToExpression() {
         throw new RuntimeException("Convert phi instruction to expression");
+    }
+
+    @Override
+    public void clonedUseReplace(Map<BasicBlock, BasicBlock> blockMap, Map<Operand, Operand> operandMap) {
+        Set<Pair<Operand, BasicBlock>> newBranch = new LinkedHashSet<>();
+        for (Pair<Operand, BasicBlock> pair : branch) {
+            Operand operand;
+            BasicBlock block;
+            if (pair.getFirst() instanceof Parameter || pair.getFirst() instanceof Register) {
+                assert operandMap.containsKey(pair.getFirst());
+                operand = operandMap.get(pair.getFirst());
+                operand.addUse(this);
+            } else
+                operand = pair.getFirst();
+
+            assert blockMap.containsKey(pair.getSecond());
+            block = blockMap.get(pair.getSecond());
+            block.addUse(this);
+
+            newBranch.add(new Pair<>(operand, block));
+        }
+        this.branch = newBranch;
     }
 
     @Override

@@ -5,6 +5,7 @@ import MxCompiler.IR.IRObject;
 import MxCompiler.IR.IRVisitor;
 import MxCompiler.IR.Operand.ConstNull;
 import MxCompiler.IR.Operand.Operand;
+import MxCompiler.IR.Operand.Parameter;
 import MxCompiler.IR.Operand.Register;
 import MxCompiler.IR.TypeSystem.IRType;
 import MxCompiler.IR.TypeSystem.PointerType;
@@ -12,6 +13,7 @@ import MxCompiler.IR.TypeSystem.VoidType;
 import MxCompiler.Optim.CSE;
 import MxCompiler.Optim.SCCP;
 
+import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
@@ -80,6 +82,17 @@ public class ReturnInst extends IRInstruction {
     @Override
     public CSE.Expression convertToExpression() {
         throw new RuntimeException("Convert return instruction to expression");
+    }
+
+    @Override
+    public void clonedUseReplace(Map<BasicBlock, BasicBlock> blockMap, Map<Operand, Operand> operandMap) {
+        if (!(type instanceof VoidType)) {
+            if (returnValue instanceof Parameter || returnValue instanceof Register) {
+                assert operandMap.containsKey(returnValue);
+                returnValue = operandMap.get(returnValue);
+                returnValue.addUse(this);
+            }
+        }
     }
 
     @Override

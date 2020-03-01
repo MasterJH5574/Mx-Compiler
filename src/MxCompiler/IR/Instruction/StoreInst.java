@@ -3,14 +3,12 @@ package MxCompiler.IR.Instruction;
 import MxCompiler.IR.BasicBlock;
 import MxCompiler.IR.IRObject;
 import MxCompiler.IR.IRVisitor;
-import MxCompiler.IR.Operand.ConstNull;
-import MxCompiler.IR.Operand.GlobalVariable;
-import MxCompiler.IR.Operand.Operand;
-import MxCompiler.IR.Operand.Register;
+import MxCompiler.IR.Operand.*;
 import MxCompiler.IR.TypeSystem.PointerType;
 import MxCompiler.Optim.CSE;
 import MxCompiler.Optim.SCCP;
 
+import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
@@ -85,6 +83,20 @@ public class StoreInst extends IRInstruction {
     @Override
     public CSE.Expression convertToExpression() {
         throw new RuntimeException("Convert store instruction to expression.");
+    }
+
+    @Override
+    public void clonedUseReplace(Map<BasicBlock, BasicBlock> blockMap, Map<Operand, Operand> operandMap) {
+        if (value instanceof Parameter || value instanceof Register) {
+            assert operandMap.containsKey(value);
+            value = operandMap.get(value);
+            value.addUse(this);
+        }
+        if (pointer instanceof Parameter || pointer instanceof Register) {
+            assert operandMap.containsKey(pointer);
+            pointer = operandMap.get(pointer);
+            pointer.addUse(this);
+        }
     }
 
     @Override

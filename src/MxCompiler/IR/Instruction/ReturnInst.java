@@ -90,8 +90,8 @@ public class ReturnInst extends IRInstruction {
             if (returnValue instanceof Parameter || returnValue instanceof Register) {
                 assert operandMap.containsKey(returnValue);
                 returnValue = operandMap.get(returnValue);
-                returnValue.addUse(this);
             }
+            returnValue.addUse(this);
         }
     }
 

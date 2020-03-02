@@ -90,13 +90,13 @@ public class StoreInst extends IRInstruction {
         if (value instanceof Parameter || value instanceof Register) {
             assert operandMap.containsKey(value);
             value = operandMap.get(value);
-            value.addUse(this);
         }
         if (pointer instanceof Parameter || pointer instanceof Register) {
             assert operandMap.containsKey(pointer);
             pointer = operandMap.get(pointer);
-            pointer.addUse(this);
         }
+        value.addUse(this);
+        pointer.addUse(this);
     }
 
     @Override

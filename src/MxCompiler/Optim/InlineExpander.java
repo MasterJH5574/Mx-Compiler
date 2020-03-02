@@ -18,7 +18,7 @@ public class InlineExpander extends Pass {
     private final int instructionLimit = 120;
 
     private Map<Function, Integer> instructionCnt;
-    private Map<Function, Set<Function>> calleeMap;
+    private Map<Function, Set<Function>> recursiveCalleeMap;
 
     public InlineExpander(Module module) {
         super(module);
@@ -27,12 +27,14 @@ public class InlineExpander extends Pass {
     @Override
     public boolean run() {
         instructionCnt = new HashMap<>();
-        calleeMap = new HashMap<>();
+        recursiveCalleeMap = new HashMap<>();
         for (Function function : module.getFunctionMap().values())
-            calleeMap.put(function, new HashSet<>());
+            recursiveCalleeMap.put(function, new HashSet<>());
 
         for (Function function : module.getFunctionMap().values())
             countInstructionsAndCalls(function);
+        for (Function function : module.getFunctionMap().values())
+            computeRecursiveCallees(function);
 
         changed = false;
         changed = nonRecursiveInline();
@@ -48,7 +50,8 @@ public class InlineExpander extends Pass {
                 instructionCnt++;
                 if (ptr instanceof CallInst) {
                     Function callee = ((CallInst) ptr).getFunction();
-                    calleeMap.get(function).add(callee);
+                    if (!module.getExternalFunctionMap().containsValue(callee))
+                        recursiveCalleeMap.get(function).add(callee);
                 }
                 ptr = ptr.getInstNext();
             }
@@ -56,15 +59,36 @@ public class InlineExpander extends Pass {
         this.instructionCnt.put(function, instructionCnt);
     }
 
-    private boolean canBeNonRecursiveInlined(Function callee, Function function) {
-        return instructionCnt.get(callee) < instructionLimit
-                && callee != function
-                && !calleeMap.get(callee).contains(callee);
+    private void computeRecursiveCallees(Function function) {
+        Queue<Function> queue = new LinkedList<>();
+        Set<Function> callees = recursiveCalleeMap.get(function);
+        for (Function callee : callees)
+            queue.offer(callee);
+
+        while (!queue.isEmpty()) {
+            Function func = queue.poll();
+            for (Function callee : recursiveCalleeMap.get(func)) {
+                if (!callees.contains(callee)) {
+                    callees.add(callee);
+                    queue.offer(callee);
+                }
+            }
+        }
     }
 
-    private boolean canBeRecursiveInlined(Function callee, Function function) {
+    private boolean canBeNonRecursiveInlined(Function callee, Function caller) {
+        if (!caller.isFunctional() || !callee.isFunctional())
+            return false;
         return instructionCnt.get(callee) < instructionLimit
-                && callee == function;
+                && callee != caller
+                && !recursiveCalleeMap.get(callee).contains(callee);
+    }
+
+    private boolean canBeRecursiveInlined(Function callee, Function caller) {
+        if (!caller.isFunctional() || !callee.isFunctional())
+            return false;
+        return instructionCnt.get(callee) < instructionLimit
+                && callee == caller;
     }
 
     private Pair<ArrayList<BasicBlock>, ReturnInst> cloneCallee(Function caller,
@@ -165,9 +189,6 @@ public class InlineExpander extends Pass {
             callInst.getResult().replaceUse(returnInst.getReturnValue());
         }
 
-        System.out.println(callInst.getBasicBlock().getFunction().getName());
-        System.out.println(callInst.getBasicBlock().getName());
-        System.out.println(callInst.toString());
         returnInst.removeFromBlock();
         callInst.removeFromBlock();
         inlineDivergedBlock.addInstruction
@@ -175,7 +196,7 @@ public class InlineExpander extends Pass {
         clonedBlocks.get(blocksCnt - 1).addInstruction
                 (new BranchInst(clonedBlocks.get(blocksCnt - 1), null, inlineMergedBlock, null));
 
-        return inlineDivergedBlock.getInstTail();
+        return inlineMergedBlock.getInstHead();
     }
 
     private boolean nonRecursiveInline() {

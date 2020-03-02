@@ -7,7 +7,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 
-abstract public class IRObject {
+abstract public class IRObject implements Cloneable {
     private Map<IRInstruction, Integer> use;
 
     public IRObject() {
@@ -41,5 +41,18 @@ abstract public class IRObject {
         for (IRInstruction instruction : use.keySet())
             instruction.replaceUse(this, newUse);
         use.clear();
+    }
+
+    @Override
+    public Object clone() {
+        IRObject irObject;
+        try {
+            irObject = (IRObject) super.clone();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException(e.getMessage());
+        }
+        irObject.use = new LinkedHashMap<>();
+        return irObject;
     }
 }

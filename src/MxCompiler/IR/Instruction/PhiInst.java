@@ -123,9 +123,9 @@ public class PhiInst extends IRInstruction {
             if (pair.getFirst() instanceof Parameter || pair.getFirst() instanceof Register) {
                 assert operandMap.containsKey(pair.getFirst());
                 operand = operandMap.get(pair.getFirst());
-                operand.addUse(this);
             } else
                 operand = pair.getFirst();
+            operand.addUse(this);
 
             assert blockMap.containsKey(pair.getSecond());
             block = blockMap.get(pair.getSecond());

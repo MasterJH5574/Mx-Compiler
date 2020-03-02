@@ -129,9 +129,10 @@ public class CallInst extends IRInstruction {
             if (operand instanceof Parameter || operand instanceof Register) {
                 assert operandMap.containsKey(operand);
                 parameters.set(i, operandMap.get(operand));
-                parameters.get(i).addUse(this);
             }
+            parameters.get(i).addUse(this);
         }
+        function.addUse(this);
     }
 
     @Override
@@ -159,9 +160,12 @@ public class CallInst extends IRInstruction {
         CallInst callInst = (CallInst) super.clone();
         callInst.function = this.function;
         callInst.parameters = new ArrayList<>(this.parameters);
-        callInst.result = (Register) this.result.clone();
+        if (this.result != null) {
+            callInst.result = (Register) this.result.clone();
+            callInst.result.setDef(callInst);
+        } else
+            callInst.result = null;
 
-        callInst.result.setDef(callInst);
         return callInst;
     }
 

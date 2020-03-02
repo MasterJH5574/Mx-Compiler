@@ -90,8 +90,8 @@ public class BitCastToInst extends IRInstruction {
         if (src instanceof Parameter || src instanceof Register) {
             assert operandMap.containsKey(src);
             src = operandMap.get(src);
-            src.addUse(this);
         }
+        src.addUse(this);
     }
 
     @Override

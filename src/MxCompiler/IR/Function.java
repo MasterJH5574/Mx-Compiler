@@ -212,6 +212,16 @@ public class Function extends IRObject {
         return dfsOrder;
     }
 
+    public boolean isFunctional() {
+        int returnInstCnt = 0;
+        for (BasicBlock block : getBlocks()) {
+            if (!block.endWithTerminalInst())
+                return false;
+            if (block.getInstTail() instanceof ReturnInst)
+                returnInstCnt++;
+        }
+        return returnInstCnt == 1;
+    }
 
     public void accept(IRVisitor visitor) {
         visitor.visit(this);

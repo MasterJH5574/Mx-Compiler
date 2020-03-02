@@ -106,8 +106,8 @@ public class LoadInst extends IRInstruction {
         if (pointer instanceof Parameter || pointer instanceof Register) {
             assert operandMap.containsKey(pointer);
             pointer = operandMap.get(pointer);
-            pointer.addUse(this);
         }
+        pointer.addUse(this);
     }
 
     @Override

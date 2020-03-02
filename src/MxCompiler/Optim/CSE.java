@@ -95,6 +95,8 @@ public class CSE extends Pass {
     }
 
     private boolean commonSubexpressionElimination(Function function) {
+        if (!function.isFunctional())
+            return false;
         boolean changed = false;
         expressionMap = new HashMap<>();
         ArrayList<BasicBlock> blocks = function.getDFSOrder();

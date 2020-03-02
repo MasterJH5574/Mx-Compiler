@@ -175,7 +175,7 @@ public class BasicBlock extends IRObject implements Cloneable {
     }
 
     public boolean endWithTerminalInst() {
-        return instTail.isTerminalInst();
+        return instTail != null && instTail.isTerminalInst();
     }
 
     public void removePhiIncomingBlock(BasicBlock block) {
@@ -317,6 +317,9 @@ public class BasicBlock extends IRObject implements Cloneable {
         splitBlock.setPrev(this);
         this.setNext(splitBlock);
 
+        if (this.getFunction().getExitBlock() == this)
+            this.getFunction().setExitBlock(splitBlock);
+
         for (BasicBlock successor : this.successors) {
             splitBlock.getSuccessors().add(successor);
             successor.getPredecessors().remove(this);
@@ -378,8 +381,13 @@ public class BasicBlock extends IRObject implements Cloneable {
 
         block.function = this.function;
         block.name = this.name;
-        block.instHead = instructions.get(0);
-        block.instTail = instructions.get(instructions.size() - 1);
+        if (instructions.isEmpty()) {
+            block.instHead = null;
+            block.instTail = null;
+        } else {
+            block.instHead = instructions.get(0);
+            block.instTail = instructions.get(instructions.size() - 1);
+        }
         block.prev = this.prev;
         block.next = this.next;
         block.predecessors = new HashSet<>(this.predecessors);

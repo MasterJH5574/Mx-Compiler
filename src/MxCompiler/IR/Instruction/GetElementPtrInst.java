@@ -115,15 +115,15 @@ public class GetElementPtrInst extends IRInstruction {
         if (pointer instanceof Parameter || pointer instanceof Register) {
             assert operandMap.containsKey(pointer);
             pointer = operandMap.get(pointer);
-            pointer.addUse(this);
         }
+        pointer.addUse(this);
         for (int i = 0; i < index.size(); i++) {
             Operand aIndex = index.get(i);
             if (aIndex instanceof Parameter || aIndex instanceof Register) {
                 assert operandMap.containsKey(aIndex);
                 index.set(i, operandMap.get(aIndex));
-                index.get(i).addUse(this);
             }
+            index.get(i).addUse(this);
         }
     }
 

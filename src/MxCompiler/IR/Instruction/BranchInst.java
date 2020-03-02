@@ -127,8 +127,8 @@ public class BranchInst extends IRInstruction {
             if (cond instanceof Parameter || cond instanceof Register) {
                 assert operandMap.containsKey(cond);
                 cond = operandMap.get(cond);
-                cond.addUse(this);
             }
+            cond.addUse(this);
 
             assert blockMap.containsKey(elseBlock);
             elseBlock = blockMap.get(elseBlock);

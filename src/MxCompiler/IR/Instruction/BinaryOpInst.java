@@ -110,13 +110,13 @@ public class BinaryOpInst extends IRInstruction {
         if (lhs instanceof Parameter || lhs instanceof Register) {
             assert operandMap.containsKey(lhs);
             lhs = operandMap.get(lhs);
-            lhs.addUse(this);
         }
         if (rhs instanceof Parameter || rhs instanceof Register) {
             assert operandMap.containsKey(rhs);
             rhs = operandMap.get(rhs);
-            rhs.addUse(this);
         }
+        lhs.addUse(this);
+        rhs.addUse(this);
     }
 
     @Override

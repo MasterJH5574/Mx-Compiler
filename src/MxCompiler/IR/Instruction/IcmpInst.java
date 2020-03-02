@@ -116,13 +116,13 @@ public class IcmpInst extends IRInstruction {
         if (op1 instanceof Parameter || op1 instanceof Register) {
             assert operandMap.containsKey(op1);
             op1 = operandMap.get(op1);
-            op1.addUse(this);
         }
         if (op2 instanceof Parameter || op2 instanceof Register) {
             assert operandMap.containsKey(op2);
             op2 = operandMap.get(op2);
-            op2.addUse(this);
         }
+        op1.addUse(this);
+        op2.addUse(this);
     }
 
     @Override

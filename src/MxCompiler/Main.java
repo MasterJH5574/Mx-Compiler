@@ -98,19 +98,21 @@ public class Main {
         DeadCodeEliminator deadCodeEliminator = new DeadCodeEliminator(module);
         SCCP sccp = new SCCP(module);
         CSE cse = new CSE(module);
+        InlineExpander inlineExpander = new InlineExpander(module);
+        FunctionRemover functionRemover = new FunctionRemover(module);
         while (true) {
             boolean changed;
             dominatorTreeConstructor.run();
             changed = sccp.run();
             changed |= deadCodeEliminator.run();
             changed |= cse.run();
+            changed |= inlineExpander.run();
             changed |= cfgSimplifier.run();
+            changed |= functionRemover.run();
 
             if (!changed)
                 break;
         }
-        InlineExpander inlineExpander = new InlineExpander(module);
-        inlineExpander.run();
 
 
 

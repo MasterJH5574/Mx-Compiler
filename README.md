@@ -61,6 +61,7 @@
 * 2020.2.28	Add [CSE](#common-subexpression-elimination)(without Alias Analysis).
 * 2020.2.29	Overload `public Object clone()` for BasicBlock, IRInstruction and Register.
 * 2020.3.1	Add InlineExpander(to be debugged).
+* 2020.3.2	Add FunctionRemover to remove functions which are never called.
 
 
 

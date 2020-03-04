@@ -95,7 +95,7 @@ public class CSE extends Pass {
     }
 
     private boolean commonSubexpressionElimination(Function function) {
-        if (!function.isFunctional())
+        if (function.isNotFunctional())
             return false;
         boolean changed = false;
         expressionMap = new HashMap<>();

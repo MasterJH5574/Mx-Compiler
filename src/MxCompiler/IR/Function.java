@@ -185,7 +185,7 @@ public class Function extends IRObject {
     public void checkBlockTerminalInst(ErrorHandler errorHandler) throws CompilationError {
         ArrayList<BasicBlock> blocks = getBlocks();
         for (BasicBlock block : blocks) {
-            if (!block.endWithTerminalInst()) {
+            if (block.notEndWithTerminalInst()) {
                 errorHandler.error("Function \"" + name + "\" has no return statement.");
                 throw new CompilationError();
             }
@@ -212,15 +212,15 @@ public class Function extends IRObject {
         return dfsOrder;
     }
 
-    public boolean isFunctional() {
+    public boolean isNotFunctional() {
         int returnInstCnt = 0;
         for (BasicBlock block : getBlocks()) {
-            if (!block.endWithTerminalInst())
-                return false;
+            if (block.notEndWithTerminalInst())
+                return true;
             if (block.getInstTail() instanceof ReturnInst)
                 returnInstCnt++;
         }
-        return returnInstCnt == 1;
+        return returnInstCnt != 1;
     }
 
     public void accept(IRVisitor visitor) {

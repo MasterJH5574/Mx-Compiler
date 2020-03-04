@@ -25,7 +25,7 @@ public class CFGSimplifier extends Pass {
     }
 
     private boolean functionSimplify(Function function) {
-        if (!function.isFunctional())
+        if (function.isNotFunctional())
             return false;
         boolean changed = false;
         while (true) {

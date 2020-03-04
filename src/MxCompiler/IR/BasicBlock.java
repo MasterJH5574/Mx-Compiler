@@ -174,8 +174,8 @@ public class BasicBlock extends IRObject implements Cloneable {
         return instructions;
     }
 
-    public boolean endWithTerminalInst() {
-        return instTail != null && instTail.isTerminalInst();
+    public boolean notEndWithTerminalInst() {
+        return instTail == null || !instTail.isTerminalInst();
     }
 
     public void removePhiIncomingBlock(BasicBlock block) {

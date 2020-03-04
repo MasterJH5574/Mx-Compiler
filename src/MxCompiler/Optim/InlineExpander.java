@@ -77,7 +77,7 @@ public class InlineExpander extends Pass {
     }
 
     private boolean canBeNonRecursiveInlined(Function callee, Function caller) {
-        if (!caller.isFunctional() || !callee.isFunctional())
+        if (caller.isNotFunctional() || callee.isNotFunctional())
             return false;
         return instructionCnt.get(callee) < instructionLimit
                 && callee != caller
@@ -85,7 +85,7 @@ public class InlineExpander extends Pass {
     }
 
     private boolean canBeRecursiveInlined(Function callee, Function caller) {
-        if (!caller.isFunctional() || !callee.isFunctional())
+        if (caller.isNotFunctional() || callee.isNotFunctional())
             return false;
         return instructionCnt.get(callee) < instructionLimit
                 && callee == caller;

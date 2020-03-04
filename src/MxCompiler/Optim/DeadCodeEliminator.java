@@ -61,7 +61,7 @@ public class DeadCodeEliminator extends Pass {
     }
 
     private boolean deadCodeElimination(Function function) {
-        if (!function.isFunctional())
+        if (function.isNotFunctional())
             return false;
         Set<IRInstruction> live = new HashSet<>();
         Queue<IRInstruction> queue = new LinkedList<>();

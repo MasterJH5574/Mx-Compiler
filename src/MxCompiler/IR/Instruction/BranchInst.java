@@ -7,6 +7,7 @@ import MxCompiler.IR.Operand.Operand;
 import MxCompiler.IR.Operand.Parameter;
 import MxCompiler.IR.Operand.Register;
 import MxCompiler.IR.TypeSystem.IntegerType;
+import MxCompiler.Optim.Andersen;
 import MxCompiler.Optim.CSE;
 import MxCompiler.Optim.SCCP;
 
@@ -137,6 +138,11 @@ public class BranchInst extends IRInstruction {
         assert blockMap.containsKey(thenBlock);
         thenBlock = blockMap.get(thenBlock);
         thenBlock.addUse(this);
+    }
+
+    @Override
+    public void addConstraintsForAndersen(Map<Operand, Andersen.Node> nodeMap, Set<Andersen.Node> nodes) {
+        // Do nothing.
     }
 
     @Override

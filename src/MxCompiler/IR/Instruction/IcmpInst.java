@@ -10,6 +10,7 @@ import MxCompiler.IR.Operand.Register;
 import MxCompiler.IR.TypeSystem.IRType;
 import MxCompiler.IR.TypeSystem.IntegerType;
 import MxCompiler.IR.TypeSystem.PointerType;
+import MxCompiler.Optim.Andersen;
 import MxCompiler.Optim.CSE;
 import MxCompiler.Optim.SCCP;
 
@@ -123,6 +124,11 @@ public class IcmpInst extends IRInstruction {
         }
         op1.addUse(this);
         op2.addUse(this);
+    }
+
+    @Override
+    public void addConstraintsForAndersen(Map<Operand, Andersen.Node> nodeMap, Set<Andersen.Node> nodes) {
+        // Do nothing.
     }
 
     @Override

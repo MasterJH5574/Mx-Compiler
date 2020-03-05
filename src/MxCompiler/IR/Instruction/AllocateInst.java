@@ -7,6 +7,7 @@ import MxCompiler.IR.Operand.Operand;
 import MxCompiler.IR.Operand.Register;
 import MxCompiler.IR.TypeSystem.PointerType;
 import MxCompiler.IR.TypeSystem.IRType;
+import MxCompiler.Optim.Andersen;
 import MxCompiler.Optim.CSE;
 import MxCompiler.Optim.SCCP;
 
@@ -70,6 +71,15 @@ public class AllocateInst extends IRInstruction {
     @Override
     public void clonedUseReplace(Map<BasicBlock, BasicBlock> blockMap, Map<Operand, Operand> operandMap) {
         // Do nothing.
+    }
+
+    @Override
+    public void addConstraintsForAndersen(Map<Operand, Andersen.Node> nodeMap, Set<Andersen.Node> nodes) {
+        assert nodeMap.containsKey(result);
+        Andersen.Node pointer = nodeMap.get(result);
+        Andersen.Node pointTo = new Andersen.Node(pointer.getName() + ".alloca");
+        pointer.getPointsTo().add(pointTo);
+        nodes.add(pointTo);
     }
 
     @Override

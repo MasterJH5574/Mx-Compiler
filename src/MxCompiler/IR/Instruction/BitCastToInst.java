@@ -3,10 +3,13 @@ package MxCompiler.IR.Instruction;
 import MxCompiler.IR.BasicBlock;
 import MxCompiler.IR.IRObject;
 import MxCompiler.IR.IRVisitor;
+import MxCompiler.IR.Operand.ConstNull;
 import MxCompiler.IR.Operand.Operand;
 import MxCompiler.IR.Operand.Parameter;
 import MxCompiler.IR.Operand.Register;
 import MxCompiler.IR.TypeSystem.IRType;
+import MxCompiler.IR.TypeSystem.PointerType;
+import MxCompiler.Optim.Andersen;
 import MxCompiler.Optim.CSE;
 import MxCompiler.Optim.SCCP;
 
@@ -92,6 +95,16 @@ public class BitCastToInst extends IRInstruction {
             src = operandMap.get(src);
         }
         src.addUse(this);
+    }
+
+    @Override
+    public void addConstraintsForAndersen(Map<Operand, Andersen.Node> nodeMap, Set<Andersen.Node> nodes) {
+        assert src.getType() instanceof PointerType && result.getType() instanceof PointerType;
+        if (!(src instanceof ConstNull)) {
+            assert nodeMap.containsKey(result);
+            assert nodeMap.containsKey(src);
+            nodeMap.get(src).getInclusiveEdge().add(nodeMap.get(result));
+        }
     }
 
     @Override

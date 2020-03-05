@@ -1,6 +1,7 @@
 package MxCompiler.IR;
 
 import MxCompiler.IR.Instruction.*;
+import MxCompiler.IR.Operand.Operand;
 import MxCompiler.IR.Operand.Parameter;
 import MxCompiler.IR.Operand.Register;
 import MxCompiler.IR.TypeSystem.FunctionType;
@@ -62,6 +63,10 @@ public class Function extends IRObject {
             symbolTable.put(parameter.getName(), parameter);
     }
 
+    public Module getModule() {
+        return module;
+    }
+
     public String getName() {
         return name;
     }
@@ -96,6 +101,11 @@ public class Function extends IRObject {
 
     public Register getReturnValue() {
         return returnValue;
+    }
+
+    public Operand getActualReturnValue() {
+        assert exitBlock.getInstTail() instanceof ReturnInst;
+        return ((ReturnInst) exitBlock.getInstTail()).getReturnValue();
     }
 
     public SymbolTable getSymbolTable() {

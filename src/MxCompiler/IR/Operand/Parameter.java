@@ -20,6 +20,10 @@ public class Parameter extends Operand {
             return name;
     }
 
+    public String getFullName() {
+        return function.getName() + toString();
+    }
+
     public String getNameWithoutDot() {
         if (name.contains("."))
             return name.split("\\.")[0];

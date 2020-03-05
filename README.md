@@ -64,6 +64,8 @@
 * 2020.3.2	Add something and debug.
   * Add FunctionRemover to remove functions which are never called.
   * Debug. Fix bugs in InlineExpander and not it can pass codegen test cases.
+* 2020.3.4	Revert two boolean methods...
+* 2020.3.5	Add Andersen's Point To Analysis(to be debugged).
 
 
 

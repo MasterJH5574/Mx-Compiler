@@ -5,6 +5,7 @@ import MxCompiler.IR.IRObject;
 import MxCompiler.IR.IRVisitor;
 import MxCompiler.IR.Operand.*;
 import MxCompiler.IR.TypeSystem.PointerType;
+import MxCompiler.Optim.Andersen;
 import MxCompiler.Optim.CSE;
 import MxCompiler.Optim.SCCP;
 
@@ -97,6 +98,18 @@ public class StoreInst extends IRInstruction {
         }
         value.addUse(this);
         pointer.addUse(this);
+    }
+
+    @Override
+    public void addConstraintsForAndersen(Map<Operand, Andersen.Node> nodeMap, Set<Andersen.Node> nodes) {
+        // *pointer = value
+        if (!(value.getType() instanceof PointerType))
+            return;
+        if (!(pointer instanceof ConstNull)) {
+            assert nodeMap.containsKey(pointer);
+            assert nodeMap.containsKey(value);
+            nodeMap.get(pointer).getDereferenceLhs().add(nodeMap.get(value));
+        }
     }
 
     @Override

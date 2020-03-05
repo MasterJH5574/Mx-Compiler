@@ -3,12 +3,10 @@ package MxCompiler.IR.Instruction;
 import MxCompiler.IR.BasicBlock;
 import MxCompiler.IR.IRObject;
 import MxCompiler.IR.IRVisitor;
-import MxCompiler.IR.Operand.GlobalVariable;
-import MxCompiler.IR.Operand.Operand;
-import MxCompiler.IR.Operand.Parameter;
-import MxCompiler.IR.Operand.Register;
+import MxCompiler.IR.Operand.*;
 import MxCompiler.IR.TypeSystem.IRType;
 import MxCompiler.IR.TypeSystem.PointerType;
+import MxCompiler.Optim.Andersen;
 import MxCompiler.Optim.CSE;
 import MxCompiler.Optim.SCCP;
 
@@ -92,6 +90,27 @@ public class LoadInst extends IRInstruction {
     }
 
     @Override
+    public void clonedUseReplace(Map<BasicBlock, BasicBlock> blockMap, Map<Operand, Operand> operandMap) {
+        if (pointer instanceof Parameter || pointer instanceof Register) {
+            assert operandMap.containsKey(pointer);
+            pointer = operandMap.get(pointer);
+        }
+        pointer.addUse(this);
+    }
+
+    @Override
+    public void addConstraintsForAndersen(Map<Operand, Andersen.Node> nodeMap, Set<Andersen.Node> nodes) {
+        // result = *pointer
+        if (!(result.getType() instanceof PointerType))
+            return;
+        if (!(pointer instanceof ConstNull)) {
+            assert nodeMap.containsKey(pointer);
+            assert nodeMap.containsKey(result);
+            nodeMap.get(pointer).getDereferenceRhs().add(nodeMap.get(result));
+        }
+    }
+
+    @Override
     public String toString() {
         if (pointer instanceof GlobalVariable)
             return result.toString() + " = load " + type.toString() +
@@ -99,15 +118,6 @@ public class LoadInst extends IRInstruction {
         else
             return result.toString() + " = load "
                     + type.toString() + ", " + pointer.getType().toString() + " " + pointer.toString();
-    }
-
-    @Override
-    public void clonedUseReplace(Map<BasicBlock, BasicBlock> blockMap, Map<Operand, Operand> operandMap) {
-        if (pointer instanceof Parameter || pointer instanceof Register) {
-            assert operandMap.containsKey(pointer);
-            pointer = operandMap.get(pointer);
-        }
-        pointer.addUse(this);
     }
 
     @Override

@@ -5,6 +5,7 @@ import MxCompiler.IR.IRObject;
 import MxCompiler.IR.IRVisitor;
 import MxCompiler.IR.Operand.Operand;
 import MxCompiler.IR.Operand.Register;
+import MxCompiler.Optim.Andersen;
 import MxCompiler.Optim.CSE;
 import MxCompiler.Optim.SCCP;
 
@@ -49,10 +50,11 @@ abstract public class IRInstruction implements Cloneable {
     }
 
     public boolean hasResult() {
+        if (this instanceof CallInst)
+            return !((CallInst) this).isVoidCall();
         return this instanceof AllocateInst
                 || this instanceof BinaryOpInst
                 || this instanceof BitCastToInst
-                || this instanceof CallInst
                 || this instanceof GetElementPtrInst
                 || this instanceof IcmpInst
                 || this instanceof LoadInst
@@ -61,8 +63,8 @@ abstract public class IRInstruction implements Cloneable {
 
     abstract public Register getResult();
 
-    public boolean isTerminalInst() {
-        return this instanceof BranchInst || this instanceof ReturnInst;
+    public boolean isNotTerminalInst() {
+        return !(this instanceof BranchInst) && !(this instanceof ReturnInst);
     }
 
     abstract public void replaceUse(IRObject oldUse, IRObject newUse);
@@ -94,6 +96,8 @@ abstract public class IRInstruction implements Cloneable {
     abstract public CSE.Expression convertToExpression();
 
     abstract public void clonedUseReplace(Map<BasicBlock, BasicBlock> blockMap, Map<Operand, Operand> operandMap);
+
+    abstract public void addConstraintsForAndersen(Map<Operand, Andersen.Node> nodeMap, Set<Andersen.Node> nodes);
 
     @Override
     abstract public String toString();

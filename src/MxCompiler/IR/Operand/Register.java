@@ -19,6 +19,10 @@ public class Register extends Operand implements Cloneable {
         return name;
     }
 
+    public String getFullName() {
+        return def.getBasicBlock().getFunction().getName() + toString();
+    }
+
     public String getNameWithoutDot() {
         if (name.contains("."))
             return name.split("\\.")[0];

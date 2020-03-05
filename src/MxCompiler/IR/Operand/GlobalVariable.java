@@ -20,6 +20,10 @@ public class GlobalVariable extends Operand {
         return name;
     }
 
+    public String getFullName() {
+        return toString();
+    }
+
     public Operand getInit() {
         return init;
     }

@@ -8,6 +8,7 @@ import MxCompiler.IR.Operand.Operand;
 import MxCompiler.IR.Operand.Parameter;
 import MxCompiler.IR.Operand.Register;
 import MxCompiler.IR.TypeSystem.PointerType;
+import MxCompiler.Optim.Andersen;
 import MxCompiler.Optim.CSE;
 import MxCompiler.Optim.SCCP;
 import MxCompiler.Utilities.Pair;
@@ -134,6 +135,20 @@ public class PhiInst extends IRInstruction {
             newBranch.add(new Pair<>(operand, block));
         }
         this.branch = newBranch;
+    }
+
+    @Override
+    public void addConstraintsForAndersen(Map<Operand, Andersen.Node> nodeMap, Set<Andersen.Node> nodes) {
+        if (!(result.getType() instanceof PointerType))
+            return;
+        assert nodeMap.containsKey(result);
+        for (Pair<Operand, BasicBlock> pair : branch) {
+            Operand operand = pair.getFirst();
+            if (!(operand instanceof ConstNull)) {
+                assert nodeMap.containsKey(operand);
+                nodeMap.get(operand).getInclusiveEdge().add(nodeMap.get(result));
+            }
+        }
     }
 
     @Override

@@ -3,14 +3,12 @@ package MxCompiler.IR.Instruction;
 import MxCompiler.IR.BasicBlock;
 import MxCompiler.IR.IRObject;
 import MxCompiler.IR.IRVisitor;
-import MxCompiler.IR.Operand.GlobalVariable;
-import MxCompiler.IR.Operand.Operand;
-import MxCompiler.IR.Operand.Parameter;
-import MxCompiler.IR.Operand.Register;
+import MxCompiler.IR.Operand.*;
 import MxCompiler.IR.TypeSystem.ArrayType;
 import MxCompiler.IR.TypeSystem.IRType;
 import MxCompiler.IR.TypeSystem.IntegerType;
 import MxCompiler.IR.TypeSystem.PointerType;
+import MxCompiler.Optim.Andersen;
 import MxCompiler.Optim.CSE;
 import MxCompiler.Optim.SCCP;
 
@@ -124,6 +122,17 @@ public class GetElementPtrInst extends IRInstruction {
                 index.set(i, operandMap.get(aIndex));
             }
             index.get(i).addUse(this);
+        }
+    }
+
+    @Override
+    public void addConstraintsForAndersen(Map<Operand, Andersen.Node> nodeMap, Set<Andersen.Node> nodes) {
+        assert result.getType() instanceof PointerType;
+        assert pointer instanceof GlobalVariable || pointer.getType() instanceof PointerType;
+        if (!(pointer instanceof ConstNull)) {
+            assert nodeMap.containsKey(result);
+            assert nodeMap.containsKey(pointer);
+            nodeMap.get(pointer).getInclusiveEdge().add(nodeMap.get(result));
         }
     }
 

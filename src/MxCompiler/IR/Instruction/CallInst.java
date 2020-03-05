@@ -10,6 +10,7 @@ import MxCompiler.IR.Operand.Parameter;
 import MxCompiler.IR.Operand.Register;
 import MxCompiler.IR.TypeSystem.PointerType;
 import MxCompiler.IR.TypeSystem.VoidType;
+import MxCompiler.Optim.Andersen;
 import MxCompiler.Optim.CSE;
 import MxCompiler.Optim.SCCP;
 
@@ -133,6 +134,44 @@ public class CallInst extends IRInstruction {
             parameters.get(i).addUse(this);
         }
         function.addUse(this);
+    }
+
+    @Override
+    public void addConstraintsForAndersen(Map<Operand, Andersen.Node> nodeMap, Set<Andersen.Node> nodes) {
+        if (this.getBasicBlock().getFunction().getModule().getExternalFunctionMap().containsValue(this.function)) {
+            if (!isVoidCall() && result.getType() instanceof PointerType) {
+                assert nodeMap.containsKey(result);
+                Andersen.Node pointer = nodeMap.get(result);
+                Andersen.Node pointTo = new Andersen.Node(pointer.getName()
+                        + ".returnValue:" + function.getName());
+                pointer.getPointsTo().add(pointTo);
+                nodes.add(pointTo);
+            }
+        } else {
+            for (int i = 0; i < parameters.size(); i++) {
+                Parameter formal = function.getParameters().get(i);
+                Operand actual = parameters.get(i);
+                if (actual.getType() instanceof PointerType) {
+                    assert formal.getType() instanceof PointerType;
+                    if (!(actual instanceof ConstNull)) {
+                        assert nodeMap.containsKey(actual);
+                        assert nodeMap.containsKey(formal);
+                        nodeMap.get(actual).getInclusiveEdge().add(nodeMap.get(formal));
+                    }
+                } else
+                    assert !(formal.getType() instanceof PointerType);
+            }
+
+            if (!isVoidCall() && result.getType() instanceof PointerType) {
+                Operand returnValue = function.getActualReturnValue();
+                assert returnValue != null && returnValue.getType() instanceof PointerType;
+                if (!(returnValue instanceof ConstNull)) {
+                    assert nodeMap.containsKey(result);
+                    assert nodeMap.containsKey(returnValue);
+                    nodeMap.get(returnValue).getInclusiveEdge().add(nodeMap.get(result));
+                }
+            }
+        }
     }
 
     @Override

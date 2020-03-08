@@ -1,6 +1,7 @@
 package MxCompiler.IR.Instruction;
 
 import MxCompiler.IR.BasicBlock;
+import MxCompiler.IR.Function;
 import MxCompiler.IR.IRObject;
 import MxCompiler.IR.IRVisitor;
 import MxCompiler.IR.Operand.ConstNull;
@@ -11,6 +12,7 @@ import MxCompiler.IR.TypeSystem.PointerType;
 import MxCompiler.Optim.Andersen;
 import MxCompiler.Optim.CSE;
 import MxCompiler.Optim.SCCP;
+import MxCompiler.Optim.SideEffectChecker;
 import MxCompiler.Utilities.Pair;
 
 import java.util.LinkedHashSet;
@@ -149,6 +151,23 @@ public class PhiInst extends IRInstruction {
                 nodeMap.get(operand).getInclusiveEdge().add(nodeMap.get(result));
             }
         }
+    }
+
+    @Override
+    public void updateResultScope(Map<Operand, SideEffectChecker.Scope> scopeMap,
+                                  Map<Function, SideEffectChecker.Scope> returnValueScope) {
+        if (SideEffectChecker.getOperandScope(result) == SideEffectChecker.Scope.local) {
+            scopeMap.replace(result, SideEffectChecker.Scope.local);
+            return;
+        }
+
+        for (Pair<Operand, BasicBlock> pair : branch) {
+            if (scopeMap.get(pair.getFirst()) == SideEffectChecker.Scope.outer) {
+                scopeMap.replace(result, SideEffectChecker.Scope.outer);
+                return;
+            }
+        }
+        scopeMap.replace(result, SideEffectChecker.Scope.local);
     }
 
     @Override

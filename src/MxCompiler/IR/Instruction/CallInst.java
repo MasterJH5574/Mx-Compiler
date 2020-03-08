@@ -13,6 +13,7 @@ import MxCompiler.IR.TypeSystem.VoidType;
 import MxCompiler.Optim.Andersen;
 import MxCompiler.Optim.CSE;
 import MxCompiler.Optim.SCCP;
+import MxCompiler.Optim.SideEffectChecker;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -172,6 +173,17 @@ public class CallInst extends IRInstruction {
                 }
             }
         }
+    }
+
+    @Override
+    public void updateResultScope(Map<Operand, SideEffectChecker.Scope> scopeMap,
+                                  Map<Function, SideEffectChecker.Scope> returnValueScope) {
+        if (isVoidCall())
+            return;
+        if (SideEffectChecker.getOperandScope(result) == SideEffectChecker.Scope.local)
+            scopeMap.replace(result, SideEffectChecker.Scope.local);
+        else
+            scopeMap.replace(result, returnValueScope.get(function));
     }
 
     @Override

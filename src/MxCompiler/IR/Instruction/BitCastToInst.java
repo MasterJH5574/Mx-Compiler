@@ -1,6 +1,7 @@
 package MxCompiler.IR.Instruction;
 
 import MxCompiler.IR.BasicBlock;
+import MxCompiler.IR.Function;
 import MxCompiler.IR.IRObject;
 import MxCompiler.IR.IRVisitor;
 import MxCompiler.IR.Operand.ConstNull;
@@ -12,6 +13,7 @@ import MxCompiler.IR.TypeSystem.PointerType;
 import MxCompiler.Optim.Andersen;
 import MxCompiler.Optim.CSE;
 import MxCompiler.Optim.SCCP;
+import MxCompiler.Optim.SideEffectChecker;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -28,6 +30,10 @@ public class BitCastToInst extends IRInstruction {
         this.src = src;
         this.objectType = objectType;
         this.result = result;
+
+        assert result.getType().equals(objectType);
+        assert objectType instanceof PointerType;
+        assert src.getType() instanceof PointerType;
     }
 
     @Override
@@ -105,6 +111,12 @@ public class BitCastToInst extends IRInstruction {
             assert nodeMap.containsKey(src);
             nodeMap.get(src).getInclusiveEdge().add(nodeMap.get(result));
         }
+    }
+
+    @Override
+    public void updateResultScope(Map<Operand, SideEffectChecker.Scope> scopeMap,
+                                  Map<Function, SideEffectChecker.Scope> returnValueScope) {
+        scopeMap.replace(result, scopeMap.get(src));
     }
 
     @Override

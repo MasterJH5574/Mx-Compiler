@@ -1,6 +1,7 @@
 package MxCompiler.IR.Instruction;
 
 import MxCompiler.IR.BasicBlock;
+import MxCompiler.IR.Function;
 import MxCompiler.IR.IRObject;
 import MxCompiler.IR.IRVisitor;
 import MxCompiler.IR.Operand.Operand;
@@ -10,6 +11,7 @@ import MxCompiler.IR.TypeSystem.IRType;
 import MxCompiler.Optim.Andersen;
 import MxCompiler.Optim.CSE;
 import MxCompiler.Optim.SCCP;
+import MxCompiler.Optim.SideEffectChecker;
 
 import java.util.Map;
 import java.util.Queue;
@@ -80,6 +82,12 @@ public class AllocateInst extends IRInstruction {
         Andersen.Node pointTo = new Andersen.Node(pointer.getName() + ".alloca");
         pointer.getPointsTo().add(pointTo);
         nodes.add(pointTo);
+    }
+
+    @Override
+    public void updateResultScope(Map<Operand, SideEffectChecker.Scope> scopeMap,
+                                  Map<Function, SideEffectChecker.Scope> returnValueScope) {
+        scopeMap.replace(result, SideEffectChecker.Scope.local);
     }
 
     @Override

@@ -1,6 +1,7 @@
 package MxCompiler.IR.Instruction;
 
 import MxCompiler.IR.BasicBlock;
+import MxCompiler.IR.Function;
 import MxCompiler.IR.IRObject;
 import MxCompiler.IR.IRVisitor;
 import MxCompiler.IR.Operand.Operand;
@@ -10,6 +11,7 @@ import MxCompiler.IR.TypeSystem.IntegerType;
 import MxCompiler.Optim.Andersen;
 import MxCompiler.Optim.CSE;
 import MxCompiler.Optim.SCCP;
+import MxCompiler.Optim.SideEffectChecker;
 
 import java.util.Map;
 import java.util.Queue;
@@ -142,6 +144,12 @@ public class BranchInst extends IRInstruction {
 
     @Override
     public void addConstraintsForAndersen(Map<Operand, Andersen.Node> nodeMap, Set<Andersen.Node> nodes) {
+        // Do nothing.
+    }
+
+    @Override
+    public void updateResultScope(Map<Operand, SideEffectChecker.Scope> scopeMap,
+                                  Map<Function, SideEffectChecker.Scope> returnValueScope) {
         // Do nothing.
     }
 

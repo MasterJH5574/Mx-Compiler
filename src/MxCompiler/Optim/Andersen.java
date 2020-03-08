@@ -47,6 +47,11 @@ public class Andersen extends Pass {
         public Set<Node> getDereferenceRhs() {
             return dereferenceRhs;
         }
+
+        @Override
+        public String toString() {
+            return name;
+        }
     }
 
     private Set<Node> nodes;
@@ -159,5 +164,9 @@ public class Andersen extends Pass {
                 }
             }
         }
+    }
+
+    public void print() {
+        
     }
 }

@@ -3,6 +3,7 @@ package MxCompiler;
 import MxCompiler.AST.ProgramNode;
 import MxCompiler.Frontend.ASTBuilder;
 import MxCompiler.Frontend.Checker;
+import MxCompiler.IR.Function;
 import MxCompiler.IR.IRBuilder;
 import MxCompiler.IR.IRPrinter;
 import MxCompiler.IR.Module;
@@ -95,11 +96,19 @@ public class Main {
         SSAConstructor ssaConstructor = new SSAConstructor(module);
         ssaConstructor.run();
 
+        for (Function function : module.getFunctionMap().values()) {
+            if (function.isNotFunctional()) {
+                finalPrint(module, errorHandler);
+                return;
+            }
+        }
+
         DeadCodeEliminator deadCodeEliminator = new DeadCodeEliminator(module);
         SCCP sccp = new SCCP(module);
         CSE cse = new CSE(module);
         InlineExpander inlineExpander = new InlineExpander(module);
         FunctionRemover functionRemover = new FunctionRemover(module);
+        Andersen andersen = new Andersen(module);
         while (true) {
             boolean changed;
             dominatorTreeConstructor.run();
@@ -109,15 +118,20 @@ public class Main {
             changed |= inlineExpander.run();
             changed |= cfgSimplifier.run();
             changed |= functionRemover.run();
+            andersen.run();
 
             if (!changed)
                 break;
         }
 
+        finalPrint(module, errorHandler);
+    }
 
-
+    static private void finalPrint(Module module, ErrorHandler errorHandler) {
+        String failed = "Compilation Failed.";
+        String success = "Compilation Success!";
         IRPrinter irPrinter = new IRPrinter();
-        irBuilder.getModule().accept(irPrinter);
+        module.accept(irPrinter);
         try {
             irPrinter.getWriter().close();
             irPrinter.getOs().close();

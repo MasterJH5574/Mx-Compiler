@@ -105,7 +105,7 @@ public class StoreInst extends IRInstruction {
         // *pointer = value
         if (!(value.getType() instanceof PointerType))
             return;
-        if (!(pointer instanceof ConstNull)) {
+        if (!(pointer instanceof ConstNull) && !(value instanceof ConstNull)) {
             assert nodeMap.containsKey(pointer);
             assert nodeMap.containsKey(value);
             nodeMap.get(pointer).getDereferenceLhs().add(nodeMap.get(value));

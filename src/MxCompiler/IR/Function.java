@@ -1,6 +1,7 @@
 package MxCompiler.IR;
 
 import MxCompiler.IR.Instruction.*;
+import MxCompiler.IR.Operand.ConstNull;
 import MxCompiler.IR.Operand.Operand;
 import MxCompiler.IR.Operand.Parameter;
 import MxCompiler.IR.Operand.Register;
@@ -104,8 +105,10 @@ public class Function extends IRObject {
     }
 
     public Operand getActualReturnValue() {
-        assert exitBlock.getInstTail() instanceof ReturnInst;
-        return ((ReturnInst) exitBlock.getInstTail()).getReturnValue();
+        if (exitBlock.getInstTail() instanceof ReturnInst)
+            return ((ReturnInst) exitBlock.getInstTail()).getReturnValue();
+        else
+            return new ConstNull();
     }
 
     public SymbolTable getSymbolTable() {
@@ -230,6 +233,8 @@ public class Function extends IRObject {
             if (block.getInstTail() instanceof ReturnInst)
                 returnInstCnt++;
         }
+        if (!(exitBlock.getInstTail() instanceof ReturnInst))
+            return false;
         return returnInstCnt != 1;
     }
 

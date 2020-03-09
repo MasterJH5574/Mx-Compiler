@@ -92,7 +92,8 @@ abstract public class IRInstruction implements Cloneable {
         return this instanceof BinaryOpInst
                 || this instanceof BitCastToInst
                 || this instanceof GetElementPtrInst
-                || this instanceof IcmpInst;
+                || this instanceof IcmpInst
+                || this instanceof LoadInst;
     }
 
     abstract public CSE.Expression convertToExpression();

@@ -18,6 +18,11 @@ public class CFGSimplifier extends Pass {
 
     @Override
     public boolean run() {
+        for (Function function : module.getFunctionMap().values()) {
+            if (function.isNotFunctional())
+                return false;
+        }
+
         changed = false;
         for (Function function : module.getFunctionMap().values())
             changed |= functionSimplify(function);
@@ -25,8 +30,6 @@ public class CFGSimplifier extends Pass {
     }
 
     private boolean functionSimplify(Function function) {
-        if (function.isNotFunctional())
-            return false;
         boolean changed = false;
         while (true) {
             boolean loopChanged;

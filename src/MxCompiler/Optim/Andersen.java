@@ -4,10 +4,7 @@ import MxCompiler.IR.BasicBlock;
 import MxCompiler.IR.Function;
 import MxCompiler.IR.Instruction.IRInstruction;
 import MxCompiler.IR.Module;
-import MxCompiler.IR.Operand.GlobalVariable;
-import MxCompiler.IR.Operand.Operand;
-import MxCompiler.IR.Operand.Parameter;
-import MxCompiler.IR.Operand.Register;
+import MxCompiler.IR.Operand.*;
 import MxCompiler.IR.TypeSystem.PointerType;
 
 import java.util.*;
@@ -63,6 +60,11 @@ public class Andersen extends Pass {
 
     @Override
     public boolean run() {
+        for (Function function : module.getFunctionMap().values()) {
+            if (function.isNotFunctional())
+                return false;
+        }
+
         nodes = new HashSet<>();
         nodeMap = new HashMap<>();
         constructNode();
@@ -166,7 +168,13 @@ public class Andersen extends Pass {
         }
     }
 
-    public void print() {
-        
+    public boolean mayAlias(Operand op1, Operand op2) {
+        if (op1 instanceof ConstNull || op2 instanceof ConstNull)
+            return false;
+        assert nodeMap.containsKey(op1);
+        assert nodeMap.containsKey(op2);
+        Set<Node> pointsTo1 = nodeMap.get(op1).getPointsTo();
+        Set<Node> pointsTo2 = nodeMap.get(op2).getPointsTo();
+        return !Collections.disjoint(pointsTo1, pointsTo2);
     }
 }

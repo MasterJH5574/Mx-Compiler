@@ -26,6 +26,11 @@ public class InlineExpander extends Pass {
 
     @Override
     public boolean run() {
+        for (Function function : module.getFunctionMap().values()) {
+            if (function.isNotFunctional())
+                return false;
+        }
+
         instructionCnt = new HashMap<>();
         recursiveCalleeMap = new HashMap<>();
         for (Function function : module.getFunctionMap().values())

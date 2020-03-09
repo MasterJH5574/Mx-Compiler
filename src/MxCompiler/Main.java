@@ -103,22 +103,23 @@ public class Main {
             }
         }
 
+        Andersen andersen = new Andersen(module);
+        SideEffectChecker sideEffectChecker = new SideEffectChecker(module);
         DeadCodeEliminator deadCodeEliminator = new DeadCodeEliminator(module);
         SCCP sccp = new SCCP(module);
-        CSE cse = new CSE(module);
+        CSE cse = new CSE(module, andersen, sideEffectChecker);
         InlineExpander inlineExpander = new InlineExpander(module);
         FunctionRemover functionRemover = new FunctionRemover(module);
-        Andersen andersen = new Andersen(module);
         while (true) {
             boolean changed;
             dominatorTreeConstructor.run();
             changed = sccp.run();
             changed |= deadCodeEliminator.run();
+            andersen.run();
             changed |= cse.run();
-            changed |= inlineExpander.run();
+//            changed |= inlineExpander.run();
             changed |= cfgSimplifier.run();
             changed |= functionRemover.run();
-            andersen.run();
 
             if (!changed)
                 break;

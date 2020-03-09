@@ -225,17 +225,45 @@ public class Function extends IRObject {
         return dfsOrder;
     }
 
+    private void moveBlockToExit(BasicBlock block) {
+        if (block.getPrev() == null)
+            this.setEntranceBlock(block.getNext());
+        else
+            block.getPrev().setNext(block.getNext());
+
+        if (block.getNext() == null)
+            this.setExitBlock(block.getPrev());
+        else
+            block.getNext().setPrev(block.getPrev());
+
+        block.setPrev(null);
+        block.setNext(null);
+        this.addBasicBlock(block);
+    }
+
     public boolean isNotFunctional() {
         int returnInstCnt = 0;
+        ReturnInst returnInst = null;
         for (BasicBlock block : getBlocks()) {
             if (block.notEndWithTerminalInst())
                 return true;
-            if (block.getInstTail() instanceof ReturnInst)
+            if (block.getInstTail() instanceof ReturnInst) {
+                returnInst = ((ReturnInst) block.getInstTail());
                 returnInstCnt++;
+            }
         }
-        if (!(exitBlock.getInstTail() instanceof ReturnInst))
-            return false;
-        return returnInstCnt != 1;
+        if (returnInstCnt != 1)
+            return true;
+        BasicBlock block = returnInst.getBasicBlock();
+        Function function = block.getFunction();
+        if (block != function.exitBlock)
+            moveBlockToExit(block);
+        return false;
+    }
+
+    @Override
+    public String toString() {
+        return name;
     }
 
     public void accept(IRVisitor visitor) {

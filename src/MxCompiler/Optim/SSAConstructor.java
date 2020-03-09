@@ -23,6 +23,10 @@ public class SSAConstructor extends Pass {
 
     @Override
     public boolean run() {
+        for (Function function : module.getFunctionMap().values()) {
+            if (function.isNotFunctional())
+                return false;
+        }
         for (Function function : module.getFunctionMap().values())
             constructSSA(function);
         return true;

@@ -22,6 +22,11 @@ public class DominatorTreeConstructor extends Pass {
     @Override
     public boolean run() {
         for (Function function : module.getFunctionMap().values()) {
+            if (function.isNotFunctional())
+                return false;
+        }
+
+        for (Function function : module.getFunctionMap().values()) {
             constructDominatorTree(function);
             constructDominanceFrontier(function);
         }

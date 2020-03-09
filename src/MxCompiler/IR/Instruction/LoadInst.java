@@ -12,6 +12,7 @@ import MxCompiler.Optim.CSE;
 import MxCompiler.Optim.SCCP;
 import MxCompiler.Optim.SideEffectChecker;
 
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
@@ -87,8 +88,10 @@ public class LoadInst extends IRInstruction {
 
     @Override
     public CSE.Expression convertToExpression() {
-        // Without alias analysis, load instruction cannot be used for CSE.
-        throw new RuntimeException("Convert load instruction to expression.");
+        String instructionName = "load";
+        ArrayList<String> operands = new ArrayList<>();
+        operands.add(pointer.toString());
+        return new CSE.Expression(instructionName, operands);
     }
 
     @Override
@@ -102,13 +105,13 @@ public class LoadInst extends IRInstruction {
 
     @Override
     public void addConstraintsForAndersen(Map<Operand, Andersen.Node> nodeMap, Set<Andersen.Node> nodes) {
-        // result = *pointer
+        // result = *pointer -> *pointer <= result
         if (!(result.getType() instanceof PointerType))
             return;
         if (!(pointer instanceof ConstNull)) {
             assert nodeMap.containsKey(pointer);
             assert nodeMap.containsKey(result);
-            nodeMap.get(pointer).getDereferenceRhs().add(nodeMap.get(result));
+            nodeMap.get(pointer).getDereferenceLhs().add(nodeMap.get(result));
         }
     }
 

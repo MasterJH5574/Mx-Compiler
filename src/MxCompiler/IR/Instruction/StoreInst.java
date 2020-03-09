@@ -104,13 +104,13 @@ public class StoreInst extends IRInstruction {
 
     @Override
     public void addConstraintsForAndersen(Map<Operand, Andersen.Node> nodeMap, Set<Andersen.Node> nodes) {
-        // *pointer = value
+        // *pointer = value -> value <= *pointer
         if (!(value.getType() instanceof PointerType))
             return;
         if (!(pointer instanceof ConstNull) && !(value instanceof ConstNull)) {
             assert nodeMap.containsKey(pointer);
             assert nodeMap.containsKey(value);
-            nodeMap.get(pointer).getDereferenceLhs().add(nodeMap.get(value));
+            nodeMap.get(pointer).getDereferenceRhs().add(nodeMap.get(value));
         }
     }
 

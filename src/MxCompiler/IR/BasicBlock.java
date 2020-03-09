@@ -86,6 +86,10 @@ public class BasicBlock extends IRObject implements Cloneable {
         this.instTail = instTail;
     }
 
+    public BasicBlock getPrev() {
+        return prev;
+    }
+
     public void setPrev(BasicBlock prev) {
         this.prev = prev;
     }
@@ -349,6 +353,10 @@ public class BasicBlock extends IRObject implements Cloneable {
         }
 
         return splitBlock;
+    }
+
+    public boolean dominate(BasicBlock block) {
+        return this == block || block.getStrictDominators().contains(this);
     }
 
     @Override

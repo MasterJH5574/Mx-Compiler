@@ -2,15 +2,9 @@ package MxCompiler.Optim;
 
 import MxCompiler.IR.BasicBlock;
 import MxCompiler.IR.Function;
-import MxCompiler.IR.Instruction.CallInst;
-import MxCompiler.IR.Instruction.IRInstruction;
-import MxCompiler.IR.Instruction.ReturnInst;
-import MxCompiler.IR.Instruction.StoreInst;
+import MxCompiler.IR.Instruction.*;
 import MxCompiler.IR.Module;
-import MxCompiler.IR.Operand.GlobalVariable;
-import MxCompiler.IR.Operand.Operand;
-import MxCompiler.IR.Operand.Parameter;
-import MxCompiler.IR.Operand.Register;
+import MxCompiler.IR.Operand.*;
 import MxCompiler.IR.TypeSystem.PointerType;
 import MxCompiler.IR.TypeSystem.VoidType;
 
@@ -18,11 +12,12 @@ import java.util.*;
 
 public class SideEffectChecker extends Pass {
     public enum Scope {
-        local, outer
+        undefined, local, outer
     }
 
     private Set<Function> sideEffect;
     private Map<Operand, Scope> scopeMap;
+    private Map<Function, Scope> returnValueScope;
     private Boolean ignoreIO;
 
     public SideEffectChecker(Module module) {
@@ -35,6 +30,12 @@ public class SideEffectChecker extends Pass {
 
     public boolean hasSideEffect(Function function) {
         return sideEffect.contains(function);
+    }
+
+    public boolean isOuterScope(Operand operand) {
+        if (operand instanceof ConstNull)
+            return false;
+        return scopeMap.get(operand) == Scope.outer;
     }
 
     @Override
@@ -61,7 +62,7 @@ public class SideEffectChecker extends Pass {
 
     private void computeScope() {
         scopeMap = new HashMap<>();
-        Map<Function, Scope> returnValueScope = new HashMap<>();
+        returnValueScope = new HashMap<>();
         Queue<Function> queue = new LinkedList<>();
         Set<Function> inQueue = new HashSet<>();
 
@@ -75,13 +76,19 @@ public class SideEffectChecker extends Pass {
                 while (ptr != null) {
                     if (ptr.hasResult()) {
                         Register result = ptr.getResult();
-                        scopeMap.put(result, Scope.outer);
+                        if (getOperandScope(result) == Scope.local)
+                            scopeMap.put(result, Scope.local);
+                        else
+                            scopeMap.put(result, Scope.undefined);
                     }
                     ptr = ptr.getInstNext();
                 }
             }
 
-            returnValueScope.put(function, Scope.outer);
+            if (function.getFunctionType().getReturnType() instanceof PointerType)
+                returnValueScope.put(function, Scope.outer);
+            else
+                returnValueScope.put(function, Scope.local);
             queue.offer(function);
             inQueue.add(function);
         }
@@ -91,13 +98,7 @@ public class SideEffectChecker extends Pass {
         while (!queue.isEmpty()) {
             Function function = queue.poll();
             inQueue.remove(function);
-            for (BasicBlock block : function.getDFSOrder()) {
-                IRInstruction ptr = block.getInstHead();
-                while (ptr != null) {
-                    ptr.updateResultScope(scopeMap, returnValueScope);
-                    ptr = ptr.getInstNext();
-                }
-            }
+            computeScopeInFunction(function);
 
             boolean local = false;
             if (function.getFunctionType().getReturnType() instanceof VoidType)
@@ -117,6 +118,51 @@ public class SideEffectChecker extends Pass {
                         queue.offer(caller);
                         inQueue.add(caller);
                     }
+                }
+            }
+        }
+
+        for (Function function : module.getFunctionMap().values()) {
+            for (BasicBlock block : function.getBlocks()) {
+                IRInstruction ptr = block.getInstHead();
+                while (ptr != null) {
+                    assert !ptr.hasResult() || scopeMap.get(ptr.getResult()) != Scope.undefined;
+                    ptr = ptr.getInstNext();
+                }
+            }
+        }
+    }
+
+    private void computeScopeInFunction(Function function) {
+        Queue<BasicBlock> queue = new LinkedList<>();
+        Set<BasicBlock> visit = new HashSet<>();
+
+        queue.offer(function.getEntranceBlock());
+        visit.add(function.getEntranceBlock());
+        while (!queue.isEmpty()) {
+            BasicBlock block = queue.poll();
+            boolean changed = false;
+
+            IRInstruction ptr = block.getInstHead();
+            while (ptr != null) {
+                changed |= ptr.updateResultScope(scopeMap, returnValueScope);
+                ptr = ptr.getInstNext();
+            }
+
+            if (block.getInstTail() instanceof BranchInst) {
+                BranchInst branchInst = ((BranchInst) block.getInstTail());
+                if (!visit.contains(branchInst.getThenBlock())) {
+                    queue.offer(branchInst.getThenBlock());
+                    visit.add(branchInst.getThenBlock());
+                } else if (changed)
+                    queue.offer(branchInst.getThenBlock());
+
+                if (branchInst.isConditional()) {
+                    if (!visit.contains(branchInst.getElseBlock())) {
+                        queue.offer(branchInst.getElseBlock());
+                        visit.add(branchInst.getElseBlock());
+                    } else if (changed)
+                        queue.offer(branchInst.getElseBlock());
                 }
             }
         }

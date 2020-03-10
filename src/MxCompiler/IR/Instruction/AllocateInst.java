@@ -85,9 +85,13 @@ public class AllocateInst extends IRInstruction {
     }
 
     @Override
-    public void updateResultScope(Map<Operand, SideEffectChecker.Scope> scopeMap,
-                                  Map<Function, SideEffectChecker.Scope> returnValueScope) {
-        scopeMap.replace(result, SideEffectChecker.Scope.local);
+    public boolean updateResultScope(Map<Operand, SideEffectChecker.Scope> scopeMap,
+                                     Map<Function, SideEffectChecker.Scope> returnValueScope) {
+        if (scopeMap.get(result) != SideEffectChecker.Scope.local) {
+            scopeMap.replace(result, SideEffectChecker.Scope.local);
+            return true;
+        } else
+            return false;
     }
 
     @Override

@@ -148,9 +148,9 @@ public class BranchInst extends IRInstruction {
     }
 
     @Override
-    public void updateResultScope(Map<Operand, SideEffectChecker.Scope> scopeMap,
-                                  Map<Function, SideEffectChecker.Scope> returnValueScope) {
-        // Do nothing.
+    public boolean updateResultScope(Map<Operand, SideEffectChecker.Scope> scopeMap,
+                                     Map<Function, SideEffectChecker.Scope> returnValueScope) {
+        return false;
     }
 
     @Override

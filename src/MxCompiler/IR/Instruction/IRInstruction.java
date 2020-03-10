@@ -102,8 +102,8 @@ abstract public class IRInstruction implements Cloneable {
 
     abstract public void addConstraintsForAndersen(Map<Operand, Andersen.Node> nodeMap, Set<Andersen.Node> nodes);
 
-    abstract public void updateResultScope(Map<Operand, SideEffectChecker.Scope> scopeMap,
-                                           Map<Function, SideEffectChecker.Scope> returnValueScope);
+    abstract public boolean updateResultScope(Map<Operand, SideEffectChecker.Scope> scopeMap,
+                                              Map<Function, SideEffectChecker.Scope> returnValueScope);
 
     @Override
     abstract public String toString();

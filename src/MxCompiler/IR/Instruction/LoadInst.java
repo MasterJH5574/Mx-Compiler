@@ -116,12 +116,24 @@ public class LoadInst extends IRInstruction {
     }
 
     @Override
-    public void updateResultScope(Map<Operand, SideEffectChecker.Scope> scopeMap,
-                                  Map<Function, SideEffectChecker.Scope> returnValueScope) {
-        if (SideEffectChecker.getOperandScope(result) == SideEffectChecker.Scope.local)
-            scopeMap.replace(result, SideEffectChecker.Scope.local);
-        else
-            scopeMap.replace(result, scopeMap.get(pointer));
+    public boolean updateResultScope(Map<Operand, SideEffectChecker.Scope> scopeMap,
+                                     Map<Function, SideEffectChecker.Scope> returnValueScope) {
+        if (SideEffectChecker.getOperandScope(result) == SideEffectChecker.Scope.local
+                || pointer instanceof ConstNull) {
+            if (scopeMap.get(result) != SideEffectChecker.Scope.local) {
+                scopeMap.replace(result, SideEffectChecker.Scope.local);
+                return true;
+            } else
+                return false;
+        } else {
+            SideEffectChecker.Scope scope = scopeMap.get(pointer);
+            assert scope != SideEffectChecker.Scope.undefined;
+            if (scopeMap.get(result) != scope) {
+                scopeMap.replace(result, scope);
+                return true;
+            } else
+                return false;
+        }
     }
 
     @Override

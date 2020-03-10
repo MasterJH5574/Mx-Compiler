@@ -154,20 +154,35 @@ public class PhiInst extends IRInstruction {
     }
 
     @Override
-    public void updateResultScope(Map<Operand, SideEffectChecker.Scope> scopeMap,
-                                  Map<Function, SideEffectChecker.Scope> returnValueScope) {
+    public boolean updateResultScope(Map<Operand, SideEffectChecker.Scope> scopeMap,
+                                     Map<Function, SideEffectChecker.Scope> returnValueScope) {
         if (SideEffectChecker.getOperandScope(result) == SideEffectChecker.Scope.local) {
-            scopeMap.replace(result, SideEffectChecker.Scope.local);
-            return;
+            if (scopeMap.get(result) != SideEffectChecker.Scope.local) {
+                scopeMap.replace(result, SideEffectChecker.Scope.local);
+                return true;
+            } else
+                return false;
         }
 
         for (Pair<Operand, BasicBlock> pair : branch) {
-            if (scopeMap.get(pair.getFirst()) == SideEffectChecker.Scope.outer) {
-                scopeMap.replace(result, SideEffectChecker.Scope.outer);
-                return;
+            if (pair.getFirst() instanceof ConstNull)
+                continue;
+            SideEffectChecker.Scope scope = scopeMap.get(pair.getFirst());
+            if (scope == SideEffectChecker.Scope.undefined)
+                continue;
+            if (scope == SideEffectChecker.Scope.outer) {
+                if (scopeMap.get(result) != SideEffectChecker.Scope.outer) {
+                    scopeMap.replace(result, SideEffectChecker.Scope.outer);
+                    return true;
+                } else
+                    return false;
             }
         }
-        scopeMap.replace(result, SideEffectChecker.Scope.local);
+        if (scopeMap.get(result) != SideEffectChecker.Scope.local) {
+            scopeMap.replace(result, SideEffectChecker.Scope.local);
+            return true;
+        } else
+            return false;
     }
 
     @Override

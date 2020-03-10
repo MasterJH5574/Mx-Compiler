@@ -139,9 +139,22 @@ public class GetElementPtrInst extends IRInstruction {
     }
 
     @Override
-    public void updateResultScope(Map<Operand, SideEffectChecker.Scope> scopeMap,
-                                  Map<Function, SideEffectChecker.Scope> returnValueScope) {
-        scopeMap.replace(result, scopeMap.get(pointer));
+    public boolean updateResultScope(Map<Operand, SideEffectChecker.Scope> scopeMap,
+                                     Map<Function, SideEffectChecker.Scope> returnValueScope) {
+        if (pointer instanceof ConstNull) {
+            if (scopeMap.get(pointer) != SideEffectChecker.Scope.local) {
+                scopeMap.replace(pointer, SideEffectChecker.Scope.local);
+                return true;
+            } else
+                return false;
+        }
+        SideEffectChecker.Scope scope = scopeMap.get(pointer);
+        assert scope != SideEffectChecker.Scope.undefined;
+        if (scopeMap.get(result) != scope) {
+            scopeMap.replace(result, scope);
+            return true;
+        } else
+            return false;
     }
 
     @Override

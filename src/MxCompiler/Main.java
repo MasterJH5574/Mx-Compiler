@@ -105,7 +105,7 @@ public class Main {
 
         Andersen andersen = new Andersen(module);
         SideEffectChecker sideEffectChecker = new SideEffectChecker(module);
-        DeadCodeEliminator deadCodeEliminator = new DeadCodeEliminator(module);
+        DeadCodeEliminator deadCodeEliminator = new DeadCodeEliminator(module, sideEffectChecker);
         SCCP sccp = new SCCP(module);
         CSE cse = new CSE(module, andersen, sideEffectChecker);
         InlineExpander inlineExpander = new InlineExpander(module);
@@ -117,7 +117,7 @@ public class Main {
             changed |= deadCodeEliminator.run();
             andersen.run();
             changed |= cse.run();
-//            changed |= inlineExpander.run();
+            changed |= inlineExpander.run();
             changed |= cfgSimplifier.run();
             changed |= functionRemover.run();
 

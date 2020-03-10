@@ -114,9 +114,22 @@ public class BitCastToInst extends IRInstruction {
     }
 
     @Override
-    public void updateResultScope(Map<Operand, SideEffectChecker.Scope> scopeMap,
-                                  Map<Function, SideEffectChecker.Scope> returnValueScope) {
-        scopeMap.replace(result, scopeMap.get(src));
+    public boolean updateResultScope(Map<Operand, SideEffectChecker.Scope> scopeMap,
+                                     Map<Function, SideEffectChecker.Scope> returnValueScope) {
+        if (src instanceof ConstNull) {
+            if (scopeMap.get(result) != SideEffectChecker.Scope.local) {
+                scopeMap.replace(result, SideEffectChecker.Scope.local);
+                return true;
+            } else
+                return false;
+        }
+        SideEffectChecker.Scope scope = scopeMap.get(src);
+        assert scope != SideEffectChecker.Scope.undefined;
+        if (scopeMap.get(result) != scope) {
+            scopeMap.replace(result, scope);
+            return true;
+        } else
+            return false;
     }
 
     @Override

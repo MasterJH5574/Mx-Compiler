@@ -82,6 +82,8 @@ public class CFGSimplifier extends Pass {
         ArrayList<BasicBlock> dfsOrder = function.getDFSOrder();
         while (block != null) {
             if (!dfsOrder.contains(block)) {
+                for (BasicBlock successor : block.getSuccessors())
+                    successor.removePhiIncomingBlock(block);
                 block.removeFromFunction();
                 changed = true;
             } else if (block.getPredecessors().size() == 1) {

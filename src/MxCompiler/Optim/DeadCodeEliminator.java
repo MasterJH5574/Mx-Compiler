@@ -12,8 +12,11 @@ import java.util.Set;
 
 
 public class DeadCodeEliminator extends Pass {
-    public DeadCodeEliminator(Module module) {
+    private SideEffectChecker sideEffectChecker;
+
+    public DeadCodeEliminator(Module module, SideEffectChecker sideEffectChecker) {
         super(module);
+        this.sideEffectChecker = sideEffectChecker;
     }
 
     @Override
@@ -25,8 +28,8 @@ public class DeadCodeEliminator extends Pass {
 
         changed = false;
         while (true) {
-            for (Function function : module.getFunctionMap().values())
-                checkSideEffect(function);
+            sideEffectChecker.setIgnoreIO(false);
+            sideEffectChecker.run();
 
             boolean loopChanged = false;
             for (Function function : module.getFunctionMap().values())
@@ -39,35 +42,7 @@ public class DeadCodeEliminator extends Pass {
         return changed;
     }
 
-    private void checkSideEffect(Function function) {
-        BasicBlock ptr = function.getEntranceBlock();
-        while (ptr != null) {
-            if (hasSideEffect(ptr)) {
-                function.setSideEffect(true);
-                return;
-            }
-            ptr = ptr.getNext();
-        }
-        function.setSideEffect(false);
-    }
-
-    private boolean hasSideEffect(BasicBlock basicBlock) {
-        IRInstruction ptr = basicBlock.getInstHead();
-        while (ptr != null) {
-            if (ptr instanceof StoreInst)
-                return true;
-            if (ptr instanceof CallInst) {
-                if (((CallInst) ptr).getFunction().hasSideEffect())
-                    return true;
-            }
-            ptr = ptr.getInstNext();
-        }
-        return false;
-    }
-
     private boolean deadCodeElimination(Function function) {
-        if (function.isNotFunctional())
-            return false;
         Set<IRInstruction> live = new HashSet<>();
         Queue<IRInstruction> queue = new LinkedList<>();
         for (BasicBlock block : function.getBlocks())
@@ -98,7 +73,7 @@ public class DeadCodeEliminator extends Pass {
                 live.add(ptr);
                 queue.offer(ptr);
             } else if (ptr instanceof CallInst) {
-                if (((CallInst) ptr).getFunction().hasSideEffect()) {
+                if (sideEffectChecker.hasSideEffect(((CallInst) ptr).getFunction())) {
                     live.add(ptr);
                     queue.offer(ptr);
                 }

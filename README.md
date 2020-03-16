@@ -70,6 +70,7 @@
 * 2020.3.9	Debug for Andersen. Use Andersen to improve CSE.
   * Improve Function.isNotFunctional().
 * 2020.3.10	Fix bugs in SideEffectChecker and CFGSimplifier.
+* 2020.3.11	Use SideEffectChecker to improve DCE.
 
 
 

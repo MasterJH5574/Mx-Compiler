@@ -29,6 +29,7 @@ public class DeadCodeEliminator extends Pass {
         changed = false;
         while (true) {
             sideEffectChecker.setIgnoreIO(false);
+            sideEffectChecker.setIgnoreLoad(true);
             sideEffectChecker.run();
 
             boolean loopChanged = false;

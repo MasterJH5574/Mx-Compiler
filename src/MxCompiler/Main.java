@@ -8,6 +8,7 @@ import MxCompiler.IR.IRBuilder;
 import MxCompiler.IR.IRPrinter;
 import MxCompiler.IR.Module;
 import MxCompiler.Optim.*;
+import MxCompiler.Optim.LoopOptim.LoopAnalysis;
 import MxCompiler.Parser.MxErrorListener;
 import MxCompiler.Parser.MxLexer;
 import MxCompiler.Parser.MxParser;
@@ -108,6 +109,7 @@ public class Main {
         DeadCodeEliminator deadCodeEliminator = new DeadCodeEliminator(module, sideEffectChecker);
         SCCP sccp = new SCCP(module);
         CSE cse = new CSE(module, andersen, sideEffectChecker);
+        LoopAnalysis loopAnalysis = new LoopAnalysis(module);
         InlineExpander inlineExpander = new InlineExpander(module);
         FunctionRemover functionRemover = new FunctionRemover(module);
         while (true) {
@@ -117,6 +119,7 @@ public class Main {
             changed |= deadCodeEliminator.run();
             andersen.run();
             changed |= cse.run();
+            loopAnalysis.run();
             changed |= inlineExpander.run();
             changed |= cfgSimplifier.run();
             changed |= functionRemover.run();

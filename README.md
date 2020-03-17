@@ -71,7 +71,10 @@
   * Improve Function.isNotFunctional().
 * 2020.3.10	Fix bugs in SideEffectChecker and CFGSimplifier.
 * 2020.3.11	Use SideEffectChecker to improve DCE.
-* 2020.3.17	Fix a bug when detecting side effect. Fix bugs when replacing use.
+* 2020.3.17	Add LoopAnalysis.	
+  * Fix a bug when detecting side effect.
+  * Fix bugs when replacing use. 
+  * Improve SideEffectChecker to support "ignoreLoad".
 
 
 

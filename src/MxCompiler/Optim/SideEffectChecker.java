@@ -19,6 +19,7 @@ public class SideEffectChecker extends Pass {
     private Map<Operand, Scope> scopeMap;
     private Map<Function, Scope> returnValueScope;
     private Boolean ignoreIO;
+    private Boolean ignoreLoad;
 
     public SideEffectChecker(Module module) {
         super(module);
@@ -26,6 +27,10 @@ public class SideEffectChecker extends Pass {
 
     public void setIgnoreIO(boolean ignoreIO) {
         this.ignoreIO = ignoreIO;
+    }
+
+    public void setIgnoreLoad(boolean ignoreLoad) {
+        this.ignoreLoad = ignoreLoad;
     }
 
     public boolean hasSideEffect(Function function) {
@@ -46,9 +51,11 @@ public class SideEffectChecker extends Pass {
         }
 
         assert ignoreIO != null;
+        assert ignoreLoad != null;
         computeScope();
         checkSideEffect();
         ignoreIO = null;
+        ignoreLoad = null;
         return false;
     }
 
@@ -186,6 +193,11 @@ public class SideEffectChecker extends Pass {
                 IRInstruction ptr = block.getInstHead();
                 while (ptr != null) {
                     if (ptr instanceof StoreInst && scopeMap.get(((StoreInst) ptr).getPointer()) == Scope.outer) {
+                        hasSideEffect = true;
+                        break;
+                    }
+                    if (!ignoreLoad && ptr instanceof LoadInst
+                            && scopeMap.get(((LoadInst) ptr).getPointer()) == Scope.outer) {
                         hasSideEffect = true;
                         break;
                     }

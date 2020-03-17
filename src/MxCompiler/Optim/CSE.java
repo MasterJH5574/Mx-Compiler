@@ -101,6 +101,7 @@ public class CSE extends Pass {
         }
 
         sideEffectChecker.setIgnoreIO(true);
+        sideEffectChecker.setIgnoreLoad(true);
         sideEffectChecker.run();
 
         changed = false;

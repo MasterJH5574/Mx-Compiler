@@ -63,6 +63,11 @@ public class PhiInst extends IRInstruction {
             }
         }
         assert pair != null;
+        removeIncomingBranch(pair);
+    }
+
+    public void removeIncomingBranch(Pair<Operand, BasicBlock> pair) {
+        assert pair != null;
         pair.getFirst().removeUse(this);
         pair.getSecond().removeUse(this);
         branch.remove(pair);

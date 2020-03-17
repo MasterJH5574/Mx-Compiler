@@ -63,11 +63,13 @@ public class GetElementPtrInst extends IRInstruction {
     @Override
     public void replaceUse(IRObject oldUse, IRObject newUse) {
         if (pointer == oldUse) {
+            pointer.removeUse(this);
             pointer = (Operand) newUse;
             pointer.addUse(this);
         }
         for (int i = 0; i < index.size(); i++) {
             if (index.get(i) == oldUse) {
+                index.get(i).removeUse(this);
                 index.set(i, (Operand) newUse);
                 index.get(i).addUse(this);
             }
@@ -142,8 +144,8 @@ public class GetElementPtrInst extends IRInstruction {
     public boolean updateResultScope(Map<Operand, SideEffectChecker.Scope> scopeMap,
                                      Map<Function, SideEffectChecker.Scope> returnValueScope) {
         if (pointer instanceof ConstNull) {
-            if (scopeMap.get(pointer) != SideEffectChecker.Scope.local) {
-                scopeMap.replace(pointer, SideEffectChecker.Scope.local);
+            if (scopeMap.get(result) != SideEffectChecker.Scope.local) {
+                scopeMap.replace(result, SideEffectChecker.Scope.local);
                 return true;
             } else
                 return false;

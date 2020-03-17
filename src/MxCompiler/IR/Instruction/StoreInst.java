@@ -55,10 +55,12 @@ public class StoreInst extends IRInstruction {
     @Override
     public void replaceUse(IRObject oldUse, IRObject newUse) {
         if (value == oldUse) {
+            value.removeUse(this);
             value = (Operand) newUse;
             value.addUse(this);
         }
         if (pointer == oldUse) {
+            pointer.removeUse(this);
             pointer = (Operand) newUse;
             pointer.addUse(this);
         }

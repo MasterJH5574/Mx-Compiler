@@ -58,6 +58,7 @@ public class BitCastToInst extends IRInstruction {
     @Override
     public void replaceUse(IRObject oldUse, IRObject newUse) {
         if (src == oldUse) {
+            src.removeUse(this);
             src = (Operand) newUse;
             src.addUse(this);
         }

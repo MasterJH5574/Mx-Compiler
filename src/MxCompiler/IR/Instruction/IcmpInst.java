@@ -72,10 +72,12 @@ public class IcmpInst extends IRInstruction {
     @Override
     public void replaceUse(IRObject oldUse, IRObject newUse) {
         if (op1 == oldUse) {
+            op1.removeUse(this);
             op1 = (Operand) newUse;
             op1.addUse(this);
         }
         if (op2 == oldUse) {
+            op2.removeUse(this);
             op2 = (Operand) newUse;
             op2.addUse(this);
         }

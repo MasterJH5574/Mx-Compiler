@@ -3,6 +3,7 @@ package MxCompiler.IR;
 import MxCompiler.IR.Instruction.IRInstruction;
 import MxCompiler.IR.Operand.Operand;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -38,7 +39,8 @@ abstract public class IRObject implements Cloneable {
         assert (this instanceof Operand && newUse instanceof Operand)
                 || (this instanceof BasicBlock && newUse instanceof BasicBlock)
                 || (this instanceof Function && newUse instanceof Function);
-        for (IRInstruction instruction : use.keySet())
+        ArrayList<IRInstruction> instructions = new ArrayList<>(use.keySet());
+        for (IRInstruction instruction : instructions)
             instruction.replaceUse(this, newUse);
         use.clear();
     }

@@ -68,10 +68,12 @@ public class BinaryOpInst extends IRInstruction {
     @Override
     public void replaceUse(IRObject oldUse, IRObject newUse) {
         if (lhs == oldUse) {
+            lhs.removeUse(this);
             lhs = (Operand) newUse;
             lhs.addUse(this);
         }
         if (rhs == oldUse) {
+            rhs.removeUse(this);
             rhs = (Operand) newUse;
             rhs.addUse(this);
         }

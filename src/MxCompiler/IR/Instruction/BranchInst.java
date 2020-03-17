@@ -83,14 +83,17 @@ public class BranchInst extends IRInstruction {
     @Override
     public void replaceUse(IRObject oldUse, IRObject newUse) {
         if (cond == oldUse) {
+            cond.removeUse(this);
             cond = (Operand) newUse;
             cond.addUse(this);
         } else {
             if (thenBlock == oldUse) {
+                thenBlock.removeUse(this);
                 thenBlock = (BasicBlock) newUse;
                 thenBlock.addUse(this);
             }
             if (elseBlock == oldUse) {
+                elseBlock.removeUse(this);
                 elseBlock = (BasicBlock) newUse;
                 elseBlock.addUse(this);
             }

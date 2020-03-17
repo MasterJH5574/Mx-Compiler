@@ -81,11 +81,13 @@ public class CallInst extends IRInstruction {
     @Override
     public void replaceUse(IRObject oldUse, IRObject newUse) {
         if (function == oldUse) {
+            function.removeUse(this);
             function = (Function) newUse;
             function.addUse(this);
         } else {
             for (int i = 0; i < parameters.size(); i++)
                 if (parameters.get(i) == oldUse) {
+                    parameters.get(i).removeUse(this);
                     parameters.set(i, (Operand) newUse);
                     parameters.get(i).addUse(this);
                 }

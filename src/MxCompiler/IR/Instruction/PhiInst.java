@@ -77,9 +77,11 @@ public class PhiInst extends IRInstruction {
     public void replaceUse(IRObject oldUse, IRObject newUse) {
         for (Pair<Operand, BasicBlock> pair : branch) {
             if (pair.getFirst() == oldUse) {
+                pair.getFirst().removeUse(this);
                 pair.setFirst((Operand) newUse);
                 pair.getFirst().addUse(this);
             } else if (pair.getSecond() == oldUse) {
+                pair.getSecond().removeUse(this);
                 pair.setSecond((BasicBlock) newUse);
                 pair.getSecond().addUse(this);
             }

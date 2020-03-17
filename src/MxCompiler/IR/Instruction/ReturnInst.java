@@ -58,6 +58,7 @@ public class ReturnInst extends IRInstruction {
     @Override
     public void replaceUse(IRObject oldUse, IRObject newUse) {
         if (returnValue != null && returnValue == oldUse) {
+            returnValue.removeUse(this);
             returnValue = (Operand) newUse;
             returnValue.addUse(this);
         }

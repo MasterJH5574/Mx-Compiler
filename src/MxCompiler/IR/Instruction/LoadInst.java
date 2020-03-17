@@ -59,6 +59,7 @@ public class LoadInst extends IRInstruction {
     @Override
     public void replaceUse(IRObject oldUse, IRObject newUse) {
         if (pointer == oldUse) {
+            pointer.removeUse(this);
             pointer = (Operand) newUse;
             pointer.addUse(this);
         }

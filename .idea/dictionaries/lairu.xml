@@ -9,6 +9,7 @@
       <w>getelementptr</w>
       <w>icmp</w>
       <w>idom</w>
+      <w>licm</w>
       <w>preds</w>
       <w>sccp</w>
       <w>sdiv</w>

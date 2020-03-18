@@ -11,6 +11,8 @@ import MxCompiler.IR.Operand.Register;
 import MxCompiler.IR.TypeSystem.PointerType;
 import MxCompiler.Optim.Andersen;
 import MxCompiler.Optim.CSE;
+import MxCompiler.Optim.LoopOptim.LICM;
+import MxCompiler.Optim.LoopOptim.LoopAnalysis;
 import MxCompiler.Optim.SCCP;
 import MxCompiler.Optim.SideEffectChecker;
 import MxCompiler.Utilities.Pair;
@@ -190,6 +192,16 @@ public class PhiInst extends IRInstruction {
             return true;
         } else
             return false;
+    }
+
+    @Override
+    public boolean checkLoopInvariant(LoopAnalysis.LoopNode loop, LICM licm) {
+        return false;
+    }
+
+    @Override
+    public boolean canBeHoisted(LoopAnalysis.LoopNode loop) {
+        return false;
     }
 
     @Override

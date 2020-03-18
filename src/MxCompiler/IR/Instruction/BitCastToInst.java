@@ -12,6 +12,8 @@ import MxCompiler.IR.TypeSystem.IRType;
 import MxCompiler.IR.TypeSystem.PointerType;
 import MxCompiler.Optim.Andersen;
 import MxCompiler.Optim.CSE;
+import MxCompiler.Optim.LoopOptim.LICM;
+import MxCompiler.Optim.LoopOptim.LoopAnalysis;
 import MxCompiler.Optim.SCCP;
 import MxCompiler.Optim.SideEffectChecker;
 
@@ -131,6 +133,23 @@ public class BitCastToInst extends IRInstruction {
             return true;
         } else
             return false;
+    }
+
+    @Override
+    public boolean checkLoopInvariant(LoopAnalysis.LoopNode loop, LICM licm) {
+        if (licm.isLoopInvariant(result, loop))
+            return false;
+
+        if (licm.isLoopInvariant(src, loop)) {
+            licm.markLoopInvariant(result);
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean canBeHoisted(LoopAnalysis.LoopNode loop) {
+        return loop.defOutOfLoop(src);
     }
 
     @Override

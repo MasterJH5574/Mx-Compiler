@@ -4,12 +4,15 @@ import MxCompiler.IR.BasicBlock;
 import MxCompiler.IR.Function;
 import MxCompiler.IR.IRObject;
 import MxCompiler.IR.IRVisitor;
+import MxCompiler.IR.Operand.Constant;
 import MxCompiler.IR.Operand.Operand;
 import MxCompiler.IR.Operand.Parameter;
 import MxCompiler.IR.Operand.Register;
 import MxCompiler.IR.TypeSystem.PointerType;
 import MxCompiler.Optim.Andersen;
 import MxCompiler.Optim.CSE;
+import MxCompiler.Optim.LoopOptim.LICM;
+import MxCompiler.Optim.LoopOptim.LoopAnalysis;
 import MxCompiler.Optim.SCCP;
 import MxCompiler.Optim.SideEffectChecker;
 
@@ -139,6 +142,31 @@ public class BinaryOpInst extends IRInstruction {
             return true;
         } else
             return false;
+    }
+
+    @Override
+    public boolean checkLoopInvariant(LoopAnalysis.LoopNode loop, LICM licm) {
+        if (licm.isLoopInvariant(result, loop))
+            return false;
+        if (op == BinaryOpName.sdiv && !(rhs instanceof Constant)) {
+            BasicBlock block = this.getBasicBlock();
+            Set<BasicBlock> exitBlocks = loop.getExitBlocks();
+            for (BasicBlock exit : exitBlocks) {
+                if (!block.dominate(exit))
+                    return false;
+            }
+        }
+
+        if (licm.isLoopInvariant(lhs, loop) && licm.isLoopInvariant(rhs, loop)) {
+            licm.markLoopInvariant(result);
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean canBeHoisted(LoopAnalysis.LoopNode loop) {
+        return loop.defOutOfLoop(lhs) && loop.defOutOfLoop(rhs);
     }
 
     @Override

@@ -8,6 +8,8 @@ import MxCompiler.IR.Operand.Operand;
 import MxCompiler.IR.Operand.Register;
 import MxCompiler.Optim.Andersen;
 import MxCompiler.Optim.CSE;
+import MxCompiler.Optim.LoopOptim.LICM;
+import MxCompiler.Optim.LoopOptim.LoopAnalysis;
 import MxCompiler.Optim.SCCP;
 import MxCompiler.Optim.SideEffectChecker;
 
@@ -83,6 +85,18 @@ abstract public class IRInstruction implements Cloneable {
             instNext.setInstPrev(instPrev);
     }
 
+    public void removeFromBlockWithoutRemoveUse() {
+        if (instPrev == null)
+            basicBlock.setInstHead(instNext);
+        else
+            instPrev.setInstNext(instNext);
+
+        if (instNext == null)
+            basicBlock.setInstTail(instPrev);
+        else
+            instNext.setInstPrev(instPrev);
+    }
+
     abstract public void markUseAsLive(Set<IRInstruction> live, Queue<IRInstruction> queue);
 
     abstract public boolean replaceResultWithConstant(SCCP sccp);
@@ -104,6 +118,10 @@ abstract public class IRInstruction implements Cloneable {
 
     abstract public boolean updateResultScope(Map<Operand, SideEffectChecker.Scope> scopeMap,
                                               Map<Function, SideEffectChecker.Scope> returnValueScope);
+
+    abstract public boolean checkLoopInvariant(LoopAnalysis.LoopNode loop, LICM licm);
+
+    abstract public boolean canBeHoisted(LoopAnalysis.LoopNode loop);
 
     @Override
     abstract public String toString();

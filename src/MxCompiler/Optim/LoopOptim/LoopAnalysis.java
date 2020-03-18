@@ -5,10 +5,8 @@ import MxCompiler.IR.Function;
 import MxCompiler.IR.Instruction.BranchInst;
 import MxCompiler.IR.Instruction.IRInstruction;
 import MxCompiler.IR.Instruction.PhiInst;
-import MxCompiler.IR.Instruction.StoreInst;
 import MxCompiler.IR.Module;
-import MxCompiler.IR.Operand.Operand;
-import MxCompiler.IR.Operand.Register;
+import MxCompiler.IR.Operand.*;
 import MxCompiler.Optim.Pass;
 import MxCompiler.Utilities.Pair;
 
@@ -19,22 +17,21 @@ public class LoopAnalysis extends Pass {
         private BasicBlock header;
         private Set<BasicBlock> loopBlocks;
         private Set<BasicBlock> uniqueLoopBlocks;
+        private Set<BasicBlock> exitBlocks;
 
         private LoopNode father;
         private ArrayList<LoopNode> children;
 
         private BasicBlock preHeader;
 
-        private Set<StoreInst> stores;
-
         public LoopNode(BasicBlock header) {
             this.header = header;
             this.loopBlocks = new HashSet<>();
             this.uniqueLoopBlocks = null;
+            this.exitBlocks = null;
             this.father = null;
             this.children = new ArrayList<>();
             this.preHeader = null;
-            this.stores = null;
         }
 
         public void addLoopBlock(BasicBlock block) {
@@ -47,6 +44,14 @@ public class LoopAnalysis extends Pass {
 
         public Set<BasicBlock> getUniqueLoopBlocks() {
             return uniqueLoopBlocks;
+        }
+
+        public Set<BasicBlock> getExitBlocks() {
+            return exitBlocks;
+        }
+
+        public void setExitBlocks(Set<BasicBlock> exitBlocks) {
+            this.exitBlocks = exitBlocks;
         }
 
         public void setFather(LoopNode father) {
@@ -150,12 +155,8 @@ public class LoopAnalysis extends Pass {
             blockNodeMap.put(preHeader, this.father);
         }
 
-        public Set<StoreInst> getStores() {
-            return stores;
-        }
-
-        public void setStores(Set<StoreInst> stores) {
-            this.stores = stores;
+        public BasicBlock getPreHeader() {
+            return preHeader;
         }
 
         public void mergeLoopNode(LoopNode loop) {
@@ -166,6 +167,18 @@ public class LoopAnalysis extends Pass {
         public void removeUniqueLoopBlocks(LoopNode child) {
             assert uniqueLoopBlocks.containsAll(child.loopBlocks);
             uniqueLoopBlocks.removeAll(child.loopBlocks);
+        }
+
+        public boolean defOutOfLoop(Operand operand) {
+            if (operand instanceof Parameter || operand instanceof Constant || operand instanceof GlobalVariable)
+                return true;
+            assert operand instanceof Register;
+            return !this.loopBlocks.contains(((Register) operand).getDef().getBasicBlock());
+        }
+
+        @Override
+        public String toString() {
+            return header.getName();
         }
     }
 
@@ -217,7 +230,7 @@ public class LoopAnalysis extends Pass {
         visit.add(block);
         root.addLoopBlock(block);
         for (BasicBlock successor : block.getSuccessors()) {
-            if (block.getStrictDominators().contains(successor)) {
+            if (successor.dominate(block)) {
                 // Means that a back edge is found.
                 extractNaturalLoop(successor, block);
             } else if (!visit.contains(successor))
@@ -234,7 +247,7 @@ public class LoopAnalysis extends Pass {
         visit.add(end);
         while (!queue.isEmpty()) {
             BasicBlock block = queue.poll();
-            if (block.getStrictDominators().contains(header))
+            if (header.dominate(block))
                 loop.addLoopBlock(block);
 
             for (BasicBlock predecessor : block.getPredecessors()) {
@@ -288,5 +301,36 @@ public class LoopAnalysis extends Pass {
             dfsLoopTree(child);
         if (loop.hasFather() && !loop.hasPreHeader(blockNodeMap))
             loop.addPreHeader(blockNodeMap);
+
+        Set<BasicBlock> exitBlocks = new HashSet<>();
+        if (loop.hasFather()) {
+            for (LoopNode child : loop.children) {
+                for (BasicBlock exit : child.exitBlocks) {
+                    assert exit.getInstTail() instanceof BranchInst;
+                    BranchInst exitInst = ((BranchInst) exit.getInstTail());
+                    if (!loop.getLoopBlocks().contains(exitInst.getThenBlock())) {
+                        exitBlocks.add(exit);
+                        break;
+                    }
+                    if (exitInst.isConditional() && !loop.getLoopBlocks().contains(exitInst.getElseBlock())) {
+                        exitBlocks.add(exit);
+                        break;
+                    }
+                }
+            }
+            for (BasicBlock exit : loop.getUniqueLoopBlocks()) {
+                assert exit.getInstTail() instanceof BranchInst;
+                BranchInst exitInst = ((BranchInst) exit.getInstTail());
+                if (!loop.getLoopBlocks().contains(exitInst.getThenBlock())) {
+                    exitBlocks.add(exit);
+                    break;
+                }
+                if (exitInst.isConditional() && !loop.getLoopBlocks().contains(exitInst.getElseBlock())) {
+                    exitBlocks.add(exit);
+                    break;
+                }
+            }
+        }
+        loop.setExitBlocks(exitBlocks);
     }
 }

@@ -13,6 +13,8 @@ import MxCompiler.IR.TypeSystem.IntegerType;
 import MxCompiler.IR.TypeSystem.PointerType;
 import MxCompiler.Optim.Andersen;
 import MxCompiler.Optim.CSE;
+import MxCompiler.Optim.LoopOptim.LICM;
+import MxCompiler.Optim.LoopOptim.LoopAnalysis;
 import MxCompiler.Optim.SCCP;
 import MxCompiler.Optim.SideEffectChecker;
 
@@ -32,7 +34,8 @@ public class IcmpInst extends IRInstruction {
     private Operand op2;
     private Register result;
 
-    public IcmpInst(BasicBlock basicBlock, IcmpName operator, IRType irType, Operand op1, Operand op2, Register result) {
+    public IcmpInst(BasicBlock basicBlock, IcmpName operator, IRType irType,
+                    Operand op1, Operand op2, Register result) {
         super(basicBlock);
         this.operator = operator;
         this.irType = irType;
@@ -143,6 +146,23 @@ public class IcmpInst extends IRInstruction {
             return true;
         } else
             return false;
+    }
+
+    @Override
+    public boolean checkLoopInvariant(LoopAnalysis.LoopNode loop, LICM licm) {
+        if (licm.isLoopInvariant(result, loop))
+            return false;
+
+        if (licm.isLoopInvariant(op1, loop) && licm.isLoopInvariant(op2, loop)) {
+            licm.markLoopInvariant(result);
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean canBeHoisted(LoopAnalysis.LoopNode loop) {
+        return loop.defOutOfLoop(op1) && loop.defOutOfLoop(op2);
     }
 
     @Override

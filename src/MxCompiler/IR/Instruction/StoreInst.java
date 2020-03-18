@@ -8,6 +8,8 @@ import MxCompiler.IR.Operand.*;
 import MxCompiler.IR.TypeSystem.PointerType;
 import MxCompiler.Optim.Andersen;
 import MxCompiler.Optim.CSE;
+import MxCompiler.Optim.LoopOptim.LICM;
+import MxCompiler.Optim.LoopOptim.LoopAnalysis;
 import MxCompiler.Optim.SCCP;
 import MxCompiler.Optim.SideEffectChecker;
 
@@ -119,6 +121,16 @@ public class StoreInst extends IRInstruction {
     @Override
     public boolean updateResultScope(Map<Operand, SideEffectChecker.Scope> scopeMap,
                                      Map<Function, SideEffectChecker.Scope> returnValueScope) {
+        return false;
+    }
+
+    @Override
+    public boolean checkLoopInvariant(LoopAnalysis.LoopNode loop, LICM licm) {
+        return false;
+    }
+
+    @Override
+    public boolean canBeHoisted(LoopAnalysis.LoopNode loop) {
         return false;
     }
 

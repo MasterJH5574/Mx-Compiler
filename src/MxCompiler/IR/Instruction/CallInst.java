@@ -12,6 +12,8 @@ import MxCompiler.IR.TypeSystem.PointerType;
 import MxCompiler.IR.TypeSystem.VoidType;
 import MxCompiler.Optim.Andersen;
 import MxCompiler.Optim.CSE;
+import MxCompiler.Optim.LoopOptim.LICM;
+import MxCompiler.Optim.LoopOptim.LoopAnalysis;
 import MxCompiler.Optim.SCCP;
 import MxCompiler.Optim.SideEffectChecker;
 
@@ -196,6 +198,32 @@ public class CallInst extends IRInstruction {
             } else
                 return false;
         }
+    }
+
+    @Override
+    public boolean checkLoopInvariant(LoopAnalysis.LoopNode loop, LICM licm) {
+        if (isVoidCall())
+            return false;
+        if (licm.isLoopInvariant(result, loop))
+            return false;
+        if (licm.hasSideEffect(function) ||
+                function == this.getBasicBlock().getFunction().getModule().getExternalFunctionMap().get("malloc"))
+            return false;
+        for (Operand parameter : parameters) {
+            if (!licm.isLoopInvariant(parameter, loop))
+                return false;
+        }
+        licm.markLoopInvariant(result);
+        return true;
+    }
+
+    @Override
+    public boolean canBeHoisted(LoopAnalysis.LoopNode loop) {
+        for (Operand parameter : parameters) {
+            if (!loop.defOutOfLoop(parameter))
+                return false;
+        }
+        return true;
     }
 
     @Override

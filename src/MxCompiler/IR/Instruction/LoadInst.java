@@ -9,6 +9,8 @@ import MxCompiler.IR.TypeSystem.IRType;
 import MxCompiler.IR.TypeSystem.PointerType;
 import MxCompiler.Optim.Andersen;
 import MxCompiler.Optim.CSE;
+import MxCompiler.Optim.LoopOptim.LICM;
+import MxCompiler.Optim.LoopOptim.LoopAnalysis;
 import MxCompiler.Optim.SCCP;
 import MxCompiler.Optim.SideEffectChecker;
 
@@ -135,6 +137,30 @@ public class LoadInst extends IRInstruction {
             } else
                 return false;
         }
+    }
+
+    @Override
+    public boolean checkLoopInvariant(LoopAnalysis.LoopNode loop, LICM licm) {
+        if (licm.isLoopInvariant(result, loop))
+            return false;
+
+        if (!licm.isLoopInvariant(pointer, loop))
+            return false;
+        if (licm.getSideEffectCall().contains(loop))
+            return false;
+        Set<StoreInst> stores = licm.getStoreMap().get(loop);
+        for (StoreInst storeInst : stores) {
+            if (licm.mayAlias(this.pointer, storeInst.getPointer()))
+                return false;
+        }
+
+        licm.markLoopInvariant(result);
+        return true;
+    }
+
+    @Override
+    public boolean canBeHoisted(LoopAnalysis.LoopNode loop) {
+        return loop.defOutOfLoop(pointer);
     }
 
     @Override

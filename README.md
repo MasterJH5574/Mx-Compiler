@@ -75,6 +75,7 @@
   * Fix a bug when detecting side effect.
   * Fix bugs when replacing use. 
   * Improve SideEffectChecker to support "ignoreLoad".
+* 2020.3.18	Improve LoopAnalysis. Add LICM.
 
 
 

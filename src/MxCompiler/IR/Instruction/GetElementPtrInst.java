@@ -11,6 +11,8 @@ import MxCompiler.IR.TypeSystem.IntegerType;
 import MxCompiler.IR.TypeSystem.PointerType;
 import MxCompiler.Optim.Andersen;
 import MxCompiler.Optim.CSE;
+import MxCompiler.Optim.LoopOptim.LICM;
+import MxCompiler.Optim.LoopOptim.LoopAnalysis;
 import MxCompiler.Optim.SCCP;
 import MxCompiler.Optim.SideEffectChecker;
 
@@ -157,6 +159,38 @@ public class GetElementPtrInst extends IRInstruction {
             return true;
         } else
             return false;
+    }
+
+    @Override
+    public boolean checkLoopInvariant(LoopAnalysis.LoopNode loop, LICM licm) {
+        if (licm.isLoopInvariant(result, loop))
+            return false;
+
+        if (pointer instanceof GlobalVariable) {
+            assert pointer.getType() instanceof ArrayType;
+            licm.markLoopInvariant(result);
+            return true;
+        }
+
+        if (!licm.isLoopInvariant(pointer, loop))
+            return false;
+        for (Operand index : this.index) {
+            if (!licm.isLoopInvariant(index, loop))
+                return false;
+        }
+        licm.markLoopInvariant(result);
+        return true;
+    }
+
+    @Override
+    public boolean canBeHoisted(LoopAnalysis.LoopNode loop) {
+        if (!loop.defOutOfLoop(pointer))
+            return false;
+        for (Operand index : this.index) {
+            if (!loop.defOutOfLoop(index))
+                return false;
+        }
+        return true;
     }
 
     @Override

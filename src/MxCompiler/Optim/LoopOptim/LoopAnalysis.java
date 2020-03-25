@@ -14,6 +14,8 @@ import java.util.*;
 
 public class LoopAnalysis extends Pass {
     static public class LoopNode {
+        static LoopAnalysis loopAnalysis;
+
         private BasicBlock header;
         private Set<BasicBlock> loopBlocks;
         private Set<BasicBlock> uniqueLoopBlocks;
@@ -92,6 +94,7 @@ public class LoopAnalysis extends Pass {
 
             if (predecessorCnt == 1 && successorCnt == 1) {
                 preHeader = mayPreHeader;
+                loopAnalysis.preHeaders.add(preHeader);
                 assert blockNodeMap.containsKey(preHeader) && blockNodeMap.get(preHeader) == this.father;
                 return true;
             } else
@@ -101,6 +104,7 @@ public class LoopAnalysis extends Pass {
         public void addPreHeader(Map<BasicBlock, LoopNode> blockNodeMap) {
             Function function = header.getFunction();
             preHeader = new BasicBlock(function, "preHeaderOf" + header.getNameWithoutDot());
+            loopAnalysis.preHeaders.add(preHeader);
             function.getSymbolTable().put(preHeader.getName(), preHeader);
 
             // Deal with PhiInst.
@@ -185,9 +189,11 @@ public class LoopAnalysis extends Pass {
     private Map<Function, LoopNode> loopRoot;
     private Map<BasicBlock, LoopNode> blockNodeMap;
     private Map<BasicBlock, LoopNode> headerNodeMap;
+    private Set<BasicBlock> preHeaders;
 
     public LoopAnalysis(Module module) {
         super(module);
+        LoopNode.loopAnalysis = this;
     }
 
     public Map<Function, LoopNode> getLoopRoot() {
@@ -196,6 +202,10 @@ public class LoopAnalysis extends Pass {
 
     public Map<BasicBlock, LoopNode> getBlockNodeMap() {
         return blockNodeMap;
+    }
+
+    public boolean isPreHeader(BasicBlock block) {
+        return preHeaders != null && preHeaders.contains(block);
     }
 
     @Override
@@ -208,6 +218,7 @@ public class LoopAnalysis extends Pass {
         loopRoot = new HashMap<>();
         blockNodeMap = new HashMap<>();
         headerNodeMap = new HashMap<>();
+        preHeaders = new HashSet<>();
         for (Function function : module.getFunctionMap().values())
             loopRoot.put(function, constructLoopTree(function));
 

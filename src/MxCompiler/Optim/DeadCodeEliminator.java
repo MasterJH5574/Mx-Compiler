@@ -4,6 +4,7 @@ import MxCompiler.IR.BasicBlock;
 import MxCompiler.IR.Function;
 import MxCompiler.IR.Instruction.*;
 import MxCompiler.IR.Module;
+import MxCompiler.Optim.LoopOptim.LoopAnalysis;
 
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -13,10 +14,12 @@ import java.util.Set;
 
 public class DeadCodeEliminator extends Pass {
     private SideEffectChecker sideEffectChecker;
+    private LoopAnalysis loopAnalysis;
 
-    public DeadCodeEliminator(Module module, SideEffectChecker sideEffectChecker) {
+    public DeadCodeEliminator(Module module, SideEffectChecker sideEffectChecker, LoopAnalysis loopAnalysis) {
         super(module);
         this.sideEffectChecker = sideEffectChecker;
+        this.loopAnalysis = loopAnalysis;
     }
 
     @Override
@@ -27,19 +30,12 @@ public class DeadCodeEliminator extends Pass {
         }
 
         changed = false;
-        while (true) {
-            sideEffectChecker.setIgnoreIO(false);
-            sideEffectChecker.setIgnoreLoad(true);
-            sideEffectChecker.run();
+        sideEffectChecker.setIgnoreIO(false);
+        sideEffectChecker.setIgnoreLoad(true);
+        sideEffectChecker.run();
 
-            boolean loopChanged = false;
-            for (Function function : module.getFunctionMap().values())
-                loopChanged |= deadCodeElimination(function);
-            if (loopChanged)
-                changed = true;
-            else
-                break;
-        }
+        for (Function function : module.getFunctionMap().values())
+            changed |= deadCodeElimination(function);
         return changed;
     }
 
@@ -52,11 +48,11 @@ public class DeadCodeEliminator extends Pass {
         while (!queue.isEmpty()) {
             IRInstruction instruction = queue.poll();
             instruction.markUseAsLive(live, queue);
-            for (BasicBlock predecessor : instruction.getBasicBlock().getPredecessors()) {
-                assert predecessor.getInstTail() instanceof BranchInst;
-                if (!live.contains(predecessor.getInstTail())) {
-                    live.add(predecessor.getInstTail());
-                    queue.offer(predecessor.getInstTail());
+            for (BasicBlock block : instruction.getBasicBlock().getPostDF()) {
+                assert block.getInstTail() instanceof BranchInst;
+                if (!live.contains(block.getInstTail())) {
+                    live.add(block.getInstTail());
+                    queue.offer(block.getInstTail());
                 }
             }
         }
@@ -73,14 +69,26 @@ public class DeadCodeEliminator extends Pass {
             if (ptr instanceof StoreInst) {
                 live.add(ptr);
                 queue.offer(ptr);
+                if (!live.contains(ptr.getBasicBlock().getInstTail())) {
+                    live.add(ptr.getBasicBlock().getInstTail());
+                    queue.offer(ptr.getBasicBlock().getInstTail());
+                }
             } else if (ptr instanceof CallInst) {
                 if (sideEffectChecker.hasSideEffect(((CallInst) ptr).getFunction())) {
                     live.add(ptr);
                     queue.offer(ptr);
+                    if (!live.contains(ptr.getBasicBlock().getInstTail())) {
+                        live.add(ptr.getBasicBlock().getInstTail());
+                        queue.offer(ptr.getBasicBlock().getInstTail());
+                    }
                 }
             } else if (ptr instanceof ReturnInst) {
                 live.add(ptr);
                 queue.offer(ptr);
+                if (!live.contains(ptr.getBasicBlock().getInstTail())) {
+                    live.add(ptr.getBasicBlock().getInstTail());
+                    queue.offer(ptr.getBasicBlock().getInstTail());
+                }
             }
             ptr = ptr.getInstNext();
         }
@@ -90,10 +98,8 @@ public class DeadCodeEliminator extends Pass {
         IRInstruction ptr = block.getInstHead();
         boolean changed = false;
         while (ptr != null) {
-            if (!live.contains(ptr)) {
-                ptr.removeFromBlock();
-                changed = true;
-            }
+            if (!live.contains(ptr))
+                changed |= ptr.dceRemoveFromBlock(loopAnalysis);
             ptr = ptr.getInstNext();
         }
         return changed;

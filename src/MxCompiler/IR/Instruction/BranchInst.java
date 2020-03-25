@@ -73,13 +73,19 @@ public class BranchInst extends IRInstruction {
         if (cond != null) {
             this.cond.removeUse(this);
             this.elseBlock.removeUse(this);
+            this.elseBlock.getPredecessors().remove(getBasicBlock());
+            getBasicBlock().getSuccessors().remove(this.elseBlock);
         }
         this.thenBlock.removeUse(this);
+        this.thenBlock.getPredecessors().remove(getBasicBlock());
+        getBasicBlock().getSuccessors().remove(this.thenBlock);
 
         this.cond = null;
         this.thenBlock = thenBlock;
         this.elseBlock = null;
         this.thenBlock.addUse(this);
+        this.thenBlock.getPredecessors().add(getBasicBlock());
+        getBasicBlock().getSuccessors().add(this.thenBlock);
     }
 
     @Override
@@ -110,6 +116,24 @@ public class BranchInst extends IRInstruction {
         }
         thenBlock.removeUse(this);
         super.removeFromBlock();
+    }
+
+    @Override
+    public boolean dceRemoveFromBlock(LoopAnalysis loopAnalysis) {
+        if (this.isConditional())
+            this.setUnconditionalBranch(this.elseBlock);
+        if (loopAnalysis.isPreHeader(this.getBasicBlock()))
+            return false;
+        if (this.getBasicBlock().getPrev() == null)
+            return false;
+        for (BasicBlock successor : this.getBasicBlock().getSuccessors()) {
+            if (successor.getInstHead() instanceof PhiInst)
+                return false;
+        }
+        if (!this.getBasicBlock().dceRemoveFromFunction())
+            return false;
+        removeFromBlock();
+        return true;
     }
 
     @Override

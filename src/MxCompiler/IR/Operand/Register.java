@@ -54,6 +54,10 @@ public class Register extends Operand implements Cloneable {
             live.add(def);
             queue.offer(def);
         }
+        if (def.getBasicBlock().isNotExitBlock() && !live.contains(def.getBasicBlock().getInstTail())) {
+            live.add(def.getBasicBlock().getInstTail());
+            queue.offer(def.getBasicBlock().getInstTail());
+        }
     }
 
     @Override

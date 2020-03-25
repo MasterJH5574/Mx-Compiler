@@ -2,6 +2,7 @@ package MxCompiler.IR;
 
 import MxCompiler.IR.Instruction.IRInstruction;
 import MxCompiler.IR.Instruction.PhiInst;
+import MxCompiler.IR.Instruction.ReturnInst;
 import MxCompiler.IR.Operand.Operand;
 import MxCompiler.Utilities.Pair;
 
@@ -143,8 +144,12 @@ public class BasicBlock extends IRObject implements Cloneable {
         this.next = block;
     }
 
-    private boolean isEmpty() {
+    public boolean isEmpty() {
         return instHead == instTail && instHead == null;
+    }
+
+    public boolean isNotExitBlock() {
+        return !(instTail instanceof ReturnInst);
     }
 
     public void addInstruction(IRInstruction instruction) {

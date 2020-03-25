@@ -107,10 +107,10 @@ public class Main {
 
         Andersen andersen = new Andersen(module);
         SideEffectChecker sideEffectChecker = new SideEffectChecker(module);
-        DeadCodeEliminator deadCodeEliminator = new DeadCodeEliminator(module, sideEffectChecker);
+        LoopAnalysis loopAnalysis = new LoopAnalysis(module);
+        DeadCodeEliminator deadCodeEliminator = new DeadCodeEliminator(module, sideEffectChecker, loopAnalysis);
         SCCP sccp = new SCCP(module);
         CSE cse = new CSE(module, andersen, sideEffectChecker);
-        LoopAnalysis loopAnalysis = new LoopAnalysis(module);
         LICM licm = new LICM(module, loopAnalysis, sideEffectChecker, andersen);
         InlineExpander inlineExpander = new InlineExpander(module);
         FunctionRemover functionRemover = new FunctionRemover(module);

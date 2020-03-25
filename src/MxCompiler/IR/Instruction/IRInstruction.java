@@ -85,6 +85,11 @@ abstract public class IRInstruction implements Cloneable {
             instNext.setInstPrev(instPrev);
     }
 
+    public boolean dceRemoveFromBlock(LoopAnalysis loopAnalysis) {
+        removeFromBlock();
+        return true;
+    }
+
     public void removeFromBlockWithoutRemoveUse() {
         if (instPrev == null)
             basicBlock.setInstHead(instNext);

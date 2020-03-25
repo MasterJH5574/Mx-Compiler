@@ -106,8 +106,13 @@ public class PhiInst extends IRInstruction {
 
     @Override
     public void markUseAsLive(Set<IRInstruction> live, Queue<IRInstruction> queue) {
-        for (Pair<Operand, BasicBlock> pair : branch)
+        for (Pair<Operand, BasicBlock> pair : branch) {
             pair.getFirst().markBaseAsLive(live, queue);
+            if (pair.getSecond().isNotExitBlock() && !live.contains(pair.getSecond().getInstTail())) {
+                live.add(pair.getSecond().getInstTail());
+                queue.offer(pair.getSecond().getInstTail());
+            }
+        }
     }
 
     @Override

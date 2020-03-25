@@ -33,6 +33,7 @@ public class Function extends IRObject {
     private boolean external;
 
     private ArrayList<BasicBlock> dfsOrder;
+    private ArrayList<BasicBlock> reverseDfsOrder;
     private HashSet<BasicBlock> dfsVisit;
 
     private boolean sideEffect;
@@ -223,6 +224,26 @@ public class Function extends IRObject {
         entranceBlock.setDfsFather(null);
         dfsBasicBlocks(entranceBlock);
         return dfsOrder;
+    }
+
+    private void reverseDfsBasicBlocks(BasicBlock block) {
+        block.setReverseDfn(reverseDfsOrder.size());
+        reverseDfsOrder.add(block);
+        dfsVisit.add(block);
+
+        for (BasicBlock predecessor : block.getPredecessors())
+            if (!dfsVisit.contains(predecessor)) {
+                predecessor.setReverseDfsFather(block);
+                reverseDfsBasicBlocks(predecessor);
+            }
+    }
+
+    public ArrayList<BasicBlock> getReverseDFSOrder() {
+        reverseDfsOrder = new ArrayList<>();
+        dfsVisit = new HashSet<>();
+        exitBlock.setReverseDfsFather(null);
+        reverseDfsBasicBlocks(exitBlock);
+        return reverseDfsOrder;
     }
 
     private void moveBlockToExit(BasicBlock block) {

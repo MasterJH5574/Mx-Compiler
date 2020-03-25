@@ -27,13 +27,21 @@ public class BasicBlock extends IRObject implements Cloneable {
 
     private int dfn;
     private BasicBlock dfsFather;
+    private int reverseDfn;
+    private BasicBlock reverseDfsFather;
 
     private BasicBlock idom;
     private BasicBlock semiDom;
     private ArrayList<BasicBlock> semiDomChildren;
     private HashSet<BasicBlock> strictDominators;
 
+    private BasicBlock postIdom;
+    private BasicBlock postSemiDom;
+    private ArrayList<BasicBlock> postSemiDomChildren;
+    private HashSet<BasicBlock> postStrictDominators;
+
     private HashSet<BasicBlock> DF; // Dominance Frontier
+    private HashSet<BasicBlock> postDF;
 
     public BasicBlock(Function function, String name) {
         this.function = function;
@@ -206,8 +214,20 @@ public class BasicBlock extends IRObject implements Cloneable {
         this.dfsFather = dfsFather;
     }
 
-    public boolean hasIdom() {
-        return idom != null;
+    public int getReverseDfn() {
+        return reverseDfn;
+    }
+
+    public void setReverseDfn(int reverseDfn) {
+        this.reverseDfn = reverseDfn;
+    }
+
+    public BasicBlock getReverseDfsFather() {
+        return reverseDfsFather;
+    }
+
+    public void setReverseDfsFather(BasicBlock reverseDfsFather) {
+        this.reverseDfsFather = reverseDfsFather;
     }
 
     public BasicBlock getIdom() {
@@ -242,12 +262,52 @@ public class BasicBlock extends IRObject implements Cloneable {
         this.strictDominators = strictDominators;
     }
 
+    public BasicBlock getPostIdom() {
+        return postIdom;
+    }
+
+    public void setPostIdom(BasicBlock postIdom) {
+        this.postIdom = postIdom;
+    }
+
+    public BasicBlock getPostSemiDom() {
+        return postSemiDom;
+    }
+
+    public void setPostSemiDom(BasicBlock postSemiDom) {
+        this.postSemiDom = postSemiDom;
+    }
+
+    public ArrayList<BasicBlock> getPostSemiDomChildren() {
+        return postSemiDomChildren;
+    }
+
+    public void setPostSemiDomChildren(ArrayList<BasicBlock> postSemiDomChildren) {
+        this.postSemiDomChildren = postSemiDomChildren;
+    }
+
+    public HashSet<BasicBlock> getPostStrictDominators() {
+        return postStrictDominators;
+    }
+
+    public void setPostStrictDominators(HashSet<BasicBlock> postStrictDominators) {
+        this.postStrictDominators = postStrictDominators;
+    }
+
     public HashSet<BasicBlock> getDF() {
         return DF;
     }
 
     public void setDF(HashSet<BasicBlock> DF) {
         this.DF = DF;
+    }
+
+    public HashSet<BasicBlock> getPostDF() {
+        return postDF;
+    }
+
+    public void setPostDF(HashSet<BasicBlock> postDF) {
+        this.postDF = postDF;
     }
 
     public void removeFromFunction() {
@@ -269,6 +329,31 @@ public class BasicBlock extends IRObject implements Cloneable {
             predecessor.getSuccessors().remove(this);
         for (BasicBlock successor : successors)
             successor.getPredecessors().remove(this);
+    }
+
+    public boolean dceRemoveFromFunction() {
+        if (successors.size() != 1)
+            return false;
+        if (prev == null)
+            function.setEntranceBlock(next);
+        else
+            prev.setNext(next);
+
+        if (next == null)
+            function.setExitBlock(prev);
+        else
+            next.setPrev(prev);
+
+        BasicBlock successor = successors.iterator().next();
+        this.replaceUse(successor);
+        successor.getPredecessors().remove(this);
+        for (BasicBlock predecessor : predecessors) {
+            predecessor.getInstHead().replaceUse(this, successor);
+            predecessor.getSuccessors().remove(this);
+            predecessor.getSuccessors().add(successor);
+            successor.getPredecessors().add(predecessor);
+        }
+        return true;
     }
 
     public void mergeBlock(BasicBlock block) {

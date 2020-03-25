@@ -30,6 +30,10 @@ public class DominatorTreeConstructor extends Pass {
             constructDominatorTree(function);
             constructDominanceFrontier(function);
         }
+        for (Function function : module.getFunctionMap().values()) {
+            constructPostDominatorTree(function);
+            constructPostDominanceFrontier(function);
+        }
         print();
         return true;
     }
@@ -113,6 +117,76 @@ public class DominatorTreeConstructor extends Pass {
                 while (!block.getStrictDominators().contains(ptr)) {
                     ptr.getDF().add(block);
                     ptr = ptr.getIdom();
+                }
+            }
+    }
+
+    private void constructPostDominatorTree(Function function) {
+        ArrayList<BasicBlock> reverseDfsOrder = function.getReverseDFSOrder();
+        disjointSet = new HashMap<>();
+        for (BasicBlock block : reverseDfsOrder) {
+            disjointSet.put(block, new Pair<>(block, block));
+            block.setPostIdom(null);
+            block.setPostSemiDom(block);
+            block.setPostSemiDomChildren(new ArrayList<>());
+        }
+
+        for (int i = reverseDfsOrder.size() - 1; i > 0; i--) {
+            BasicBlock block = reverseDfsOrder.get(i);
+            assert block.getReverseDfn() == i;
+
+            for (BasicBlock successor : block.getSuccessors()) {
+                if (successor.getReverseDfn() < block.getReverseDfn()) {
+                    if (successor.getReverseDfn() < block.getPostSemiDom().getReverseDfn())
+                        block.setPostSemiDom(successor);
+                } else {
+                    Pair<BasicBlock, BasicBlock> updateResult = updateDisjointSet(successor);
+                    if (updateResult.getSecond().getPostSemiDom().getReverseDfn()
+                            < block.getPostSemiDom().getReverseDfn())
+                        block.setPostSemiDom(updateResult.getSecond().getPostSemiDom());
+                }
+            }
+
+            BasicBlock father = block.getReverseDfsFather();
+            block.getPostSemiDom().getPostSemiDomChildren().add(block);
+            disjointSet.get(block).setFirst(father);
+
+            for (BasicBlock postSemiDomChild : father.getPostSemiDomChildren()) {
+                Pair<BasicBlock, BasicBlock> updateResult = updateDisjointSet(postSemiDomChild);
+                if (updateResult.getSecond().getPostSemiDom() == postSemiDomChild.getPostSemiDom())
+                    postSemiDomChild.setPostIdom(postSemiDomChild.getPostSemiDom());
+                else
+                    postSemiDomChild.setPostIdom(updateResult.getSecond());
+            }
+        }
+
+        for (int i = 1; i < reverseDfsOrder.size(); i++) {
+            BasicBlock block = reverseDfsOrder.get(i);
+            if (block.getPostIdom() != block.getPostSemiDom())
+                block.setPostIdom(block.getPostIdom().getPostIdom());
+        }
+        for (BasicBlock block : reverseDfsOrder) {
+            HashSet<BasicBlock> postStrictDominators = new HashSet<>();
+            BasicBlock ptr = block.getPostIdom();
+            while (ptr != null) {
+                postStrictDominators.add(ptr);
+                ptr = ptr.getPostIdom();
+            }
+            block.setPostStrictDominators(postStrictDominators);
+        }
+    }
+
+    private void constructPostDominanceFrontier(Function function) {
+        ArrayList<BasicBlock> blocks = function.getBlocks();
+        for (BasicBlock block : blocks)
+            block.setPostDF(new HashSet<>());
+
+        for (BasicBlock block : blocks)
+            for (BasicBlock successor : block.getSuccessors()) {
+                BasicBlock ptr = successor;
+                while (!block.getPostStrictDominators().contains(ptr)) {
+                    ptr.getPostDF().add(block);
+                    ptr = ptr.getPostIdom();
                 }
             }
     }

@@ -78,6 +78,8 @@
 * 2020.3.18	Improve LoopAnalysis. Add LICM.
 * 2020.3.24	Add post-dominator analysis.
 * 2020.3.25	Improve DCE to real ADCE. Update LoopAnalysis.
+* 2020.3.26	Try InstructionCombiner.
+* 2020.3.27	Improve getNameWithoutDot() for Register and BasicBlock.
 
 
 

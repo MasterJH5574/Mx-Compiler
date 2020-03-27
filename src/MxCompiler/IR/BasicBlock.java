@@ -69,9 +69,14 @@ public class BasicBlock extends IRObject implements Cloneable {
     }
 
     public String getNameWithoutDot() {
-        if (name.contains("."))
-            return name.split("\\.")[0];
-        else
+        if (name.contains(".")) {
+            String[] strings = name.split("\\.");
+            StringBuilder res = new StringBuilder();
+            for (int i = 0; i < strings.length - 2; i++)
+                res.append(strings[i]).append('.');
+            res.append(strings[strings.length - 2]);
+            return res.toString();
+        } else
             throw new RuntimeException();
     }
 

@@ -107,6 +107,11 @@ public class AllocateInst extends IRInstruction {
     }
 
     @Override
+    public boolean combineInst(Queue<IRInstruction> queue, Set<IRInstruction> inQueue) {
+        return false;
+    }
+
+    @Override
     public String toString() {
         return result.toString() + " = alloca " + type.toString();
     }

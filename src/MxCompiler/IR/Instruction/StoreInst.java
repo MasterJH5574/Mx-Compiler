@@ -135,6 +135,11 @@ public class StoreInst extends IRInstruction {
     }
 
     @Override
+    public boolean combineInst(Queue<IRInstruction> queue, Set<IRInstruction> inQueue) {
+        return false;
+    }
+
+    @Override
     public String toString() {
         if (pointer instanceof GlobalVariable)
                 return "store " + pointer.getType().toString() + " " + value.toString() +

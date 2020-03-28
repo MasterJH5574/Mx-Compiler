@@ -80,6 +80,8 @@
 * 2020.3.25	Improve DCE to real ADCE. Update LoopAnalysis.
 * 2020.3.26	Try InstructionCombiner.
 * 2020.3.27	Improve getNameWithoutDot() for Register and BasicBlock.
+* 2020.3.28	Give a lecture to beginner.
+* 2020.3.29	Add InstructionCombiner.
 
 
 

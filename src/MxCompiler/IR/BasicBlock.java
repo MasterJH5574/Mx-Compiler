@@ -186,6 +186,31 @@ public class BasicBlock extends IRObject implements Cloneable {
         instruction.successfullyAdd();
     }
 
+    public void addInstructionPrev(IRInstruction inst1, IRInstruction inst2) {
+        // Assure that inst1 is in this block.
+        if (inst1.getInstPrev() == null) {
+            inst1.setInstPrev(inst2);
+            inst2.setInstNext(inst1);
+            this.setInstHead(inst2);
+        } else {
+            inst2.setInstPrev(inst1.getInstPrev());
+            inst2.setInstNext(inst1);
+            inst1.getInstPrev().setInstNext(inst2);
+            inst1.setInstPrev(inst2);
+        }
+        inst2.successfullyAdd();
+    }
+
+    public void addInstructionNext(IRInstruction inst1, IRInstruction inst2) {
+        // Assure that inst1 is in this block.
+        assert inst1.getInstNext() != null; // Since inst1 cannot be a BranchInst.
+        inst2.setInstPrev(inst1);
+        inst2.setInstNext(inst1.getInstNext());
+        inst1.getInstNext().setInstPrev(inst2);
+        inst1.setInstNext(inst2);
+        inst2.successfullyAdd();
+    }
+
     public ArrayList<IRInstruction> getInstructions() {
         ArrayList<IRInstruction> instructions = new ArrayList<>();
         IRInstruction ptr = instHead;

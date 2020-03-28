@@ -194,6 +194,42 @@ public class GetElementPtrInst extends IRInstruction {
     }
 
     @Override
+    public boolean combineInst(Queue<IRInstruction> queue, Set<IRInstruction> inQueue) {
+        for (Operand operand : index) {
+            if (!(operand instanceof ConstInt && ((ConstInt) operand).getValue() == 0))
+                return false;
+        }
+
+        Operand replace = null;
+        if (index.size() == 1) {
+            // array gep
+            replace = pointer;
+        } else if (!(pointer.getType() instanceof ArrayType)){
+            // class member gep
+            Register newResult = new Register(result.getType(), result.getNameWithoutDot());
+            this.getBasicBlock().getFunction().getSymbolTable().put(newResult.getName(), newResult);
+
+            BitCastToInst bitCastToInst = new BitCastToInst(getBasicBlock(), pointer, result.getType(), newResult);
+            getBasicBlock().addInstructionNext(this, bitCastToInst);
+            queue.offer(bitCastToInst);
+            inQueue.add(bitCastToInst);
+
+            replace = newResult;
+        }
+        if (replace != null) {
+            for (IRInstruction instruction : result.getUse().keySet()) {
+                if (!inQueue.contains(instruction)) {
+                    queue.offer(instruction);
+                    inQueue.add(instruction);
+                }
+            }
+            result.replaceUse(replace);
+            return true;
+        } else
+            return false;
+    }
+
+    @Override
     public String toString() {
         IRType baseType;
         IRType pointerType;

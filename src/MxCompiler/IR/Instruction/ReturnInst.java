@@ -123,6 +123,11 @@ public class ReturnInst extends IRInstruction {
     }
 
     @Override
+    public boolean combineInst(Queue<IRInstruction> queue, Set<IRInstruction> inQueue) {
+        return false;
+    }
+
+    @Override
     public String toString() {
         if (!(type instanceof VoidType))
             return "ret " + type.toString() + " " + returnValue.toString();

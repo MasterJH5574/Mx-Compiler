@@ -112,6 +112,7 @@ public class Main {
         SCCP sccp = new SCCP(module);
         CSE cse = new CSE(module, andersen, sideEffectChecker);
         LICM licm = new LICM(module, loopAnalysis, sideEffectChecker, andersen);
+        InstructionCombiner instructionCombiner = new InstructionCombiner(module);
         InlineExpander inlineExpander = new InlineExpander(module);
         FunctionRemover functionRemover = new FunctionRemover(module);
         while (true) {
@@ -124,6 +125,7 @@ public class Main {
             loopAnalysis.run();
             changed |= licm.run();
             changed |= inlineExpander.run();
+            changed |= instructionCombiner.run();
             changed |= cfgSimplifier.run();
             changed |= functionRemover.run();
 

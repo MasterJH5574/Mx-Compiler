@@ -153,6 +153,21 @@ public class BitCastToInst extends IRInstruction {
     }
 
     @Override
+    public boolean combineInst(Queue<IRInstruction> queue, Set<IRInstruction> inQueue) {
+        if (src.getType().equals(objectType)) {
+            for (IRInstruction instruction : result.getUse().keySet()) {
+                if (!inQueue.contains(instruction)) {
+                    queue.offer(instruction);
+                    inQueue.add(instruction);
+                }
+            }
+            result.replaceUse(src);
+            return true;
+        } else
+            return false;
+    }
+
+    @Override
     public String toString() {
         return result.toString() + " = bitcast "
                 + src.getType().toString() + " " + src.toString() + " to " + objectType.toString();

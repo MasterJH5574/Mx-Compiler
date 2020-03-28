@@ -4,10 +4,7 @@ import MxCompiler.IR.BasicBlock;
 import MxCompiler.IR.Function;
 import MxCompiler.IR.IRObject;
 import MxCompiler.IR.IRVisitor;
-import MxCompiler.IR.Operand.ConstNull;
-import MxCompiler.IR.Operand.Operand;
-import MxCompiler.IR.Operand.Parameter;
-import MxCompiler.IR.Operand.Register;
+import MxCompiler.IR.Operand.*;
 import MxCompiler.IR.TypeSystem.IRType;
 import MxCompiler.IR.TypeSystem.IntegerType;
 import MxCompiler.IR.TypeSystem.PointerType;
@@ -163,6 +160,27 @@ public class IcmpInst extends IRInstruction {
     @Override
     public boolean canBeHoisted(LoopAnalysis.LoopNode loop) {
         return loop.defOutOfLoop(op1) && loop.defOutOfLoop(op2);
+    }
+
+    @Override
+    public boolean combineInst(Queue<IRInstruction> queue, Set<IRInstruction> inQueue) {
+        if (op1 == op2) { // The condition is so rigorous that this optimization almost do nothing.
+            Operand replace;
+            if (operator == IcmpName.eq || operator == IcmpName.sge || operator == IcmpName.sle)
+                replace = new ConstBool(true);
+            else
+                replace = new ConstBool(false);
+
+            for (IRInstruction instruction : result.getUse().keySet()) {
+                if (!inQueue.contains(instruction)) {
+                    queue.offer(instruction);
+                    inQueue.add(instruction);
+                }
+            }
+            result.replaceUse(replace);
+            return true;
+        } else
+            return false;
     }
 
     @Override

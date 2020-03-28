@@ -88,6 +88,20 @@ public class BranchInst extends IRInstruction {
         getBasicBlock().getSuccessors().add(this.thenBlock);
     }
 
+    private void swapBlocks() {
+        assert cond != null;
+        BasicBlock tmp = thenBlock;
+        thenBlock = elseBlock;
+        elseBlock = tmp;
+    }
+
+    private void replaceCond(Operand newCond) {
+        assert cond != null;
+        cond.removeUse(this);
+        cond = newCond;
+        cond.addUse(this);
+    }
+
     @Override
     public void replaceUse(IRObject oldUse, IRObject newUse) {
         if (cond == oldUse) {
@@ -190,6 +204,17 @@ public class BranchInst extends IRInstruction {
     @Override
     public boolean canBeHoisted(LoopAnalysis.LoopNode loop) {
         return false;
+    }
+
+    @Override
+    public boolean combineInst(Queue<IRInstruction> queue, Set<IRInstruction> inQueue) {
+        if (cond == null || !cond.registerDefIsBinaryOpInst()
+                || !(((BinaryOpInst) ((Register) cond).getDef()).isLogicalNot()))
+            return false;
+        Operand newCond = ((BinaryOpInst) ((Register) cond).getDef()).getLogicalNotOperand();
+        this.replaceCond(newCond);
+        this.swapBlocks();
+        return true;
     }
 
     @Override

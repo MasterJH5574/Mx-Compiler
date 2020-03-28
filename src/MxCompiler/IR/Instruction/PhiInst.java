@@ -210,6 +210,11 @@ public class PhiInst extends IRInstruction {
     }
 
     @Override
+    public boolean combineInst(Queue<IRInstruction> queue, Set<IRInstruction> inQueue) {
+        return false;
+    }
+
+    @Override
     public String toString() {
         StringBuilder string = new StringBuilder();
         string.append(result.toString()).append(" = phi ").append(result.getType().toString()).append(" ");

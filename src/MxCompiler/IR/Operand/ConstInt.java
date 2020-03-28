@@ -15,6 +15,23 @@ public class ConstInt extends Constant {
         return value;
     }
 
+    public int getPowerOfTwo() {
+        // 0: value != 2^k
+        // positive: value = 2^k
+        // negative: value = -2^k
+        boolean neg = this.value < 0;
+        long value = neg ? -this.value : this.value;
+        int res = 0;
+        while (value > 1) {
+            if ((value & 1) == 0) {
+                res++;
+                value >>= 1;
+            } else
+                return 0;
+        }
+        return neg ? -res : res;
+    }
+
     @Override
     public Constant castToType(IRType objectType) {
         if (objectType instanceof IntegerType) {

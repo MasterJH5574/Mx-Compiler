@@ -128,6 +128,8 @@ abstract public class IRInstruction implements Cloneable {
 
     abstract public boolean canBeHoisted(LoopAnalysis.LoopNode loop);
 
+    abstract public boolean combineInst(Queue<IRInstruction> queue, Set<IRInstruction> inQueue);
+
     @Override
     abstract public String toString();
 

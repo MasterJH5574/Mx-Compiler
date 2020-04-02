@@ -100,7 +100,7 @@ public class Main {
 
         for (Function function : module.getFunctionMap().values()) {
             if (function.isNotFunctional()) {
-//                finalPrint(module, errorHandler);
+                finalPrint(module, errorHandler);
                 return;
             }
         }
@@ -133,21 +133,21 @@ public class Main {
                 break;
         }
 
-//        finalPrint(module, errorHandler);
+        finalPrint(module, errorHandler);
     }
 
     static private void finalPrint(Module module, ErrorHandler errorHandler) {
         String failed = "Compilation Failed.";
         String success = "Compilation Success!";
-        IRPrinter irPrinter = new IRPrinter();
-        module.accept(irPrinter);
-        try {
-            irPrinter.getWriter().close();
-            irPrinter.getOs().close();
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException(e.getMessage());
-        }
+//        IRPrinter irPrinter = new IRPrinter();
+//        module.accept(irPrinter);
+//        try {
+//            irPrinter.getWriter().close();
+//            irPrinter.getOs().close();
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            throw new RuntimeException(e.getMessage());
+//        }
 
         errorHandler.print();
         if (errorHandler.hasError()) {

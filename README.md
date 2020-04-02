@@ -82,6 +82,7 @@
 * 2020.3.27	Improve getNameWithoutDot() for Register and BasicBlock.
 * 2020.3.28	Give a lecture to beginner.
 * 2020.3.29	Add InstructionCombiner.
+* 2020.4.2	Pass semantic tests on OnlineJudge.
 
 
 

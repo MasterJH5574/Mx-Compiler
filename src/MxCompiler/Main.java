@@ -100,7 +100,7 @@ public class Main {
 
         for (Function function : module.getFunctionMap().values()) {
             if (function.isNotFunctional()) {
-                finalPrint(module, errorHandler);
+//                finalPrint(module, errorHandler);
                 return;
             }
         }
@@ -133,7 +133,7 @@ public class Main {
                 break;
         }
 
-        finalPrint(module, errorHandler);
+//        finalPrint(module, errorHandler);
     }
 
     static private void finalPrint(Module module, ErrorHandler errorHandler) {

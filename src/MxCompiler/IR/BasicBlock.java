@@ -1,6 +1,7 @@
 package MxCompiler.IR;
 
 import MxCompiler.IR.Instruction.IRInstruction;
+import MxCompiler.IR.Instruction.ParallelCopyInst;
 import MxCompiler.IR.Instruction.PhiInst;
 import MxCompiler.IR.Instruction.ReturnInst;
 import MxCompiler.IR.Operand.Operand;
@@ -343,6 +344,13 @@ public class BasicBlock extends IRObject implements Cloneable {
 
     public void setPostDF(HashSet<BasicBlock> postDF) {
         this.postDF = postDF;
+    }
+
+    public ParallelCopyInst getParallelCopy() {
+        IRInstruction ptr = this.getInstTail();
+        while (ptr != null && !(ptr instanceof ParallelCopyInst))
+            ptr = ptr.getInstPrev();
+        return ptr == null ? null : ((ParallelCopyInst) ptr);
     }
 
     public void removeFromFunction() {

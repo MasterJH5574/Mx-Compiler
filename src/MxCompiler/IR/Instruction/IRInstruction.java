@@ -62,7 +62,8 @@ abstract public class IRInstruction implements Cloneable {
                 || this instanceof GetElementPtrInst
                 || this instanceof IcmpInst
                 || this instanceof LoadInst
-                || this instanceof PhiInst;
+                || this instanceof PhiInst
+                || this instanceof MoveInst;
     }
 
     abstract public Register getResult();

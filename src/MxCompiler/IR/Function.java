@@ -133,6 +133,15 @@ public class Function extends IRObject {
         exitBlock = block;
     }
 
+    public void addBasicBlockPrev(BasicBlock block1, BasicBlock block2) {
+        // Assume that block1 is in this function.
+        assert block1.getPrev() != null;
+        block2.setPrev(block1.getPrev());
+        block2.setNext(block1);
+        block1.getPrev().setNext(block2);
+        block1.setPrev(block2);
+    }
+
     public ArrayList<BasicBlock> getBlocks() {
         ArrayList<BasicBlock> blocks = new ArrayList<>();
 

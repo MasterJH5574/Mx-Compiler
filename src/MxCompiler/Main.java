@@ -10,6 +10,8 @@ import MxCompiler.IR.Module;
 import MxCompiler.Optim.*;
 import MxCompiler.Optim.LoopOptim.LICM;
 import MxCompiler.Optim.LoopOptim.LoopAnalysis;
+import MxCompiler.Optim.SSA.SSAConstructor;
+import MxCompiler.Optim.SSA.SSADestructor;
 import MxCompiler.Parser.MxErrorListener;
 import MxCompiler.Parser.MxLexer;
 import MxCompiler.Parser.MxParser;
@@ -134,6 +136,10 @@ public class Main {
         }
 
         finalPrint(module, errorHandler);
+
+        SSADestructor ssaDestructor = new SSADestructor(module);
+        ssaDestructor.run();
+        new IRPrinter("test/postIR.ll").run(module);
     }
 
     static private void finalPrint(Module module, ErrorHandler errorHandler) {

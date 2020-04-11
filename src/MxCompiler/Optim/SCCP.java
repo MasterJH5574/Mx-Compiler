@@ -283,6 +283,11 @@ public class SCCP extends Pass implements IRVisitor {
             markMultiDefined(inst.getResult());
     }
 
+    @Override
+    public void visit(MoveInst inst) {
+        // Do nothing.
+    }
+
     private Constant foldConstant(IRInstruction inst, Constant lhs, Constant rhs) {
         assert inst instanceof BinaryOpInst || inst instanceof IcmpInst;
         Constant result;

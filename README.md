@@ -83,7 +83,7 @@
 * 2020.3.28	Give a lecture to beginner.
 * 2020.3.29	Add InstructionCombiner.
 * 2020.4.2	Pass semantic tests on OnlineJudge.
-* 2020.4.11	Modify IRPrinter.
+* 2020.4.11	Modify IRPrinter. Add SSADestructor.
 
 
 
@@ -342,6 +342,8 @@ Module  --  Function -- BasicBlock -- IRInstruction
   * - [x] IcmpInst (operator, irType, op1, op2, result)
   * - [x] PhiInst (branch, result)
   * - [x] CallInst (function, parameter, result)
+  * - [x] MoveInst(source, result) ***Only used for SSA Destruction!***
+  * - [x] ParallelCopy(moves) ***Only used for SSA Destruction!***
 
 ### Type System
 

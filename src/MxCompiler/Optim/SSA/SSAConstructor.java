@@ -1,4 +1,4 @@
-package MxCompiler.Optim;
+package MxCompiler.Optim.SSA;
 
 import MxCompiler.IR.BasicBlock;
 import MxCompiler.IR.Function;
@@ -6,6 +6,7 @@ import MxCompiler.IR.Instruction.*;
 import MxCompiler.IR.Module;
 import MxCompiler.IR.Operand.Operand;
 import MxCompiler.IR.Operand.Register;
+import MxCompiler.Optim.Pass;
 
 import java.util.*;
 

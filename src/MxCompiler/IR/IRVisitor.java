@@ -27,6 +27,8 @@ public interface IRVisitor {
     void visit(PhiInst inst);
     void visit(CallInst inst);
 
+    void visit(MoveInst inst);
+
 //    // ------ Type System ------
 //    void visit(VoidType type);
 //    void visit(FunctionType type);

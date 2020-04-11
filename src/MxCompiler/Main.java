@@ -139,15 +139,7 @@ public class Main {
     static private void finalPrint(Module module, ErrorHandler errorHandler) {
         String failed = "Compilation Failed.";
         String success = "Compilation Success!";
-        IRPrinter irPrinter = new IRPrinter();
-        module.accept(irPrinter);
-        try {
-            irPrinter.getWriter().close();
-            irPrinter.getOs().close();
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException(e.getMessage());
-        }
+        new IRPrinter("test/test.ll").run(module);
 
         errorHandler.print();
         if (errorHandler.hasError()) {

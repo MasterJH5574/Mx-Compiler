@@ -11,9 +11,9 @@ public class IRPrinter implements IRVisitor {
     private PrintWriter writer;
     private String indent;
 
-    public IRPrinter() {
+    public IRPrinter(String filename) {
         try {
-            os = new FileOutputStream("test/test.ll");
+            os = new FileOutputStream(filename);
             writer = new PrintWriter(os);
         } catch (Exception e) {
             e.printStackTrace();
@@ -23,12 +23,16 @@ public class IRPrinter implements IRVisitor {
         indent = "    ";
     }
 
-    public OutputStream getOs() {
-        return os;
-    }
+    public void run(Module module) {
+        module.accept(this);
 
-    public PrintWriter getWriter() {
-        return writer;
+        try {
+            writer.close();
+            os.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException(e.getMessage());
+        }
     }
 
     private void print(String string) {
@@ -163,6 +167,11 @@ public class IRPrinter implements IRVisitor {
 
     @Override
     public void visit(CallInst inst) {
+        println(indent + inst.toString());
+    }
+
+    @Override
+    public void visit(MoveInst inst) {
         println(indent + inst.toString());
     }
 }

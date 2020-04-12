@@ -15,7 +15,15 @@
       <w>sccp</w>
       <w>sdiv</w>
       <w>sequentialize</w>
+      <w>seqz</w>
+      <w>sgtz</w>
+      <w>slli</w>
+      <w>slti</w>
+      <w>sltz</w>
+      <w>snez</w>
+      <w>srai</w>
       <w>srem</w>
+      <w>xori</w>
     </words>
   </dictionary>
 </component>

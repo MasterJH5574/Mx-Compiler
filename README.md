@@ -84,6 +84,7 @@
 * 2020.3.29	Add InstructionCombiner.
 * 2020.4.2	Pass semantic tests on OnlineJudge.
 * 2020.4.11	Modify IRPrinter. Add SSADestructor.
+* 2020.4.12	Add some basic classes of RISC-V ASM.
 
 
 
@@ -459,3 +460,37 @@ If instruction k dominates instruction l, and k and l share the same expression,
 
 **Since I don't implement Alias Analysis, load instructions cannot be optimized by CSE.**
 
+### Other Optimizations
+
+To do.
+
+## Backend
+
+### Instruction
+
+* - [ ] ASMInstruction
+  * - [ ] BinaryInst
+    * - [ ] ITypeBinary(addi, slli, srai, andi, ori, xori, slti)
+    * - [ ] RTypeBinary(add, sub, mul, div, rem, sll, sra, and, or, xor, slt)
+  * - [ ] UnaryInst(seqz, snez, sltz, sgtz)
+  * - [ ] MoveInst
+  * - [ ] LoadAddrInst
+  * - [ ] LoadImmediate
+  * - [ ] LoadInst(lb, lw)
+  * - [ ] StoreInst(sb, sw)
+  * - [ ] Branch
+    * - [ ] BinaryBranch(beq, bne, bgt, bge, blt, ble)
+    * - [ ] UnaryBranch(beqz, bnez, blez, bgez, bltz, bgtz)
+  * - [ ] JumpInst
+  * - [ ] CallInst
+  * - [ ] ReturnInst
+
+### Operands
+
+* - [ ] ASMOperand
+  * - [ ] Register
+    * - [ ] PhysicalRegister
+    * - [ ] VirtualRegister
+  * - [ ] GlobalVariable
+  * - [ ] Immediate
+  * - [ ] Address

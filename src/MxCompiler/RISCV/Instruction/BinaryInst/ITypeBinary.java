@@ -1,5 +1,6 @@
 package MxCompiler.RISCV.Instruction.BinaryInst;
 
+import MxCompiler.RISCV.ASMVisitor;
 import MxCompiler.RISCV.BasicBlock;
 import MxCompiler.RISCV.Operand.Immediate;
 
@@ -15,5 +16,10 @@ public class ITypeBinary extends BinaryInst {
         super(basicBlock);
         this.op = op;
         this.immediate = immediate;
+    }
+
+    @Override
+    public void accept(ASMVisitor visitor) {
+        visitor.visit(this);
     }
 }

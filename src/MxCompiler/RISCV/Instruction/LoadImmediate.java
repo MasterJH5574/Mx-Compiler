@@ -1,5 +1,6 @@
 package MxCompiler.RISCV.Instruction;
 
+import MxCompiler.RISCV.ASMVisitor;
 import MxCompiler.RISCV.BasicBlock;
 import MxCompiler.RISCV.Operand.Immediate;
 import MxCompiler.RISCV.Operand.Register.Register;
@@ -12,5 +13,10 @@ public class LoadImmediate extends ASMInstruction {
         super(basicBlock);
         this.rd = rd;
         this.immediate = immediate;
+    }
+
+    @Override
+    public void accept(ASMVisitor visitor) {
+        visitor.visit(this);
     }
 }

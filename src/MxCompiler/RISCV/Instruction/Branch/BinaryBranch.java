@@ -1,5 +1,6 @@
 package MxCompiler.RISCV.Instruction.Branch;
 
+import MxCompiler.RISCV.ASMVisitor;
 import MxCompiler.RISCV.BasicBlock;
 import MxCompiler.RISCV.Operand.Immediate;
 import MxCompiler.RISCV.Operand.Register.Register;
@@ -16,5 +17,10 @@ public class BinaryBranch extends Branch {
         super(basicBlock, rs1, offset);
         this.op = op;
         this.rs2 = rs2;
+    }
+
+    @Override
+    public void accept(ASMVisitor visitor) {
+        visitor.visit(this);
     }
 }

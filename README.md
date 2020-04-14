@@ -85,6 +85,7 @@
 * 2020.4.2	Pass semantic tests on OnlineJudge.
 * 2020.4.11	Modify IRPrinter. Add SSADestructor.
 * 2020.4.12	Add some basic classes of RISC-V ASM.
+* 2020.4.14	Add basic classes(cont.).
 
 
 
@@ -476,6 +477,7 @@ To do.
   * - [ ] MoveInst
   * - [ ] LoadAddrInst
   * - [ ] LoadImmediate
+  * - [ ] LoadUpperImmediate
   * - [ ] LoadInst(lb, lw)
   * - [ ] StoreInst(sb, sw)
   * - [ ] Branch
@@ -494,3 +496,4 @@ To do.
   * - [ ] GlobalVariable
   * - [ ] Immediate
   * - [ ] Address
+  * - [ ] RelocationExpansion

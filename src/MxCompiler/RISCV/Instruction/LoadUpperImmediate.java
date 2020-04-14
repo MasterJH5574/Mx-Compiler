@@ -2,13 +2,14 @@ package MxCompiler.RISCV.Instruction;
 
 import MxCompiler.RISCV.ASMVisitor;
 import MxCompiler.RISCV.BasicBlock;
+import MxCompiler.RISCV.Operand.Immediate;
 import MxCompiler.RISCV.Operand.Register.Register;
 
-public class MoveInst extends ASMInstruction {
+public class LoadUpperImmediate extends ASMInstruction {
     private Register rd;
-    private Register rs;
+    private Immediate rs;
 
-    public MoveInst(BasicBlock basicBlock, Register rd, Register rs) {
+    public LoadUpperImmediate(BasicBlock basicBlock, Register rd, Immediate rs) {
         super(basicBlock);
         this.rd = rd;
         this.rs = rs;

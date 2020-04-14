@@ -892,7 +892,7 @@ public class IRBuilder implements ASTVisitor {
             Operand rhsResult = node.getRhs().getResult();
             currentBlock.addInstruction(new BranchInst(currentBlock, null, mergeBlock, null));
             currentFunction.addBasicBlock(branchBlock);
-            phi2 = branchBlock;
+            phi2 = currentBlock;
 
             currentBlock = mergeBlock;
             Register result = new Register(new IntegerType(IntegerType.BitWidth.int1), "logicalAnd");
@@ -923,7 +923,7 @@ public class IRBuilder implements ASTVisitor {
             Operand rhsResult = node.getRhs().getResult();
             currentBlock.addInstruction(new BranchInst(currentBlock, null, mergeBlock, null));
             currentFunction.addBasicBlock(branchBlock);
-            phi2 = branchBlock;
+            phi2 = currentBlock;
 
             currentBlock = mergeBlock;
             Register result = new Register(new IntegerType(IntegerType.BitWidth.int1), "logicalOr");

@@ -30,6 +30,22 @@ public class BasicBlock {
         successors = new LinkedHashSet<>();
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Set<BasicBlock> getPredecessors() {
+        return predecessors;
+    }
+
+    public Set<BasicBlock> getSuccessors() {
+        return successors;
+    }
+
     public void appendBlock(BasicBlock block) {
         block.prevBlock = this;
         this.nextBlock = block;

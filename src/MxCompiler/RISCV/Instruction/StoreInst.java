@@ -2,7 +2,7 @@ package MxCompiler.RISCV.Instruction;
 
 import MxCompiler.RISCV.ASMVisitor;
 import MxCompiler.RISCV.BasicBlock;
-import MxCompiler.RISCV.Operand.Address;
+import MxCompiler.RISCV.Operand.Address.Address;
 import MxCompiler.RISCV.Operand.Register.Register;
 
 public class StoreInst extends ASMInstruction {

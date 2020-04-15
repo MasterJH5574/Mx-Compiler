@@ -69,6 +69,27 @@ public class IcmpInst extends IRInstruction {
         return result;
     }
 
+    public boolean shouldSwap(boolean assertOrNot) {
+        if (assertOrNot)
+            assert !(op1 instanceof Constant) || !(op2 instanceof Constant);
+        else {
+            if (op1 instanceof Constant && op2 instanceof Constant)
+                return false;
+        }
+        return op1 instanceof Constant;
+    }
+
+    public void swapOps() {
+        operator = operator == IcmpName.sgt ? IcmpName.slt
+                : operator == IcmpName.slt ? IcmpName.sgt
+                : operator == IcmpName.sge ? IcmpName.sle
+                : operator == IcmpName.sle ? IcmpName.sge
+                : operator;
+        Operand tmp = op1;
+        op1 = op2;
+        op2 = tmp;
+    }
+
     @Override
     public void replaceUse(IRObject oldUse, IRObject newUse) {
         if (op1 == oldUse) {
@@ -164,6 +185,8 @@ public class IcmpInst extends IRInstruction {
 
     @Override
     public boolean combineInst(Queue<IRInstruction> queue, Set<IRInstruction> inQueue) {
+        if (this.shouldSwap(false))
+            this.swapOps();
         if (op1 == op2) { // The condition is so rigorous that this optimization almost do nothing.
             Operand replace;
             if (operator == IcmpName.eq || operator == IcmpName.sge || operator == IcmpName.sle)
@@ -179,8 +202,33 @@ public class IcmpInst extends IRInstruction {
             }
             result.replaceUse(replace);
             return true;
-        } else
+        } else if (op1.getType() instanceof IntegerType && (operator == IcmpName.sle || operator == IcmpName.sge)
+                && !(op1 instanceof Constant) && (op2 instanceof Constant)) {
+            assert op2 instanceof ConstInt;
+            if ((operator == IcmpName.sle && ((ConstInt) op2).getValue() == Integer.MAX_VALUE)
+                    || (operator == IcmpName.sge && ((ConstInt) op2).getValue() == Integer.MIN_VALUE)) {
+                result.replaceUse(new ConstBool(true));
+                for (IRInstruction instruction : result.getUse().keySet()) {
+                    if (!inQueue.contains(instruction)) {
+                        queue.offer(instruction);
+                        inQueue.add(instruction);
+                    }
+                }
+                return true;
+            } else if ((operator == IcmpName.slt && ((ConstInt) op2).getValue() == Integer.MIN_VALUE)
+                    || (operator == IcmpName.sgt && ((ConstInt) op2).getValue() == Integer.MAX_VALUE)) {
+                result.replaceUse(new ConstBool(false));
+                for (IRInstruction instruction : result.getUse().keySet()) {
+                    if (!inQueue.contains(instruction)) {
+                        queue.offer(instruction);
+                        inQueue.add(instruction);
+                    }
+                }
+                return true;
+            }
             return false;
+        }
+        return false;
     }
 
     @Override

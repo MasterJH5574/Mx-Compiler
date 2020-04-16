@@ -3,13 +3,12 @@ package MxCompiler.RISCV;
 import MxCompiler.IR.Instruction.IRInstruction;
 import MxCompiler.IR.Instruction.MoveInst;
 import MxCompiler.IR.Operand.Parameter;
+import MxCompiler.RISCV.Operand.Address.BaseOffsetAddr;
+import MxCompiler.RISCV.Operand.Register.PhysicalRegister;
 import MxCompiler.RISCV.Operand.Register.VirtualRegister;
 import MxCompiler.Utilities.SymbolTable;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class Function {
     private Module module;
@@ -22,6 +21,9 @@ public class Function {
 
     private Map<String, BasicBlock> blockMap;
     private SymbolTable symbolTable;
+    private Set<PhysicalRegister> usedCalleeRegister;
+
+    private Map<VirtualRegister, BaseOffsetAddr> gepAddrMap;
 
     public Function(Module module, String name, MxCompiler.IR.Function IRFunction) {
         this.module = module;
@@ -30,6 +32,10 @@ public class Function {
 
         if (IRFunction == null)
             return;
+
+        usedCalleeRegister = new HashSet<>();
+        gepAddrMap = new HashMap<>();
+
 
         blockMap = new HashMap<>();
         ArrayList<MxCompiler.IR.BasicBlock> IRBlocks = IRFunction.getBlocks();
@@ -79,6 +85,10 @@ public class Function {
         }
     }
 
+    public StackFrame getStackFrame() {
+        return stackFrame;
+    }
+
     public void setStackFrame(StackFrame stackFrame) {
         this.stackFrame = stackFrame;
     }
@@ -87,8 +97,16 @@ public class Function {
         return entranceBlock;
     }
 
+    public Map<String, BasicBlock> getBlockMap() {
+        return blockMap;
+    }
+
     public SymbolTable getSymbolTable() {
         return symbolTable;
+    }
+
+    public Map<VirtualRegister, BaseOffsetAddr> getGepAddrMap() {
+        return gepAddrMap;
     }
 
     public void addBasicBlock(BasicBlock block) {

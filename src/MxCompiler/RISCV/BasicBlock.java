@@ -30,12 +30,20 @@ public class BasicBlock {
         successors = new LinkedHashSet<>();
     }
 
+    public boolean isEmpty() {
+        return instHead == instTail && instHead == null;
+    }
+
     public String getName() {
         return name;
     }
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public ASMInstruction getInstTail() {
+        return instTail;
     }
 
     public Set<BasicBlock> getPredecessors() {
@@ -52,7 +60,23 @@ public class BasicBlock {
     }
 
     public void addInstruction(ASMInstruction instruction) {
+        if (isEmpty())
+            instHead = instruction;
+        else {
+            instTail.setNextInst(instruction);
+            instruction.setPrevInst(instTail);
+        }
+        instTail = instruction;
+    }
 
+    public void addInstructionAtFront(ASMInstruction instruction) {
+        if (isEmpty())
+            instTail = instruction;
+        else {
+            instHead.setPrevInst(instruction);
+            instruction.setNextInst(instHead);
+        }
+        instHead = instruction;
     }
 
     public void accept(ASMVisitor visitor) {

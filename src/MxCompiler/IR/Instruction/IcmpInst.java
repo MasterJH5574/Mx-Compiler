@@ -56,6 +56,10 @@ public class IcmpInst extends IRInstruction {
         return operator;
     }
 
+    public IRType getIrType() {
+        return irType;
+    }
+
     public Operand getOp1() {
         return op1;
     }
@@ -88,6 +92,21 @@ public class IcmpInst extends IRInstruction {
         Operand tmp = op1;
         op1 = op2;
         op2 = tmp;
+    }
+
+    public void convertLeGeToLtGt() {
+        if (op2 instanceof ConstBool)
+            return;
+        assert op2 instanceof ConstInt;
+        if (operator == IcmpName.sle) {
+            operator = IcmpName.slt;
+            assert ((ConstInt) op2).getValue() != Integer.MAX_VALUE;
+            ((ConstInt) op2).setValue(((ConstInt) op2).getValue() + 1);
+        } else if (operator == IcmpName.sge) {
+            operator = IcmpName.sgt;
+            assert ((ConstInt) op2).getValue() != Integer.MIN_VALUE;
+            ((ConstInt) op2).setValue(((ConstInt) op2).getValue() - 1);
+        }
     }
 
     @Override

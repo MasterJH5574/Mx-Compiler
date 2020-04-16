@@ -4,7 +4,13 @@
       <w>adce</w>
       <w>alloca</w>
       <w>ashr</w>
+      <w>beqz</w>
+      <w>bgez</w>
+      <w>bgtz</w>
       <w>bitcast</w>
+      <w>blez</w>
+      <w>bltz</w>
+      <w>bnez</w>
       <w>callees</w>
       <w>datalayout</w>
       <w>getelementptr</w>
@@ -12,6 +18,7 @@
       <w>idom</w>
       <w>licm</w>
       <w>preds</w>
+      <w>risc</w>
       <w>sccp</w>
       <w>sdiv</w>
       <w>sequentialize</w>

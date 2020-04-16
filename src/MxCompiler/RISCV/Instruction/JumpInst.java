@@ -1,6 +1,6 @@
 package MxCompiler.RISCV.Instruction;
 
-import MxCompiler.IR.BasicBlock;
+import MxCompiler.RISCV.BasicBlock;
 import MxCompiler.RISCV.ASMVisitor;
 
 public class JumpInst extends ASMInstruction {

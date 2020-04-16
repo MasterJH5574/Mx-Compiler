@@ -42,6 +42,16 @@ public class StructureType extends IRType {
         return size;
     }
 
+    public int calcOffset(int index) {
+        assert index >= 0 && index < memberList.size();
+        int offset = 0;
+        for (int i = 0; i <= index; i++) {
+            int typeSize = memberList.get(i).getBytes();
+            offset = Aligner.align(offset, typeSize) + (i == index ? 0 : typeSize);
+        }
+        return offset;
+    }
+
     public String structureToString() {
         StringBuilder string = new StringBuilder(this.toString());
         string.append(" = type { ");

@@ -19,6 +19,10 @@ abstract public class Operand extends IRObject {
         return type;
     }
 
+    public String getName() {
+        return null;
+    }
+
     abstract public boolean isConstValue();
 
     abstract public void markBaseAsLive(Set<IRInstruction> live, Queue<IRInstruction> queue);

@@ -10,14 +10,14 @@ public class UnaryInst extends ASMInstruction {
     }
 
     private OpName op;
-    private Register rd;
     private Register rs;
+    private Register rd;
 
-    public UnaryInst(BasicBlock basicBlock, OpName op, Register rd, Register rs) {
+    public UnaryInst(BasicBlock basicBlock, OpName op, Register rs, Register rd) {
         super(basicBlock);
         this.op = op;
-        this.rd = rd;
         this.rs = rs;
+        this.rd = rd;
     }
 
     @Override

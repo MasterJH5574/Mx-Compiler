@@ -1,5 +1,6 @@
 package MxCompiler.IR;
 
+import MxCompiler.IR.Instruction.BranchInst;
 import MxCompiler.IR.Instruction.IRInstruction;
 import MxCompiler.IR.Operand.Operand;
 
@@ -33,6 +34,15 @@ abstract public class IRObject implements Cloneable {
 
     public Map<IRInstruction, Integer> getUse() {
         return use;
+    }
+
+    public boolean onlyHaveOneBranchUse() {
+        if (use.size() > 1)
+            return false;
+        for (Map.Entry<IRInstruction, Integer> entry : use.entrySet())
+            if (!(entry.getKey() instanceof BranchInst) || entry.getValue() > 1)
+                return false;
+        return true;
     }
 
     public void replaceUse(IRObject newUse) {

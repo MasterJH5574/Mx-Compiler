@@ -15,6 +15,10 @@ public class ConstInt extends Constant {
         return value;
     }
 
+    public void setValue(long value) {
+        this.value = value;
+    }
+
     public int getPowerOfTwo() {
         // 0: value != 2^k
         // positive: value = 2^k

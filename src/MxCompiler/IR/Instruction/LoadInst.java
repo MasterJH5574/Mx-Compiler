@@ -6,7 +6,9 @@ import MxCompiler.IR.IRObject;
 import MxCompiler.IR.IRVisitor;
 import MxCompiler.IR.Operand.*;
 import MxCompiler.IR.TypeSystem.IRType;
+import MxCompiler.IR.TypeSystem.IntegerType;
 import MxCompiler.IR.TypeSystem.PointerType;
+import MxCompiler.IR.TypeSystem.StructureType;
 import MxCompiler.Optim.Andersen;
 import MxCompiler.Optim.CSE;
 import MxCompiler.Optim.LoopOptim.LICM;
@@ -37,6 +39,7 @@ public class LoadInst extends IRInstruction {
             assert ((PointerType) pointer.getType()).getBaseType().equals(type);
         }
         assert result.getType().equals(type);
+        assert type instanceof IntegerType || type instanceof PointerType;
     }
 
     @Override

@@ -90,6 +90,7 @@
   * Fix a critical bug in IRBuilder(about visit binary expression AND or OR).
   * Start writing InstructionSelector(far from finishing it).
 * 2020.4.15	Add a check for InstructionCombiner.
+* 2020.4.16	Finish InstructionSelector(to be debugged).
 
 
 

@@ -12,8 +12,8 @@ public class RTypeBinary extends BinaryInst {
     private OpName op;
     private Register rs2;
 
-    public RTypeBinary(BasicBlock basicBlock, OpName op, Register rs2) {
-        super(basicBlock);
+    public RTypeBinary(BasicBlock basicBlock, OpName op, Register rs1, Register rs2, Register rd) {
+        super(basicBlock, rd, rs1);
         this.op = op;
         this.rs2 = rs2;
     }

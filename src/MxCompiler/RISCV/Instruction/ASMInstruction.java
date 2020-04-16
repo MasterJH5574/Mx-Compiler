@@ -14,5 +14,13 @@ abstract public class ASMInstruction {
         nextInst = null;
     }
 
+    public void setPrevInst(ASMInstruction prevInst) {
+        this.prevInst = prevInst;
+    }
+
+    public void setNextInst(ASMInstruction nextInst) {
+        this.nextInst = nextInst;
+    }
+
     abstract public void accept(ASMVisitor visitor);
 }

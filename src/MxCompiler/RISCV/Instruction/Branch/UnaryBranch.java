@@ -2,7 +2,6 @@ package MxCompiler.RISCV.Instruction.Branch;
 
 import MxCompiler.RISCV.ASMVisitor;
 import MxCompiler.RISCV.BasicBlock;
-import MxCompiler.RISCV.Operand.Immediate;
 import MxCompiler.RISCV.Operand.Register.Register;
 
 public class UnaryBranch extends Branch {
@@ -12,8 +11,8 @@ public class UnaryBranch extends Branch {
 
     private OpName op;
 
-    public UnaryBranch(BasicBlock basicBlock, Register rs1, Immediate offset, OpName op) {
-        super(basicBlock, rs1, offset);
+    public UnaryBranch(BasicBlock basicBlock, OpName op, Register rs1, BasicBlock thenBlock) {
+        super(basicBlock, rs1, thenBlock);
         this.op = op;
     }
 

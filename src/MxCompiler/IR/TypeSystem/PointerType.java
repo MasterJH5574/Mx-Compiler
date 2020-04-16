@@ -21,7 +21,8 @@ public class PointerType extends IRType {
 
     @Override
     public int getBytes() {
-        return 8;
+        // return 8; // for x86
+        return 4; // for rv32i
     }
 
     @Override

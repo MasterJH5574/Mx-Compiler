@@ -126,7 +126,7 @@ public class Main {
             changed |= cse.run();
             loopAnalysis.run();
             changed |= licm.run();
-            changed |= inlineExpander.run();
+//            changed |= inlineExpander.run();
             changed |= instructionCombiner.run();
             changed |= cfgSimplifier.run();
             changed |= functionRemover.run();

@@ -4,7 +4,9 @@ import MxCompiler.IR.BasicBlock;
 import MxCompiler.IR.Function;
 import MxCompiler.IR.IRObject;
 import MxCompiler.IR.IRVisitor;
+import MxCompiler.IR.Operand.Constant;
 import MxCompiler.IR.Operand.Operand;
+import MxCompiler.IR.Operand.Parameter;
 import MxCompiler.IR.Operand.Register;
 import MxCompiler.Optim.Andersen;
 import MxCompiler.Optim.CSE;
@@ -27,6 +29,7 @@ public class MoveInst extends IRInstruction {
         this.result = result;
 
         assert source.getType().equals(result.getType());
+        assert source instanceof Register || source instanceof Parameter || source instanceof Constant;
     }
 
     @Override

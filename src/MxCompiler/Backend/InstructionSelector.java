@@ -65,14 +65,16 @@ public class InstructionSelector implements IRVisitor {
                 gv.setString(((ConstString) init).getValue());
             } else if (IRGlobalVariable.getType() instanceof IntegerType
                     && ((IntegerType) IRGlobalVariable.getType()).getBitWidth() == IntegerType.BitWidth.int1) {
-
+                assert init instanceof ConstBool;
+                gv.setBool(((ConstBool) init).getValue() ? 1 : 0);
             } else if (IRGlobalVariable.getType() instanceof IntegerType
                     && ((IntegerType) IRGlobalVariable.getType()).getBitWidth() == IntegerType.BitWidth.int32) {
-
+                assert init instanceof ConstInt;
+                gv.setInt(((int) ((ConstInt) init).getValue()));
             } else if (IRGlobalVariable.getType() instanceof PointerType) {
-
+                assert init instanceof ConstNull;
+                gv.setInt(0);
             }
-            // Todo: Other init
         }
         for (Function IRExternalFunction : module.getExternalFunctionMap().values()) {
             String name = IRExternalFunction.getName();

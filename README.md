@@ -91,6 +91,8 @@
   * Start writing InstructionSelector(far from finishing it).
 * 2020.4.15	Add a check for InstructionCombiner.
 * 2020.4.16	Finish InstructionSelector(to be debugged).
+* 2020.4.17	SSADestructor/InstSelector debug.
+* 2020.4.18	SSADestructor/InstSelector debug. Add one more CFGSimplification after DCE.
 
 
 

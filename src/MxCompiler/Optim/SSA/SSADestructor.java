@@ -53,12 +53,13 @@ public class SSADestructor extends Pass {
             }
 
             for (BasicBlock predecessor : predecessors) {
-                ParallelCopyInst pc = new ParallelCopyInst(predecessor);
+                ParallelCopyInst pc;
                 if (predecessor.getSuccessors().size() > 1) {
                     // critical edge
                     BasicBlock criticalBlock = new BasicBlock(block.getFunction(), "criticalBlock");
                     block.getFunction().getSymbolTable().put(criticalBlock.getName(), criticalBlock);
                     BranchInst branch = new BranchInst(criticalBlock, null, block, null);
+                    pc = new ParallelCopyInst(criticalBlock);
 
                     criticalBlock.addInstruction(pc);
                     criticalBlock.addInstruction(branch);
@@ -66,6 +67,8 @@ public class SSADestructor extends Pass {
                     if (predecessor.getInstTail() instanceof BranchInst)
                         predecessor.getInstTail().replaceUse(block, criticalBlock);
 
+                    criticalBlock.getPredecessors().add(predecessor);
+                    criticalBlock.getSuccessors().add(block);
                     block.getPredecessors().remove(predecessor);
                     block.getPredecessors().add(criticalBlock);
                     predecessor.getSuccessors().remove(block);
@@ -75,6 +78,7 @@ public class SSADestructor extends Pass {
 
                     block.getFunction().addBasicBlockPrev(block, criticalBlock);
                 } else {
+                    pc = new ParallelCopyInst(predecessor);
                     if (predecessor.notEndWithTerminalInst())
                         predecessor.addInstruction(pc);
                     else

@@ -155,64 +155,70 @@ public class InstructionSelector implements IRVisitor {
 
     @Override
     public void visit(BranchInst inst) {
-        Operand cond = inst.getCond();
-        MxCompiler.RISCV.BasicBlock thenBlock = currentFunction.getBlockMap().get(inst.getThenBlock().getName());
-        MxCompiler.RISCV.BasicBlock elseBlock = currentFunction.getBlockMap().get(inst.getElseBlock().getName());
+        if (inst.isConditional()) {
+            Operand cond = inst.getCond();
+            MxCompiler.RISCV.BasicBlock thenBlock = currentFunction.getBlockMap().get(inst.getThenBlock().getName());
+            MxCompiler.RISCV.BasicBlock elseBlock = currentFunction.getBlockMap().get(inst.getElseBlock().getName());
 
-        if (cond instanceof Register
-                && ((Register) cond).getDef() instanceof IcmpInst
-                && cond.onlyHaveOneBranchUse()) {
-            IcmpInst icmp = ((IcmpInst) ((Register) cond).getDef());
-            if (icmp.shouldSwap(true))
-                icmp.swapOps();
+            if (cond instanceof Register
+                    && ((Register) cond).getDef() instanceof IcmpInst
+                    && cond.onlyHaveOneBranchUse()) {
+                IcmpInst icmp = ((IcmpInst) ((Register) cond).getDef());
+                if (icmp.shouldSwap(true))
+                    icmp.swapOps();
 
-            IRType type = icmp.getIrType();
-            IcmpInst.IcmpName op = icmp.getOperator();
-            Operand op1 = icmp.getOp1();
-            Operand op2 = icmp.getOp2();
-            VirtualRegister rs1 = currentFunction.getSymbolTable().getVR(op1.getName());
-            VirtualRegister rs2;
-            if (type instanceof IntegerType) {
-                if (op2 instanceof Constant) {
-                    long value = op2 instanceof ConstBool
-                            ? (((ConstBool) op2).getValue() ? 1 : 0) : ((ConstInt) op2).getValue();
+                IRType type = icmp.getIrType();
+                IcmpInst.IcmpName op = icmp.getOperator();
+                Operand op1 = icmp.getOp1();
+                Operand op2 = icmp.getOp2();
+                VirtualRegister rs1 = currentFunction.getSymbolTable().getVR(op1.getName());
+                VirtualRegister rs2;
+                if (type instanceof IntegerType) {
+                    if (op2 instanceof Constant) {
+                        long value = op2 instanceof ConstBool
+                                ? (((ConstBool) op2).getValue() ? 1 : 0) : ((ConstInt) op2).getValue();
 
-                    if (value != 0) {
-                        rs2 = new VirtualRegister("loadImmediate");
-                        currentFunction.getSymbolTable().putASMRename(rs2.getName(), rs2);
-                        if (needToLoadImmediate(value)) {
-                            currentBlock.addInstruction(new LoadImmediate(currentBlock, rs2, new IntImmediate(value)));
-                        } else {
-                            currentBlock.addInstruction(new ITypeBinary(currentBlock, addi, PhysicalRegister.zeroVR,
-                                    new IntImmediate(value), rs2));
-                        }
+                        if (value != 0) {
+                            rs2 = new VirtualRegister("loadImmediate");
+                            currentFunction.getSymbolTable().putASMRename(rs2.getName(), rs2);
+                            if (needToLoadImmediate(value)) {
+                                currentBlock.addInstruction(new LoadImmediate(currentBlock,
+                                        rs2, new IntImmediate(value)));
+                            } else {
+                                currentBlock.addInstruction(new ITypeBinary(currentBlock, addi, PhysicalRegister.zeroVR,
+                                        new IntImmediate(value), rs2));
+                            }
+                        } else
+                            rs2 = PhysicalRegister.zeroVR;
                     } else
+                        rs2 = currentFunction.getSymbolTable().getVR(op2.getName());
+                } else if (type instanceof PointerType) {
+                    if (op2 instanceof Constant) {
+                        assert op2 instanceof ConstNull;
                         rs2 = PhysicalRegister.zeroVR;
+                    } else
+                        rs2 = currentFunction.getSymbolTable().getVR(op2.getName());
                 } else
-                    rs2 = currentFunction.getSymbolTable().getVR(op2.getName());
-            } else if (type instanceof PointerType) {
-                if (op2 instanceof Constant) {
-                    assert op2 instanceof ConstNull;
-                    rs2 = PhysicalRegister.zeroVR;
-                } else
-                    rs2 = currentFunction.getSymbolTable().getVR(op2.getName());
-            } else
-                throw new RuntimeException();
+                    throw new RuntimeException();
 
-            BinaryBranch.OpName branchOp = op == IcmpInst.IcmpName.eq ? bne
-                    : op == IcmpInst.IcmpName.ne ? beq
-                    : op == IcmpInst.IcmpName.sgt ? ble
-                    : op == IcmpInst.IcmpName.sge ? blt
-                    : op == IcmpInst.IcmpName.slt ? bge
-                    : bgt;
-            currentBlock.addInstruction(new BinaryBranch(currentBlock, branchOp, rs1, rs2, elseBlock));
+                BinaryBranch.OpName branchOp = op == IcmpInst.IcmpName.eq ? bne
+                        : op == IcmpInst.IcmpName.ne ? beq
+                        : op == IcmpInst.IcmpName.sgt ? ble
+                        : op == IcmpInst.IcmpName.sge ? blt
+                        : op == IcmpInst.IcmpName.slt ? bge
+                        : bgt;
+                currentBlock.addInstruction(new BinaryBranch(currentBlock, branchOp, rs1, rs2, elseBlock));
+                currentBlock.addInstruction(new JumpInst(currentBlock, thenBlock));
+                return;
+            }
+
+            VirtualRegister condVR = currentFunction.getSymbolTable().getVR(cond.getName());
+            currentBlock.addInstruction(new UnaryBranch(currentBlock, beqz, condVR, elseBlock));
             currentBlock.addInstruction(new JumpInst(currentBlock, thenBlock));
-            return;
+        } else {
+            MxCompiler.RISCV.BasicBlock thenBlock = currentFunction.getBlockMap().get(inst.getThenBlock().getName());
+            currentBlock.addInstruction(new JumpInst(currentBlock, thenBlock));
         }
-
-        VirtualRegister condVR = currentFunction.getSymbolTable().getVR(cond.getName());
-        currentBlock.addInstruction(new UnaryBranch(currentBlock, beqz, condVR, elseBlock));
-        currentBlock.addInstruction(new JumpInst(currentBlock, thenBlock));
     }
 
     @Override
@@ -313,15 +319,20 @@ public class InstructionSelector implements IRVisitor {
             currentBlock.addInstruction(new MxCompiler.RISCV.Instruction.LoadInst(currentBlock, rd, size,
                     new BaseOffsetAddr(lui, new RelocationImmediate(RelocationImmediate.Type.low, gv))));
         } else {
-            assert inst.getPointer() instanceof Parameter || inst.getPointer() instanceof Register;
-            VirtualRegister pointer = currentFunction.getSymbolTable().getVR(inst.getPointer().getName());
-            if (currentFunction.getGepAddrMap().containsKey(pointer)) {
-                BaseOffsetAddr addr = currentFunction.getGepAddrMap().get(pointer);
-                currentBlock.addInstruction(new MxCompiler.RISCV.Instruction.LoadInst(currentBlock,
-                        rd, size, addr));
+            if (inst.getPointer() instanceof ConstNull) {
+                currentBlock.addInstruction(new MxCompiler.RISCV.Instruction.LoadInst(currentBlock, rd, size,
+                        new BaseOffsetAddr(PhysicalRegister.zeroVR, new IntImmediate(0))));
             } else {
-                currentBlock.addInstruction(new MxCompiler.RISCV.Instruction.LoadInst(currentBlock,
-                        rd, size, new BaseOffsetAddr(pointer, new IntImmediate(0))));
+                assert inst.getPointer() instanceof Parameter || inst.getPointer() instanceof Register;
+                VirtualRegister pointer = currentFunction.getSymbolTable().getVR(inst.getPointer().getName());
+                if (currentFunction.getGepAddrMap().containsKey(pointer)) {
+                    BaseOffsetAddr addr = currentFunction.getGepAddrMap().get(pointer);
+                    currentBlock.addInstruction(new MxCompiler.RISCV.Instruction.LoadInst(currentBlock,
+                            rd, size, addr));
+                } else {
+                    currentBlock.addInstruction(new MxCompiler.RISCV.Instruction.LoadInst(currentBlock,
+                            rd, size, new BaseOffsetAddr(pointer, new IntImmediate(0))));
+                }
             }
         }
     }
@@ -345,15 +356,20 @@ public class InstructionSelector implements IRVisitor {
             currentBlock.addInstruction(new MxCompiler.RISCV.Instruction.StoreInst(currentBlock, value, size,
                     new BaseOffsetAddr(lui, new RelocationImmediate(RelocationImmediate.Type.low, gv))));
         } else {
-            assert inst.getPointer() instanceof Parameter || inst.getPointer() instanceof Register;
-            VirtualRegister pointer = currentFunction.getSymbolTable().getVR(inst.getPointer().getName());
-            if (currentFunction.getGepAddrMap().containsKey(pointer)) {
-                BaseOffsetAddr addr = currentFunction.getGepAddrMap().get(pointer);
-                currentBlock.addInstruction(new MxCompiler.RISCV.Instruction.StoreInst(currentBlock,
-                        value, size, addr));
+            if (inst.getPointer() instanceof ConstNull) {
+                currentBlock.addInstruction(new MxCompiler.RISCV.Instruction.StoreInst(currentBlock, value, size,
+                        new BaseOffsetAddr(PhysicalRegister.zeroVR, new IntImmediate(0))));
             } else {
-                currentBlock.addInstruction(new MxCompiler.RISCV.Instruction.StoreInst(currentBlock,
-                        value, size, new BaseOffsetAddr(pointer, new IntImmediate(0))));
+                assert inst.getPointer() instanceof Parameter || inst.getPointer() instanceof Register;
+                VirtualRegister pointer = currentFunction.getSymbolTable().getVR(inst.getPointer().getName());
+                if (currentFunction.getGepAddrMap().containsKey(pointer)) {
+                    BaseOffsetAddr addr = currentFunction.getGepAddrMap().get(pointer);
+                    currentBlock.addInstruction(new MxCompiler.RISCV.Instruction.StoreInst(currentBlock,
+                            value, size, addr));
+                } else {
+                    currentBlock.addInstruction(new MxCompiler.RISCV.Instruction.StoreInst(currentBlock,
+                            value, size, new BaseOffsetAddr(pointer, new IntImmediate(0))));
+                }
             }
         }
     }
@@ -380,16 +396,23 @@ public class InstructionSelector implements IRVisitor {
                 currentBlock.addInstruction(new RTypeBinary(currentBlock, add, pointer, rs2, rd));
             }
         } else { // gep class
-            assert inst.getPointer().getType() instanceof PointerType
-                    && ((PointerType) inst.getPointer().getType()).getBaseType() instanceof StructureType;
-            assert inst.getIndex().size() == 2;
-            assert inst.getIndex().get(0) instanceof ConstInt && ((ConstInt) inst.getIndex().get(0)).getValue() == 0;
-            assert inst.getIndex().get(1) instanceof ConstInt;
-            VirtualRegister pointer = currentFunction.getSymbolTable().getVR(inst.getPointer().getName());
-            StructureType structureType = ((StructureType) ((PointerType) inst.getPointer().getType()).getBaseType());
-            int index = ((int) ((ConstInt) inst.getIndex().get(1)).getValue());
-            int offset = structureType.calcOffset(index);
-            currentFunction.getGepAddrMap().put(rd, new BaseOffsetAddr(pointer, new IntImmediate(offset)));
+            if (inst.getPointer() instanceof ConstNull) {
+                currentBlock.addInstruction(new ITypeBinary(currentBlock, addi, PhysicalRegister.zeroVR,
+                        new IntImmediate(((int) ((ConstInt) inst.getIndex().get(1)).getValue())), rd));
+            } else {
+                assert inst.getPointer().getType() instanceof PointerType
+                        && ((PointerType) inst.getPointer().getType()).getBaseType() instanceof StructureType;
+                assert inst.getIndex().size() == 2;
+                assert inst.getIndex().get(0) instanceof ConstInt
+                        && ((ConstInt) inst.getIndex().get(0)).getValue() == 0;
+                assert inst.getIndex().get(1) instanceof ConstInt;
+                VirtualRegister pointer = currentFunction.getSymbolTable().getVR(inst.getPointer().getName());
+                StructureType structureType = ((StructureType) ((PointerType)
+                        inst.getPointer().getType()).getBaseType());
+                int index = ((int) ((ConstInt) inst.getIndex().get(1)).getValue());
+                int offset = structureType.calcOffset(index);
+                currentFunction.getGepAddrMap().put(rd, new BaseOffsetAddr(pointer, new IntImmediate(offset)));
+            }
         }
     }
 
@@ -411,7 +434,6 @@ public class InstructionSelector implements IRVisitor {
             inst.swapOps();
 
         IRType type = inst.getIrType();
-        IcmpInst.IcmpName op = inst.getOperator();
         Operand op1 = inst.getOp1();
         Operand op2 = inst.getOp2();
         VirtualRegister rd = currentFunction.getSymbolTable().getVR(inst.getResult().getName());
@@ -419,6 +441,7 @@ public class InstructionSelector implements IRVisitor {
             VirtualRegister rs1 = currentFunction.getSymbolTable().getVR(op1.getName());
             if (op2 instanceof Constant) { // I-type
                 inst.convertLeGeToLtGt();
+                IcmpInst.IcmpName op = inst.getOperator();
 
                 long value = op2 instanceof ConstBool
                         ? (((ConstBool) op2).getValue() ? 1 : 0) : ((ConstInt) op2).getValue();
@@ -470,9 +493,13 @@ public class InstructionSelector implements IRVisitor {
                         }
                         break;
                     default:
+                        System.out.println(op);
+                        System.out.println(op1);
+                        System.out.println(op2);
                         throw new RuntimeException();
                 }
             } else {
+                IcmpInst.IcmpName op = inst.getOperator();
                 VirtualRegister rs2 = currentFunction.getSymbolTable().getVR(op2.getName());
                 VirtualRegister rs3 = new VirtualRegister("slt");
                 VirtualRegister rs4 = new VirtualRegister("xor");
@@ -511,6 +538,7 @@ public class InstructionSelector implements IRVisitor {
             }
         } else if (type instanceof PointerType) {
             VirtualRegister rs1 = currentFunction.getSymbolTable().getVR(op1.getName());
+            IcmpInst.IcmpName op = inst.getOperator();
             if (op2 instanceof Constant) {
                 assert op2 instanceof ConstNull;
                 switch (op) {

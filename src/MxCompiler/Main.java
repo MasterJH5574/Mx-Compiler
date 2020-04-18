@@ -1,6 +1,7 @@
 package MxCompiler;
 
 import MxCompiler.AST.ProgramNode;
+import MxCompiler.Backend.InstructionSelector;
 import MxCompiler.Frontend.ASTBuilder;
 import MxCompiler.Frontend.Checker;
 import MxCompiler.IR.Function;
@@ -122,11 +123,12 @@ public class Main {
             dominatorTreeConstructor.run();
             changed = sccp.run();
             changed |= deadCodeEliminator.run();
+            changed |= cfgSimplifier.run();
             andersen.run();
             changed |= cse.run();
             loopAnalysis.run();
             changed |= licm.run();
-//            changed |= inlineExpander.run();
+            changed |= inlineExpander.run();
             changed |= instructionCombiner.run();
             changed |= cfgSimplifier.run();
             changed |= functionRemover.run();
@@ -140,6 +142,9 @@ public class Main {
         SSADestructor ssaDestructor = new SSADestructor(module);
         ssaDestructor.run();
         new IRPrinter("test/postIR.ll").run(module);
+
+        InstructionSelector instructionSelector = new InstructionSelector();
+        module.accept(instructionSelector);
     }
 
     static private void finalPrint(Module module, ErrorHandler errorHandler) {

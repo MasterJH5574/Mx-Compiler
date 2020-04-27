@@ -15,6 +15,9 @@ abstract public class BinaryInst extends ASMInstruction {
         super(basicBlock);
         this.rd = rd;
         this.rs1 = rs1;
+
+        this.rd.addDef(this);
+        this.rs1.addUse(this);
     }
 
     @Override

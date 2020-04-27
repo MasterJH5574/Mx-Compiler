@@ -18,6 +18,8 @@ public class BinaryBranch extends Branch {
         super(basicBlock, rs1, thenBlock);
         this.op = op;
         this.rs2 = rs2;
+
+        this.rs2.addUse(this);
     }
 
     @Override

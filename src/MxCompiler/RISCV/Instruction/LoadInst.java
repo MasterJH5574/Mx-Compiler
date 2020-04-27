@@ -21,6 +21,9 @@ public class LoadInst extends ASMInstruction {
         this.rd = rd;
         this.byteSize = byteSize;
         this.addr = addr;
+
+        this.rd.addDef(this);
+        this.addr.addBaseUse(this);
     }
 
     @Override

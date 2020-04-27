@@ -21,6 +21,9 @@ public class StoreInst extends ASMInstruction {
         this.rs = rs;
         this.byteSize = byteSize;
         this.addr = addr;
+
+        this.rs.addUse(this);
+        this.addr.addBaseUse(this);
     }
 
     @Override

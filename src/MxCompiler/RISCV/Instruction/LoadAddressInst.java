@@ -15,6 +15,8 @@ public class LoadAddressInst extends ASMInstruction {
         super(basicBlock);
         this.rd = rd;
         this.globalVariable = globalVariable;
+
+        this.rd.addDef(this);
     }
 
 

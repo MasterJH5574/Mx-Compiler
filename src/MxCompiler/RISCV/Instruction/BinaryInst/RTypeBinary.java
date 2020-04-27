@@ -18,6 +18,8 @@ public class RTypeBinary extends BinaryInst {
         super(basicBlock, rd, rs1);
         this.op = op;
         this.rs2 = rs2;
+
+        this.rs2.addUse(this);
     }
 
     @Override

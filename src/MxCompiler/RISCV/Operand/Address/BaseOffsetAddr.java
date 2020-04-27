@@ -1,5 +1,6 @@
 package MxCompiler.RISCV.Operand.Address;
 
+import MxCompiler.RISCV.Instruction.ASMInstruction;
 import MxCompiler.RISCV.Operand.Immediate.Immediate;
 import MxCompiler.RISCV.Operand.Register.Register;
 
@@ -18,5 +19,10 @@ public class BaseOffsetAddr extends Address {
     public void addToUEVarAndVarKill(Set<Register> UEVar, Set<Register> varKill) {
         if (!varKill.contains(base))
             UEVar.add(base);
+    }
+
+    @Override
+    public void addBaseUse(ASMInstruction use) {
+        base.addUse(use);
     }
 }

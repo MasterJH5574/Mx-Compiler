@@ -15,6 +15,8 @@ public class LoadUpperImmediate extends ASMInstruction {
         super(basicBlock);
         this.rd = rd;
         this.rs = rs;
+
+        this.rd.addDef(this);
     }
 
     @Override

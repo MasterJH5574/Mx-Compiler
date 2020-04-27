@@ -117,6 +117,24 @@ public class Function {
         exitBlock = block;
     }
 
+    private void dfsBasicBlocks(BasicBlock block, ArrayList<BasicBlock> dfsOrder, Set<BasicBlock> dfsVisit) {
+        dfsOrder.add(block);
+        dfsVisit.add(block);
+
+        for (BasicBlock successor : block.getSuccessors()) {
+            if (!dfsVisit.contains(successor)) {
+                dfsBasicBlocks(successor, dfsOrder, dfsVisit);
+            }
+        }
+    }
+
+    public ArrayList<BasicBlock> getDFSOrder() {
+        ArrayList<BasicBlock> dfsOrder = new ArrayList<>();
+        Set<BasicBlock> dfsVisit = new HashSet<>();
+        dfsBasicBlocks(entranceBlock, dfsOrder, dfsVisit);
+        return dfsOrder;
+    }
+
     public void accept(ASMVisitor visitor) {
         visitor.visit(this);
     }

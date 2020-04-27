@@ -5,6 +5,8 @@ import MxCompiler.RISCV.BasicBlock;
 import MxCompiler.RISCV.Operand.Immediate.Immediate;
 import MxCompiler.RISCV.Operand.Register.Register;
 
+import java.util.Set;
+
 public class LoadImmediate extends ASMInstruction {
     private Register rd;
     private Immediate immediate;
@@ -13,6 +15,11 @@ public class LoadImmediate extends ASMInstruction {
         super(basicBlock);
         this.rd = rd;
         this.immediate = immediate;
+    }
+
+    @Override
+    public void addToUEVarAndVarKill(Set<Register> UEVar, Set<Register> varKill) {
+        varKill.add(rd);
     }
 
     @Override

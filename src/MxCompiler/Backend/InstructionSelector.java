@@ -50,6 +50,10 @@ public class InstructionSelector implements IRVisitor {
         currentBlock = null;
     }
 
+    public MxCompiler.RISCV.Module getASMModule() {
+        return ASMModule;
+    }
+
     @Override
     public void visit(Module module) {
         for (GlobalVariable IRGlobalVariable : module.getGlobalVariableMap().values()) {

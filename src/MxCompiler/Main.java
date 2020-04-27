@@ -2,6 +2,7 @@ package MxCompiler;
 
 import MxCompiler.AST.ProgramNode;
 import MxCompiler.Backend.InstructionSelector;
+import MxCompiler.Backend.LivenessAnalysis;
 import MxCompiler.Frontend.ASTBuilder;
 import MxCompiler.Frontend.Checker;
 import MxCompiler.IR.Function;
@@ -145,6 +146,9 @@ public class Main {
 
         InstructionSelector instructionSelector = new InstructionSelector();
         module.accept(instructionSelector);
+
+        MxCompiler.RISCV.Module ASMModule = instructionSelector.getASMModule();
+        new LivenessAnalysis(ASMModule).run();
     }
 
     static private void finalPrint(Module module, ErrorHandler errorHandler) {

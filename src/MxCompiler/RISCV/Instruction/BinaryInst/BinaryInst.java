@@ -3,6 +3,9 @@ package MxCompiler.RISCV.Instruction.BinaryInst;
 import MxCompiler.RISCV.BasicBlock;
 import MxCompiler.RISCV.Instruction.ASMInstruction;
 import MxCompiler.RISCV.Operand.Register.Register;
+import MxCompiler.RISCV.Operand.Register.VirtualRegister;
+
+import java.util.Set;
 
 abstract public class BinaryInst extends ASMInstruction {
     private Register rd;
@@ -12,5 +15,12 @@ abstract public class BinaryInst extends ASMInstruction {
         super(basicBlock);
         this.rd = rd;
         this.rs1 = rs1;
+    }
+
+    @Override
+    public void addToUEVarAndVarKill(Set<Register> UEVar, Set<Register> varKill) {
+        if (!varKill.contains(rs1))
+            UEVar.add(rs1);
+        varKill.add(rd);
     }
 }

@@ -4,6 +4,8 @@ import MxCompiler.RISCV.BasicBlock;
 import MxCompiler.RISCV.Instruction.ASMInstruction;
 import MxCompiler.RISCV.Operand.Register.Register;
 
+import java.util.Set;
+
 abstract public class Branch extends ASMInstruction {
     private Register rs1;
     private BasicBlock thenBlock;
@@ -12,5 +14,11 @@ abstract public class Branch extends ASMInstruction {
         super(basicBlock);
         this.rs1 = rs1;
         this.thenBlock = thenBlock;
+    }
+
+    @Override
+    public void addToUEVarAndVarKill(Set<Register> UEVar, Set<Register> varKill) {
+        if (!varKill.contains(rs1))
+            UEVar.add(rs1);
     }
 }

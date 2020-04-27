@@ -5,6 +5,8 @@ import MxCompiler.RISCV.BasicBlock;
 import MxCompiler.RISCV.Operand.Address.Address;
 import MxCompiler.RISCV.Operand.Register.Register;
 
+import java.util.Set;
+
 public class StoreInst extends ASMInstruction {
     public enum ByteSize {
         sb, sw
@@ -19,6 +21,13 @@ public class StoreInst extends ASMInstruction {
         this.rs = rs;
         this.byteSize = byteSize;
         this.addr = addr;
+    }
+
+    @Override
+    public void addToUEVarAndVarKill(Set<Register> UEVar, Set<Register> varKill) {
+        if (!varKill.contains(rs))
+            UEVar.add(rs);
+        addr.addToUEVarAndVarKill(UEVar, varKill);
     }
 
     @Override

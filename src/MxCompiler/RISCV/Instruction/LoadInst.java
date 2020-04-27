@@ -5,6 +5,8 @@ import MxCompiler.RISCV.BasicBlock;
 import MxCompiler.RISCV.Operand.Address.Address;
 import MxCompiler.RISCV.Operand.Register.Register;
 
+import java.util.Set;
+
 public class LoadInst extends ASMInstruction {
     public enum ByteSize {
         lb, lw
@@ -19,6 +21,12 @@ public class LoadInst extends ASMInstruction {
         this.rd = rd;
         this.byteSize = byteSize;
         this.addr = addr;
+    }
+
+    @Override
+    public void addToUEVarAndVarKill(Set<Register> UEVar, Set<Register> varKill) {
+        addr.addToUEVarAndVarKill(UEVar, varKill);
+        varKill.add(rd);
     }
 
     @Override

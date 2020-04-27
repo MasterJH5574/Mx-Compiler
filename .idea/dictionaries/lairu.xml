@@ -17,6 +17,7 @@
       <w>icmp</w>
       <w>idom</w>
       <w>licm</w>
+      <w>liveness</w>
       <w>preds</w>
       <w>risc</w>
       <w>sccp</w>

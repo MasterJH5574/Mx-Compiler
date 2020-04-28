@@ -28,7 +28,6 @@ import MxCompiler.RISCV.Operand.Immediate.RelocationImmediate;
 import MxCompiler.RISCV.StackFrame;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -99,13 +98,26 @@ public class InstructionSelector implements IRVisitor {
     public void visit(Function function) {
         String functionName = function.getName();
         currentFunction = ASMModule.getFunctionMap().get(functionName);
+        currentBlock = currentFunction.getEntranceBlock();
 
         // ------ Stack Frame ------
         StackFrame stackFrame = new StackFrame(currentFunction);
         currentFunction.setStackFrame(stackFrame);
 
+        // ------ Save return address ------
+        VirtualRegister savedRA = new VirtualRegister(PhysicalRegister.raVR.getName() + ".save");
+        currentFunction.getSymbolTable().putASM(savedRA.getName(), savedRA);
+        currentBlock.addInstruction(new MxCompiler.RISCV.Instruction.MoveInst(currentBlock,
+                savedRA, PhysicalRegister.raVR));
+
+        // ------ Save callee-save registers ------
+        for (VirtualRegister vr : PhysicalRegister.calleeSaveVRs) {
+            VirtualRegister savedVR = new VirtualRegister(vr.getName() + ".save");
+            currentFunction.getSymbolTable().putASM(savedVR.getName(), savedVR);
+            currentBlock.addInstruction(new MxCompiler.RISCV.Instruction.MoveInst(currentBlock, savedVR, vr));
+        }
+
         // ------ Parameters ------
-        currentBlock = currentFunction.getEntranceBlock();
         ArrayList<Parameter> IRParameters = function.getParameters();
         // Fix the color of the first 8 parameters.
         for (int i = 0; i < Integer.min(IRParameters.size(), 8); i++) {
@@ -147,13 +159,17 @@ public class InstructionSelector implements IRVisitor {
                     PhysicalRegister.argVR.get(0), returnValue));
         }
 
-        if (currentFunction.getStackFrame().raLocationWasSet()) {
-            // Recover ra.
-            currentBlock.addInstruction(new MxCompiler.RISCV.Instruction.LoadInst(currentBlock,
-                    PhysicalRegister.raVR,
-                    MxCompiler.RISCV.Instruction.LoadInst.ByteSize.lw,
-                    currentFunction.getStackFrame().getRaLocation()));
+        // ------ Recover saved callee-save registers ------
+        for (VirtualRegister vr : PhysicalRegister.calleeSaveVRs) {
+            VirtualRegister savedVR = currentFunction.getSymbolTable().getVR(vr.getName() + ".save");
+            currentBlock.addInstruction(new MxCompiler.RISCV.Instruction.MoveInst(currentBlock, vr, savedVR));
         }
+
+        VirtualRegister savedRA = currentFunction.getSymbolTable().getVR(
+                PhysicalRegister.raVR.getName() + ".save");
+        currentBlock.addInstruction(new MxCompiler.RISCV.Instruction.MoveInst(currentBlock,
+                PhysicalRegister.raVR, savedRA));
+
         currentBlock.addInstruction(new MxCompiler.RISCV.Instruction.ReturnInst(currentBlock));
     }
 
@@ -583,27 +599,13 @@ public class InstructionSelector implements IRVisitor {
 
     @Override
     public void visit(CallInst inst) {
-        if (!currentFunction.getStackFrame().raLocationWasSet()) {
-            StackLocation raLocation = new StackLocation("raLocation");
-            currentFunction.getStackFrame().setRaLocation(raLocation);
-            currentFunction.getEntranceBlock().addInstructionAtFront(
-                    new MxCompiler.RISCV.Instruction.StoreInst(currentBlock, PhysicalRegister.raVR,
-                            MxCompiler.RISCV.Instruction.StoreInst.ByteSize.sw, raLocation));
-        }
-        ASMInstruction firstInst = null;
-        ASMInstruction lastInst;
-
         MxCompiler.RISCV.Function callee = ASMModule.getFunctionMap().get(inst.getFunction().getName());
         ArrayList<Operand> parameters = inst.getParameters();
-        Map<String, PhysicalRegister> unsavedCallerSaveRegs = new LinkedHashMap<>(PhysicalRegister.callerSavePRs);
-        for (int i = 0; i < Integer.min(8, parameters.size()); i++) {
-            unsavedCallerSaveRegs.remove("a" + i);
 
+        for (int i = 0; i < Integer.min(8, parameters.size()); i++) {
             VirtualRegister parameter = getVROfOperand(parameters.get(i));
             currentBlock.addInstruction(new MxCompiler.RISCV.Instruction.MoveInst(currentBlock,
                     PhysicalRegister.argVR.get(i), parameter));
-            if (firstInst == null)
-                firstInst = currentBlock.getInstTail();
         }
 
         StackFrame stackFrame = currentFunction.getStackFrame();
@@ -613,8 +615,6 @@ public class InstructionSelector implements IRVisitor {
                 VirtualRegister parameter = getVROfOperand(parameters.get(i));
                 currentBlock.addInstruction(new MxCompiler.RISCV.Instruction.StoreInst(currentBlock, parameter,
                         MxCompiler.RISCV.Instruction.StoreInst.ByteSize.sw, stackLocations.get(i - 8)));
-                if (firstInst == null)
-                    firstInst = currentBlock.getInstTail();
             }
         } else {
             ArrayList<StackLocation> stackLocations = new ArrayList<>();
@@ -625,30 +625,19 @@ public class InstructionSelector implements IRVisitor {
 
                 currentBlock.addInstruction(new MxCompiler.RISCV.Instruction.StoreInst(currentBlock, parameter,
                         MxCompiler.RISCV.Instruction.StoreInst.ByteSize.sw, stackLocation));
-                if (firstInst == null)
-                    firstInst = currentBlock.getInstTail();
             }
             stackFrame.getParameterLocation().put(callee, stackLocations);
         }
 
         MxCompiler.RISCV.Instruction.CallInst callInst = new MxCompiler.RISCV.Instruction.CallInst(currentBlock,
-                callee, unsavedCallerSaveRegs);
+                callee);
         currentBlock.addInstruction(callInst);
-        if (firstInst == null)
-            firstInst = currentBlock.getInstTail();
-        lastInst = currentBlock.getInstTail();
 
         if (!inst.isVoidCall()) {
             VirtualRegister result = currentFunction.getSymbolTable().getVR(inst.getResult().getName());
             currentBlock.addInstruction(new MxCompiler.RISCV.Instruction.MoveInst(currentBlock,
                     result, PhysicalRegister.argVR.get(0)));
-            lastInst = currentBlock.getInstTail();
         }
-
-        // Store the unsaved caller-save registers before the first instruction.
-        // Load the unsaved caller-save registers after the last instruction.
-        callInst.setFirstInst(firstInst);
-        callInst.setLastInst(lastInst);
     }
 
     @Override

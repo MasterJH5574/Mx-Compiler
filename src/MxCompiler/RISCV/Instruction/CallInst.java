@@ -10,28 +10,15 @@ import java.util.Map;
 
 public class CallInst extends ASMInstruction {
     private Function callee;
-    private Map<String, PhysicalRegister> unsavedCallerSaveRegs;
-    private ASMInstruction firstInst;
-    private ASMInstruction lastInst;
 
-    public CallInst(BasicBlock basicBlock, Function callee, Map<String, PhysicalRegister> unsavedCallerSaveRegs) {
+    public CallInst(BasicBlock basicBlock, Function callee) {
         super(basicBlock);
         this.callee = callee;
-        this.unsavedCallerSaveRegs = unsavedCallerSaveRegs;
 
-        firstInst = null;
-        lastInst = null;
-
-        PhysicalRegister.vrs.get("ra").addDef(this);
-        this.addDef(PhysicalRegister.vrs.get("ra"));
-    }
-
-    public void setFirstInst(ASMInstruction firstInst) {
-        this.firstInst = firstInst;
-    }
-
-    public void setLastInst(ASMInstruction lastInst) {
-        this.lastInst = lastInst;
+        for (String name : PhysicalRegister.callerSavePRNames) {
+            PhysicalRegister.vrs.get(name).addDef(this);
+            this.addDef(PhysicalRegister.vrs.get(name));
+        }
     }
 
     @Override

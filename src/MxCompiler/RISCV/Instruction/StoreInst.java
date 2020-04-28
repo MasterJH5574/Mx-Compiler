@@ -23,6 +23,7 @@ public class StoreInst extends ASMInstruction {
         this.addr = addr;
 
         this.rs.addUse(this);
+        this.addUse(this.rs);
         this.addr.addBaseUse(this);
     }
 

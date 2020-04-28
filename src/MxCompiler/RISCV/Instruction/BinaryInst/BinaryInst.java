@@ -18,6 +18,8 @@ abstract public class BinaryInst extends ASMInstruction {
 
         this.rd.addDef(this);
         this.rs1.addUse(this);
+        this.addDef(this.rd);
+        this.addUse(this.rs1);
     }
 
     @Override

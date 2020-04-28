@@ -23,6 +23,8 @@ public class UnaryInst extends ASMInstruction {
 
         this.rs.addUse(this);
         this.rd.addDef(this);
+        this.addUse(this.rs);
+        this.addUse(this.rd);
     }
 
     @Override

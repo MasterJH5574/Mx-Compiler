@@ -4,6 +4,7 @@ import MxCompiler.RISCV.ASMVisitor;
 import MxCompiler.RISCV.BasicBlock;
 import MxCompiler.RISCV.Function;
 import MxCompiler.RISCV.Operand.Register.PhysicalRegister;
+import MxCompiler.RISCV.Operand.Register.VirtualRegister;
 
 import java.util.Map;
 
@@ -20,6 +21,9 @@ public class CallInst extends ASMInstruction {
 
         firstInst = null;
         lastInst = null;
+
+        PhysicalRegister.vrs.get("ra").addDef(this);
+        this.addDef(PhysicalRegister.vrs.get("ra"));
     }
 
     public void setFirstInst(ASMInstruction firstInst) {

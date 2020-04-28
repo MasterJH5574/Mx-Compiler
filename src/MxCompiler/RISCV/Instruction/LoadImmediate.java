@@ -17,6 +17,7 @@ public class LoadImmediate extends ASMInstruction {
         this.immediate = immediate;
 
         this.rd.addDef(this);
+        this.addDef(this.rd);
     }
 
     @Override

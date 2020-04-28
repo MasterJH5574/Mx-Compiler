@@ -20,6 +20,7 @@ public class RTypeBinary extends BinaryInst {
         this.rs2 = rs2;
 
         this.rs2.addUse(this);
+        this.addUse(this.rs2);
     }
 
     @Override

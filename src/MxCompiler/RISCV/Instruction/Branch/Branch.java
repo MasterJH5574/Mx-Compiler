@@ -16,6 +16,7 @@ abstract public class Branch extends ASMInstruction {
         this.thenBlock = thenBlock;
 
         this.rs1.addUse(this);
+        this.addUse(this.rs1);
     }
 
     @Override

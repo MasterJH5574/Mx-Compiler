@@ -23,6 +23,7 @@ public class LoadInst extends ASMInstruction {
         this.addr = addr;
 
         this.rd.addDef(this);
+        this.addDef(this.rd);
         this.addr.addBaseUse(this);
     }
 

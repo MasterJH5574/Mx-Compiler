@@ -94,6 +94,7 @@
 * 2020.4.17	SSADestructor/InstSelector debug.
 * 2020.4.18	SSADestructor/InstSelector debug. Add one more CFGSimplification after DCE.
 * 2020.4.27	Add LivenessAnalysis. Add use-def chain.
+* 2020.4.28	Add use-def info of asm instructions.
 
 
 

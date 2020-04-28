@@ -23,6 +23,7 @@ public class BaseOffsetAddr extends Address {
 
     @Override
     public void addBaseUse(ASMInstruction use) {
+        use.addUse(base);
         base.addUse(use);
     }
 }

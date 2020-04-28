@@ -17,6 +17,8 @@ public class MoveInst extends ASMInstruction {
 
         this.rs.addUse(this);
         this.rd.addDef(this);
+        this.addUse(this.rs);
+        this.addDef(this.rd);
     }
 
     @Override

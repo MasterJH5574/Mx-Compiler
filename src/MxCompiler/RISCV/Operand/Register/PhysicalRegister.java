@@ -78,4 +78,8 @@ public class PhysicalRegister extends Register {
     public PhysicalRegister(String name) {
         this.name = name;
     }
+
+    public String getName() {
+        return name;
+    }
 }

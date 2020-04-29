@@ -27,6 +27,10 @@ public class StoreInst extends ASMInstruction {
         this.addr.addBaseUse(this);
     }
 
+    public Address getAddr() {
+        return addr;
+    }
+
     @Override
     public void addToUEVarAndVarKill(Set<Register> UEVar, Set<Register> varKill) {
         if (!varKill.contains(rs))

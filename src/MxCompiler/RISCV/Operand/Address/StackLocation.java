@@ -6,4 +6,9 @@ public class StackLocation extends Address {
     public StackLocation(String name) {
         this.name = name;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        return this == obj;
+    }
 }

@@ -27,6 +27,10 @@ public class LoadInst extends ASMInstruction {
         this.addr.addBaseUse(this);
     }
 
+    public Address getAddr() {
+        return addr;
+    }
+
     @Override
     public void addToUEVarAndVarKill(Set<Register> UEVar, Set<Register> varKill) {
         addr.addToUEVarAndVarKill(UEVar, varKill);

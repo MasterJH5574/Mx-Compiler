@@ -21,6 +21,14 @@ public class MoveInst extends ASMInstruction {
         this.addDef(this.rd);
     }
 
+    public Register getRd() {
+        return rd;
+    }
+
+    public Register getRs() {
+        return rs;
+    }
+
     @Override
     public void addToUEVarAndVarKill(Set<Register> UEVar, Set<Register> varKill) {
         if (!varKill.contains(rs))

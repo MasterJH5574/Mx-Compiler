@@ -11,9 +11,6 @@ import java.util.Map;
 public class StackFrame {
     private Function function;
 
-    private StackLocation raLocation; // raLocation == null  --->  There is no "call" in the function.
-                                      // raLocation != null  --->  There is at least one "call" in the function.
-    private Map<PhysicalRegister, StackLocation> calleeSaveLocations;
     private Map<VirtualRegister, StackLocation> spillLocations;
 
     private ArrayList<StackLocation> formalParameterLocations; // Fetch from caller's stack frame.
@@ -22,24 +19,14 @@ public class StackFrame {
     public StackFrame(Function function) {
         this.function = function;
 
-        this.raLocation = null;
-        calleeSaveLocations = new HashMap<>();
         spillLocations = new HashMap<>();
 
         formalParameterLocations = new ArrayList<>();
         parameterLocation = new HashMap<>();
     }
 
-    public boolean raLocationWasSet() {
-        return raLocation != null;
-    }
-
-    public void setRaLocation(StackLocation raLocation) {
-        this.raLocation = raLocation;
-    }
-
-    public StackLocation getRaLocation() {
-        return raLocation;
+    public Map<VirtualRegister, StackLocation> getSpillLocations() {
+        return spillLocations;
     }
 
     public void addFormalParameterLocation(StackLocation stackLocation) {

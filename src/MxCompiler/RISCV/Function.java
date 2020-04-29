@@ -85,6 +85,10 @@ public class Function {
         }
     }
 
+    public String getName() {
+        return name;
+    }
+
     public StackFrame getStackFrame() {
         return stackFrame;
     }

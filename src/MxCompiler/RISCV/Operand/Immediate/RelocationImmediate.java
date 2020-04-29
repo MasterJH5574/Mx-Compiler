@@ -14,4 +14,12 @@ public class RelocationImmediate extends Immediate {
         this.type = type;
         this.globalVariable = globalVariable;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof RelocationImmediate))
+            return false;
+        return type == ((RelocationImmediate) obj).type
+                && globalVariable == ((RelocationImmediate) obj).globalVariable;
+    }
 }

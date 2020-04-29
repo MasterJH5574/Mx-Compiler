@@ -28,8 +28,6 @@ import MxCompiler.RISCV.Operand.Immediate.RelocationImmediate;
 import MxCompiler.RISCV.StackFrame;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 import static MxCompiler.RISCV.Instruction.BinaryInst.ITypeBinary.OpName.*;
 import static MxCompiler.RISCV.Instruction.BinaryInst.RTypeBinary.OpName.*;

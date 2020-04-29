@@ -2,7 +2,9 @@ package MxCompiler.RISCV;
 
 import MxCompiler.RISCV.Instruction.ASMInstruction;
 import MxCompiler.RISCV.Operand.Register.Register;
+import MxCompiler.RISCV.Operand.Register.VirtualRegister;
 
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -35,6 +37,10 @@ public class BasicBlock {
         successors = new LinkedHashSet<>();
     }
 
+    public Function getFunction() {
+        return function;
+    }
+
     public boolean isEmpty() {
         return instHead == instTail && instHead == null;
     }
@@ -64,6 +70,15 @@ public class BasicBlock {
     }
 
     public Set<Register> getLiveOut() {
+        return liveOut;
+    }
+
+    public Set<VirtualRegister> getVRLiveOut() {
+        Set<VirtualRegister> liveOut = new HashSet<>();
+        for (Register register : this.liveOut) {
+            assert register instanceof VirtualRegister;
+            liveOut.add(((VirtualRegister) register));
+        }
         return liveOut;
     }
 
@@ -102,14 +117,34 @@ public class BasicBlock {
         instTail = instruction;
     }
 
-    public void addInstructionAtFront(ASMInstruction instruction) {
-        if (isEmpty())
-            instTail = instruction;
-        else {
-            instHead.setPrevInst(instruction);
-            instruction.setNextInst(instHead);
+    public void addInstructionNext(ASMInstruction inst1, ASMInstruction inst2) {
+        // It is ensured that inst1 is in this block.
+        if (inst1 == instTail) {
+            inst2.setPrevInst(inst1);
+            inst2.setNextInst(null);
+            inst1.setNextInst(inst2);
+            instTail = inst2;
+        } else {
+            inst2.setPrevInst(inst1);
+            inst2.setNextInst(inst1.getNextInst());
+            inst1.getNextInst().setPrevInst(inst2);
+            inst1.setNextInst(inst2);
         }
-        instHead = instruction;
+    }
+
+    public void addInstructionPrev(ASMInstruction inst1, ASMInstruction inst2) {
+        // It is ensured that inst1 is in this block.
+        if (inst1 == instHead) {
+            inst2.setNextInst(inst1);
+            inst2.setPrevInst(null);
+            inst1.setPrevInst(inst2);
+            instHead = null;
+        } else {
+            inst2.setNextInst(inst1);
+            inst2.setPrevInst(inst1.getPrevInst());
+            inst1.getPrevInst().setNextInst(inst2);
+            inst1.setPrevInst(inst2);
+        }
     }
 
     public void accept(ASMVisitor visitor) {

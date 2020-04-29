@@ -26,4 +26,11 @@ public class BaseOffsetAddr extends Address {
         use.addUse(base);
         base.addUse(use);
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof BaseOffsetAddr))
+            return false;
+        return base == ((BaseOffsetAddr) obj).base && offset.equals(((BaseOffsetAddr) obj).offset);
+    }
 }

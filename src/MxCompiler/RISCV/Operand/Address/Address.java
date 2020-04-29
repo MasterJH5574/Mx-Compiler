@@ -13,4 +13,7 @@ abstract public class Address {
     public void addBaseUse(ASMInstruction use) {
 
     }
+
+    @Override
+    abstract public boolean equals(Object obj);
 }

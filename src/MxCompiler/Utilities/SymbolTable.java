@@ -5,9 +5,7 @@ import MxCompiler.IR.Operand.Parameter;
 import MxCompiler.IR.Operand.Register;
 import MxCompiler.RISCV.Operand.Register.VirtualRegister;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class SymbolTable {
     private Map<String, ArrayList<Object>> symbolTable;
@@ -50,15 +48,12 @@ public class SymbolTable {
 
     public void putASMRename(String name, Object object) {
         // Maybe this method will only be called when loading/storing global variables.
-        assert object instanceof VirtualRegister || object instanceof MxCompiler.RISCV.BasicBlock;
+        assert object instanceof VirtualRegister;
 
         int id = 0;
         while (symbolTable.containsKey(name + "." + id))
             id++;
-        if (object instanceof VirtualRegister)
-            ((VirtualRegister) object).setName(name + "." + id);
-        else
-            ((MxCompiler.RISCV.BasicBlock) object).setName(name + "." + id);
+        ((VirtualRegister) object).setName(name + "." + id);
 
         ArrayList<Object> array = new ArrayList<>();
         array.add(object);
@@ -70,7 +65,6 @@ public class SymbolTable {
     }
 
     public Object get(String name) {
-        // This method may be called only by "visit(ThisExprNode node)".
         ArrayList<Object> arrayList = symbolTable.get(name);
         return arrayList.get(0);
     }
@@ -78,5 +72,21 @@ public class SymbolTable {
     public VirtualRegister getVR(String name) {
         assert symbolTable.containsKey(name);
         return ((VirtualRegister) symbolTable.get(name).get(0));
+    }
+
+    public Set<VirtualRegister> getAllVRs() {
+        Set<VirtualRegister> VRs = new HashSet<>();
+        for (ArrayList<Object> array : symbolTable.values()) {
+            assert array.size() == 1;
+            assert array.get(0) instanceof VirtualRegister;
+            VRs.add(((VirtualRegister) array.get(0)));
+        }
+        return VRs;
+    }
+
+    public void removeVR(VirtualRegister vr) {
+        assert symbolTable.containsKey(vr.getName());
+        assert symbolTable.get(vr.getName()).get(0) == vr;
+        symbolTable.remove(vr.getName());
     }
 }

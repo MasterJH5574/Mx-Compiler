@@ -11,4 +11,11 @@ public class IntImmediate extends Immediate {
     public void minusImmediate() {
         this.value = -this.value;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof IntImmediate))
+            return false;
+        return value == ((IntImmediate) obj).value;
+    }
 }

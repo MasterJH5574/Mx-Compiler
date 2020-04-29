@@ -5,24 +5,31 @@ import MxCompiler.RISCV.BasicBlock;
 import MxCompiler.RISCV.Operand.Register.Register;
 import MxCompiler.RISCV.Operand.Register.VirtualRegister;
 
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.*;
 
 abstract public class ASMInstruction {
     private BasicBlock basicBlock;
     private ASMInstruction prevInst;
     private ASMInstruction nextInst;
 
-    private Set<Register> def;
-    private Set<Register> use;
+    private Map<VirtualRegister, Integer> def;
+    private Map<VirtualRegister, Integer> use;
 
     public ASMInstruction(BasicBlock basicBlock) {
         this.basicBlock = basicBlock;
         prevInst = null;
         nextInst = null;
 
-        def = new LinkedHashSet<>();
-        use = new LinkedHashSet<>();
+        def = new LinkedHashMap<>();
+        use = new LinkedHashMap<>();
+    }
+
+    public BasicBlock getBasicBlock() {
+        return basicBlock;
+    }
+
+    public ASMInstruction getPrevInst() {
+        return prevInst;
     }
 
     public void setPrevInst(ASMInstruction prevInst) {
@@ -38,11 +45,79 @@ abstract public class ASMInstruction {
     }
 
     public void addDef(Register register) {
-        def.add(register);
+        assert register instanceof VirtualRegister;
+        if (def.containsKey(register))
+            def.replace(((VirtualRegister) register), def.get(register) + 1);
+        else
+            def.put(((VirtualRegister) register), 1);
+    }
+
+    public void removeDef(VirtualRegister vr) {
+        assert def.containsKey(vr);
+        if (def.get(vr) == 1)
+            def.remove(vr);
+        else
+            def.replace(vr, def.get(vr) - 1);
+    }
+
+    public void replaceDef(VirtualRegister oldVR, VirtualRegister newVR) {
+        Queue<VirtualRegister> addList = new LinkedList<>();
+        Queue<VirtualRegister> removeList = new LinkedList<>();
+        for (VirtualRegister def : this.def.keySet()) {
+            if (def == oldVR) {
+                addList.add(newVR);
+                removeList.add(oldVR);
+            }
+        }
+        for (VirtualRegister vr : removeList)
+            this.removeDef(vr);
+        for (VirtualRegister vr : addList)
+            this.addDef(vr);
+    }
+
+    public Set<VirtualRegister> getDef() {
+        return def.keySet();
     }
 
     public void addUse(Register register) {
-        use.add(register);
+        assert register instanceof VirtualRegister;
+        if (use.containsKey(register))
+            use.replace(((VirtualRegister) register), use.get(register) + 1);
+        else
+            use.put(((VirtualRegister) register), 1);
+    }
+
+    public void removeUse(VirtualRegister vr) {
+        assert use.containsKey(vr);
+        if (use.get(vr) == 1)
+            use.remove(vr);
+        else
+            use.replace(vr, use.get(vr) - 1);
+    }
+
+    public void replaceUse(VirtualRegister oldVR, VirtualRegister newVR) {
+        Queue<VirtualRegister> addList = new LinkedList<>();
+        Queue<VirtualRegister> removeList = new LinkedList<>();
+        for (VirtualRegister use : this.use.keySet()) {
+            if (use == oldVR) {
+                addList.add(newVR);
+                removeList.add(oldVR);
+            }
+        }
+        for (VirtualRegister vr : removeList)
+            this.removeUse(vr);
+        for (VirtualRegister vr : addList)
+            this.addUse(vr);
+    }
+
+    public Set<VirtualRegister> getUse() {
+        return use.keySet();
+    }
+
+    public Set<VirtualRegister> getDefUseUnion() {
+        Set<VirtualRegister> union = new HashSet<>(getDef());
+        union.addAll(getUse());
+        return union;
     }
 
     public void addToUEVarAndVarKill(Set<Register> UEVar, Set<Register> varKill) {

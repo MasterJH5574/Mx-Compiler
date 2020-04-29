@@ -28,4 +28,12 @@ public class Register extends ASMOperand {
         else
             def.put(instruction, 1);
     }
+
+    public Map<ASMInstruction, Integer> getUse() {
+        return use;
+    }
+
+    public Map<ASMInstruction, Integer> getDef() {
+        return def;
+    }
 }

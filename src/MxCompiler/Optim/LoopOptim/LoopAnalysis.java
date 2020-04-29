@@ -220,8 +220,7 @@ public class LoopAnalysis extends Pass {
     }
 
     public int getBlockDepth(MxCompiler.RISCV.BasicBlock ASMBlock) {
-        BasicBlock irBlock = ((BasicBlock) module.getFunctionMap().
-                get(ASMBlock.getFunction().getName()).getSymbolTable().get(ASMBlock.getName()));
+        BasicBlock irBlock = ASMBlock.getIrBlock();
         return blockNodeMap.get(irBlock).getDepth();
     }
 

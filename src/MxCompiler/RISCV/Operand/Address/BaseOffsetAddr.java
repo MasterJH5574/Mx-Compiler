@@ -28,6 +28,13 @@ public class BaseOffsetAddr extends Address {
     }
 
     @Override
+    public void replaceUse(VirtualRegister oldVR, VirtualRegister newVR) {
+        if (base == oldVR)
+            base = newVR;
+        super.replaceUse(oldVR, newVR);
+    }
+
+    @Override
     public boolean equals(Object obj) {
         if (!(obj instanceof BaseOffsetAddr))
             return false;

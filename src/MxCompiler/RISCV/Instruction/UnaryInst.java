@@ -35,6 +35,20 @@ public class UnaryInst extends ASMInstruction {
     }
 
     @Override
+    public void replaceDef(VirtualRegister oldVR, VirtualRegister newVR) {
+        assert rd == oldVR;
+        rd = newVR;
+        super.replaceDef(oldVR, newVR);
+    }
+
+    @Override
+    public void replaceUse(VirtualRegister oldVR, VirtualRegister newVR) {
+        assert rs == oldVR;
+        rs = newVR;
+        super.replaceUse(oldVR, newVR);
+    }
+
+    @Override
     public void accept(ASMVisitor visitor) {
         visitor.visit(this);
     }

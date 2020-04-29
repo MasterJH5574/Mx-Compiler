@@ -27,4 +27,18 @@ abstract public class BinaryInst extends ASMInstruction {
             UEVar.add(rs1);
         varKill.add(rd);
     }
+
+    @Override
+    public void replaceDef(VirtualRegister oldVR, VirtualRegister newVR) {
+        assert rd == oldVR;
+        rd = newVR;
+        super.replaceDef(oldVR, newVR);
+    }
+
+    @Override
+    public void replaceUse(VirtualRegister oldVR, VirtualRegister newVR) {
+        if (rs1 == oldVR)
+            rs1 = newVR;
+        super.replaceUse(oldVR, newVR);
+    }
 }

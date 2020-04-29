@@ -61,14 +61,14 @@ public class PhysicalRegister extends Register {
             vrs.put(name, vr);
         }
 
-        zeroVR = vrs.get(".zero");
-        raVR = vrs.get(".ra");
+        zeroVR = vrs.get("zero");
+        raVR = vrs.get("ra");
         argVR = new ArrayList<>();
         for (int i = 0; i < 8; i++)
-            argVR.add(vrs.get(".a" + i));
+            argVR.add(vrs.get("a" + i));
         calleeSaveVRs = new ArrayList<>();
         for (String name : calleeSavePRNames)
-            calleeSaveVRs.add(vrs.get("." + name));
+            calleeSaveVRs.add(vrs.get(name));
     }
 
     // ------ END ------

@@ -26,6 +26,13 @@ public class LoadUpperImmediate extends ASMInstruction {
     }
 
     @Override
+    public void replaceDef(VirtualRegister oldVR, VirtualRegister newVR) {
+        assert rd == oldVR;
+        rd = newVR;
+        super.replaceDef(oldVR, newVR);
+    }
+
+    @Override
     public void accept(ASMVisitor visitor) {
         visitor.visit(this);
     }

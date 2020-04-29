@@ -21,6 +21,13 @@ public class LoadImmediate extends ASMInstruction {
     }
 
     @Override
+    public void replaceDef(VirtualRegister oldVR, VirtualRegister newVR) {
+        assert rd == oldVR;
+        rd = newVR;
+        super.replaceDef(oldVR, newVR);
+    }
+
+    @Override
     public void addToUEVarAndVarKill(Set<VirtualRegister> UEVar, Set<VirtualRegister> varKill) {
         varKill.add(rd);
     }

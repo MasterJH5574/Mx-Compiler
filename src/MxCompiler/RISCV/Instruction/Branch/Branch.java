@@ -24,4 +24,11 @@ abstract public class Branch extends ASMInstruction {
         if (!varKill.contains(rs1))
             UEVar.add(rs1);
     }
+
+    @Override
+    public void replaceUse(VirtualRegister oldVR, VirtualRegister newVR) {
+        if (rs1 == oldVR)
+            rs1 = newVR;
+        super.replaceUse(oldVR, newVR);
+    }
 }

@@ -40,7 +40,7 @@ public class Function {
         blockMap = new HashMap<>();
         ArrayList<MxCompiler.IR.BasicBlock> IRBlocks = IRFunction.getBlocks();
         for (MxCompiler.IR.BasicBlock IRBlock : IRBlocks) {
-            BasicBlock block = new BasicBlock(this, IRBlock.getName());
+            BasicBlock block = new BasicBlock(this, IRBlock, IRBlock.getName());
             this.addBasicBlock(block);
             blockMap.put(block.getName(), block);
         }
@@ -64,8 +64,6 @@ public class Function {
             symbolTable.putASM(parameter.getName(), vr);
         }
         for (MxCompiler.IR.BasicBlock IRBlock : IRBlocks) {
-            symbolTable.putASM(IRBlock.getName(), blockMap.get(IRBlock.getName()));
-
             IRInstruction ptr = IRBlock.getInstHead();
             while (ptr != null) {
                 if (ptr.hasResult()) {

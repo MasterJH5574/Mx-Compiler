@@ -52,11 +52,27 @@ public class VirtualRegister extends Register {
             use.put(instruction, 1);
     }
 
+    public void removeUse(ASMInstruction instruction) {
+        assert use.containsKey(instruction);
+        if (use.get(instruction) == 1)
+            use.remove(instruction);
+        else
+            use.replace(instruction, use.get(instruction) - 1);
+    }
+
     public void addDef(ASMInstruction instruction) {
         if (def.containsKey(instruction))
             def.replace(instruction, def.get(instruction) + 1);
         else
             def.put(instruction, 1);
+    }
+
+    public void removeDef(ASMInstruction instruction) {
+        assert def.containsKey(instruction);
+        if (def.get(instruction) == 1)
+            def.remove(instruction);
+        else
+            def.replace(instruction, def.get(instruction) - 1);
     }
 
     public Map<ASMInstruction, Integer> getUse() {
@@ -120,6 +136,7 @@ public class VirtualRegister extends Register {
     }
 
     public void setColorPR(PhysicalRegister colorPR) {
+        assert colorPR != null;
         this.colorPR = colorPR;
     }
 

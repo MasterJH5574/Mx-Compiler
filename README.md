@@ -101,6 +101,7 @@
   * Add "getBlockDepth()" to LoopAnalysis for computing spill costs.
   * Almost finish RegisterAllocator(to be debugged).
   * Replace the type of defs&uses of ASM instructions(Register) with VirtualRegister.
+  * Debug part of RegisterAllocator. Finish "replaceDef", "replaceUse" of each kind of instruction.
 
 
 

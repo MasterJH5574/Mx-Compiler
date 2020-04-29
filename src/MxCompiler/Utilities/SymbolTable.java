@@ -57,7 +57,7 @@ public class SymbolTable {
 
         ArrayList<Object> array = new ArrayList<>();
         array.add(object);
-        symbolTable.put(name, array);
+        symbolTable.put(name + "." + id, array);
     }
 
     public boolean contains(String name) {

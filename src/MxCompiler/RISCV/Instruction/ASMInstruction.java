@@ -61,16 +61,22 @@ abstract public class ASMInstruction {
     public void replaceDef(VirtualRegister oldVR, VirtualRegister newVR) {
         Queue<VirtualRegister> addList = new LinkedList<>();
         Queue<VirtualRegister> removeList = new LinkedList<>();
-        for (VirtualRegister def : this.def.keySet()) {
+        for (Map.Entry<VirtualRegister, Integer> entry : this.def.entrySet()) {
+            VirtualRegister def = entry.getKey();
             if (def == oldVR) {
-                addList.add(newVR);
-                removeList.add(oldVR);
+                for (int i = 0; i < entry.getValue(); i++) {
+                    addList.add(newVR);
+                    removeList.add(oldVR);
+                }
             }
         }
         for (VirtualRegister vr : removeList)
             this.removeDef(vr);
         for (VirtualRegister vr : addList)
             this.addDef(vr);
+
+        oldVR.removeDef(this);
+        newVR.addDef(this);
     }
 
     public Set<VirtualRegister> getDef() {
@@ -95,16 +101,22 @@ abstract public class ASMInstruction {
     public void replaceUse(VirtualRegister oldVR, VirtualRegister newVR) {
         Queue<VirtualRegister> addList = new LinkedList<>();
         Queue<VirtualRegister> removeList = new LinkedList<>();
-        for (VirtualRegister use : this.use.keySet()) {
+        for (Map.Entry<VirtualRegister, Integer> entry : this.use.entrySet()) {
+            VirtualRegister use = entry.getKey();
             if (use == oldVR) {
-                addList.add(newVR);
-                removeList.add(oldVR);
+                for (int i = 0; i < entry.getValue(); i++) {
+                    addList.add(newVR);
+                    removeList.add(oldVR);
+                }
             }
         }
         for (VirtualRegister vr : removeList)
             this.removeUse(vr);
         for (VirtualRegister vr : addList)
             this.addUse(vr);
+
+        oldVR.removeUse(this);
+        newVR.addUse(this);
     }
 
     public Set<VirtualRegister> getUse() {

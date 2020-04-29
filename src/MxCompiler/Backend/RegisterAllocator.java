@@ -218,7 +218,6 @@ public class RegisterAllocator extends ASMPass {
     // For each virtual register which is not pre-colored, add it to one of the work lists.
     private void makeWorkList() {
         for (VirtualRegister n : initial) {
-            initial.remove(n);
             if (n.getDegree() >= K)
                 spillWorkList.offer(n);
             else if (moveRelated(n))
@@ -226,6 +225,7 @@ public class RegisterAllocator extends ASMPass {
             else
                 simplifyWorkList.offer(n);
         }
+        // We don't have to clear "initial".
     }
 
     // Get the current neighbors of a virtual register n.
@@ -518,15 +518,17 @@ public class RegisterAllocator extends ASMPass {
     }
 
     private void removeRedundantMoveInst() {
-        /*
         ArrayList<BasicBlock> dfsOrder = function.getDFSOrder();
         for (BasicBlock block : dfsOrder) {
             ASMInstruction ptr = block.getInstHead();
             while (ptr != null) {
                 ASMInstruction next = ptr.getNextInst();
-//                if (ptr instanceof MoveInst && ((MoveInst) ptr).getRd().getco)
+                if (ptr instanceof MoveInst
+                        && ((MoveInst) ptr).getRd().getColorPR() == ((MoveInst) ptr).getRs().getColorPR()) {
+                    ((MoveInst) ptr).removeFromBlock();
+                }
+                ptr = next;
             }
         }
-        */
     }
 }

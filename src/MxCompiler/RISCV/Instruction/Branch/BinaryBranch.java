@@ -32,6 +32,13 @@ public class BinaryBranch extends Branch {
     }
 
     @Override
+    public void replaceDef(VirtualRegister oldVR, VirtualRegister newVR) {
+        if (rs2 == oldVR)
+            rs2 = newVR;
+        super.replaceDef(oldVR, newVR);
+    }
+
+    @Override
     public void accept(ASMVisitor visitor) {
         visitor.visit(this);
     }

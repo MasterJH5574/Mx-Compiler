@@ -32,6 +32,13 @@ public class RTypeBinary extends BinaryInst {
     }
 
     @Override
+    public void replaceUse(VirtualRegister oldVR, VirtualRegister newVR) {
+        if (rs2 == oldVR)
+            rs2 = newVR;
+        super.replaceUse(oldVR, newVR);
+    }
+
+    @Override
     public void accept(ASMVisitor visitor) {
         visitor.visit(this);
     }

@@ -138,25 +138,30 @@ public class Main {
                 break;
         }
 
-        finalPrint(module, errorHandler);
+        // Print LLVM IR.
+        new IRPrinter("test/test.ll").run(module);
 
         SSADestructor ssaDestructor = new SSADestructor(module);
         ssaDestructor.run();
+
+        // Print IR after SSA destruction.
         new IRPrinter("test/postIR.ll").run(module);
 
         InstructionSelector instructionSelector = new InstructionSelector();
         module.accept(instructionSelector);
 
         MxCompiler.RISCV.Module ASMModule = instructionSelector.getASMModule();
+        dominatorTreeConstructor.run();
         loopAnalysis.run();
         new RegisterAllocator(ASMModule, loopAnalysis).run();
 
+        finalPrint(module, errorHandler);
     }
 
     static private void finalPrint(Module module, ErrorHandler errorHandler) {
         String failed = "Compilation Failed.";
         String success = "Compilation Success!";
-        new IRPrinter("test/test.ll").run(module);
+//        new IRPrinter("test/test.ll").run(module);
 
         errorHandler.print();
         if (errorHandler.hasError()) {

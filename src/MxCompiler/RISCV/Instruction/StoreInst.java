@@ -39,6 +39,14 @@ public class StoreInst extends ASMInstruction {
     }
 
     @Override
+    public void replaceUse(VirtualRegister oldVR, VirtualRegister newVR) {
+        if (rs == oldVR)
+            rs = newVR;
+        addr.replaceUse(oldVR, newVR);
+        super.replaceUse(oldVR, newVR);
+    }
+
+    @Override
     public void accept(ASMVisitor visitor) {
         visitor.visit(this);
     }

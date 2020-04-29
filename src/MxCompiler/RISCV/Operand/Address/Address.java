@@ -14,6 +14,10 @@ abstract public class Address {
 
     }
 
+    public void replaceUse(VirtualRegister oldVR, VirtualRegister newVR) {
+
+    }
+
     @Override
     abstract public boolean equals(Object obj);
 }

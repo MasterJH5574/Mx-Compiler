@@ -3,13 +3,14 @@ package MxCompiler.RISCV;
 import MxCompiler.RISCV.Instruction.ASMInstruction;
 import MxCompiler.RISCV.Operand.Register.VirtualRegister;
 
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
 public class BasicBlock {
     private Function function;
     private String name;
+
+    private MxCompiler.IR.BasicBlock irBlock;
 
     private ASMInstruction instHead;
     private ASMInstruction instTail;
@@ -23,9 +24,11 @@ public class BasicBlock {
     private Set<VirtualRegister> UEVar;
     private Set<VirtualRegister> varKill;
 
-    public BasicBlock(Function function, String name) {
+    public BasicBlock(Function function, MxCompiler.IR.BasicBlock irBlock, String name) {
         this.function = function;
         this.name = name;
+
+        this.irBlock = irBlock;
 
         instHead = null;
         instTail = null;
@@ -40,10 +43,6 @@ public class BasicBlock {
         return function;
     }
 
-    public boolean isEmpty() {
-        return instHead == instTail && instHead == null;
-    }
-
     public String getName() {
         return name;
     }
@@ -52,12 +51,28 @@ public class BasicBlock {
         this.name = name;
     }
 
+    public MxCompiler.IR.BasicBlock getIrBlock() {
+        return irBlock;
+    }
+
+    public boolean isEmpty() {
+        return instHead == instTail && instHead == null;
+    }
+
     public ASMInstruction getInstHead() {
         return instHead;
     }
 
+    public void setInstHead(ASMInstruction instHead) {
+        this.instHead = instHead;
+    }
+
     public ASMInstruction getInstTail() {
         return instTail;
+    }
+
+    public void setInstTail(ASMInstruction instTail) {
+        this.instTail = instTail;
     }
 
     public Set<BasicBlock> getPredecessors() {

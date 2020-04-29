@@ -1,8 +1,8 @@
 package MxCompiler.RISCV.Instruction.BinaryInst;
 
 import MxCompiler.RISCV.ASMVisitor;
-import MxCompiler.RISCV.Operand.Register.Register;
 import MxCompiler.RISCV.BasicBlock;
+import MxCompiler.RISCV.Operand.Register.VirtualRegister;
 
 import java.util.Set;
 
@@ -12,9 +12,10 @@ public class RTypeBinary extends BinaryInst {
     }
 
     private OpName op;
-    private Register rs2;
+    private VirtualRegister rs2;
 
-    public RTypeBinary(BasicBlock basicBlock, OpName op, Register rs1, Register rs2, Register rd) {
+    public RTypeBinary(BasicBlock basicBlock, OpName op,
+                       VirtualRegister rs1, VirtualRegister rs2, VirtualRegister rd) {
         super(basicBlock, rd, rs1);
         this.op = op;
         this.rs2 = rs2;
@@ -24,7 +25,7 @@ public class RTypeBinary extends BinaryInst {
     }
 
     @Override
-    public void addToUEVarAndVarKill(Set<Register> UEVar, Set<Register> varKill) {
+    public void addToUEVarAndVarKill(Set<VirtualRegister> UEVar, Set<VirtualRegister> varKill) {
         if (!varKill.contains(rs2))
             UEVar.add(rs2);
         super.addToUEVarAndVarKill(UEVar, varKill);

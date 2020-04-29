@@ -4,7 +4,7 @@ import MxCompiler.RISCV.BasicBlock;
 import MxCompiler.RISCV.Function;
 import MxCompiler.RISCV.Instruction.ASMInstruction;
 import MxCompiler.RISCV.Module;
-import MxCompiler.RISCV.Operand.Register.Register;
+import MxCompiler.RISCV.Operand.Register.VirtualRegister;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -36,7 +36,7 @@ public class LivenessAnalysis extends ASMPass {
             changed = false;
             for (int i = dfsOrder.size() - 1; i >= 0; i--) {
                 BasicBlock block = dfsOrder.get(i);
-                Set<Register> liveOut = computeLiveOutSet(block);
+                Set<VirtualRegister> liveOut = computeLiveOutSet(block);
                 if (!block.getLiveOut().equals(liveOut)) {
                     block.setLiveOut(liveOut);
                     changed = true;
@@ -46,8 +46,8 @@ public class LivenessAnalysis extends ASMPass {
     }
 
     private void computeUEVarAndVarKill(BasicBlock block) {
-        Set<Register> UEVar = new HashSet<>();
-        Set<Register> varKill = new HashSet<>();
+        Set<VirtualRegister> UEVar = new HashSet<>();
+        Set<VirtualRegister> varKill = new HashSet<>();
 
         ASMInstruction ptr = block.getInstHead();
         while (ptr != null) {
@@ -59,13 +59,13 @@ public class LivenessAnalysis extends ASMPass {
         block.setVarKill(varKill);
     }
 
-    private Set<Register> computeLiveOutSet(BasicBlock block) {
-        Set<Register> liveOut = new HashSet<>();
+    private Set<VirtualRegister> computeLiveOutSet(BasicBlock block) {
+        Set<VirtualRegister> liveOut = new HashSet<>();
         for (BasicBlock successor : block.getSuccessors()) {
-            Set<Register> intersection = new HashSet<>(successor.getLiveOut());
+            Set<VirtualRegister> intersection = new HashSet<>(successor.getLiveOut());
             intersection.removeAll(successor.getVarKill());
 
-            Set<Register> union = new HashSet<>(successor.getUEVar());
+            Set<VirtualRegister> union = new HashSet<>(successor.getUEVar());
             union.addAll(intersection);
 
             liveOut.addAll(union);

@@ -5,12 +5,13 @@ import MxCompiler.RISCV.Instruction.LoadInst;
 import MxCompiler.RISCV.Instruction.MoveInst;
 import MxCompiler.RISCV.Instruction.StoreInst;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public class VirtualRegister extends Register {
     private String name;
+
+    private Map<ASMInstruction, Integer> use;
+    private Map<ASMInstruction, Integer> def;
 
     // Member used for Register Allocator.
     private ArrayList<VirtualRegister> adjList;
@@ -23,6 +24,9 @@ public class VirtualRegister extends Register {
 
     public VirtualRegister(String name) {
         this.name = name;
+
+        use = new HashMap<>();
+        def = new HashMap<>();
 
         adjList = new ArrayList<>();
         degree = 0;
@@ -39,6 +43,28 @@ public class VirtualRegister extends Register {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public void addUse(ASMInstruction instruction) {
+        if (use.containsKey(instruction))
+            use.replace(instruction, use.get(instruction) + 1);
+        else
+            use.put(instruction, 1);
+    }
+
+    public void addDef(ASMInstruction instruction) {
+        if (def.containsKey(instruction))
+            def.replace(instruction, def.get(instruction) + 1);
+        else
+            def.put(instruction, 1);
+    }
+
+    public Map<ASMInstruction, Integer> getUse() {
+        return use;
+    }
+
+    public Map<ASMInstruction, Integer> getDef() {
+        return def;
     }
 
     public void fixColor(PhysicalRegister pr) {

@@ -100,6 +100,7 @@
 * 2020.4.29
   * Add "getBlockDepth()" to LoopAnalysis for computing spill costs.
   * Almost finish RegisterAllocator(to be debugged).
+  * Replace the type of defs&uses of ASM instructions(Register) with VirtualRegister.
 
 
 

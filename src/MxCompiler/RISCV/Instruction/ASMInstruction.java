@@ -2,7 +2,6 @@ package MxCompiler.RISCV.Instruction;
 
 import MxCompiler.RISCV.ASMVisitor;
 import MxCompiler.RISCV.BasicBlock;
-import MxCompiler.RISCV.Operand.Register.Register;
 import MxCompiler.RISCV.Operand.Register.VirtualRegister;
 
 import java.util.*;
@@ -44,12 +43,11 @@ abstract public class ASMInstruction {
         this.nextInst = nextInst;
     }
 
-    public void addDef(Register register) {
-        assert register instanceof VirtualRegister;
-        if (def.containsKey(register))
-            def.replace(((VirtualRegister) register), def.get(register) + 1);
+    public void addDef(VirtualRegister vr) {
+        if (def.containsKey(vr))
+            def.replace(vr, def.get(vr) + 1);
         else
-            def.put(((VirtualRegister) register), 1);
+            def.put(vr, 1);
     }
 
     public void removeDef(VirtualRegister vr) {
@@ -79,12 +77,11 @@ abstract public class ASMInstruction {
         return def.keySet();
     }
 
-    public void addUse(Register register) {
-        assert register instanceof VirtualRegister;
-        if (use.containsKey(register))
-            use.replace(((VirtualRegister) register), use.get(register) + 1);
+    public void addUse(VirtualRegister vr) {
+        if (use.containsKey(vr))
+            use.replace(vr, use.get(vr) + 1);
         else
-            use.put(((VirtualRegister) register), 1);
+            use.put(vr, 1);
     }
 
     public void removeUse(VirtualRegister vr) {
@@ -120,7 +117,7 @@ abstract public class ASMInstruction {
         return union;
     }
 
-    public void addToUEVarAndVarKill(Set<Register> UEVar, Set<Register> varKill) {
+    public void addToUEVarAndVarKill(Set<VirtualRegister> UEVar, Set<VirtualRegister> varKill) {
 
     }
 

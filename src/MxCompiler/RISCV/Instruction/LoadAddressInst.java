@@ -3,15 +3,15 @@ package MxCompiler.RISCV.Instruction;
 import MxCompiler.RISCV.ASMVisitor;
 import MxCompiler.RISCV.BasicBlock;
 import MxCompiler.RISCV.Operand.GlobalVariable;
-import MxCompiler.RISCV.Operand.Register.Register;
+import MxCompiler.RISCV.Operand.Register.VirtualRegister;
 
 import java.util.Set;
 
 public class LoadAddressInst extends ASMInstruction {
-    private Register rd;
+    private VirtualRegister rd;
     private GlobalVariable globalVariable;
 
-    public LoadAddressInst(BasicBlock basicBlock, Register rd, GlobalVariable globalVariable) {
+    public LoadAddressInst(BasicBlock basicBlock, VirtualRegister rd, GlobalVariable globalVariable) {
         super(basicBlock);
         this.rd = rd;
         this.globalVariable = globalVariable;
@@ -22,7 +22,7 @@ public class LoadAddressInst extends ASMInstruction {
 
 
     @Override
-    public void addToUEVarAndVarKill(Set<Register> UEVar, Set<Register> varKill) {
+    public void addToUEVarAndVarKill(Set<VirtualRegister> UEVar, Set<VirtualRegister> varKill) {
         varKill.add(rd);
     }
 

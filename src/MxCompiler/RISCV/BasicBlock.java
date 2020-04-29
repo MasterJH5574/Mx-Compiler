@@ -1,7 +1,6 @@
 package MxCompiler.RISCV;
 
 import MxCompiler.RISCV.Instruction.ASMInstruction;
-import MxCompiler.RISCV.Operand.Register.Register;
 import MxCompiler.RISCV.Operand.Register.VirtualRegister;
 
 import java.util.HashSet;
@@ -20,9 +19,9 @@ public class BasicBlock {
     private Set<BasicBlock> predecessors;
     private Set<BasicBlock> successors;
 
-    private Set<Register> liveOut;
-    private Set<Register> UEVar;
-    private Set<Register> varKill;
+    private Set<VirtualRegister> liveOut;
+    private Set<VirtualRegister> UEVar;
+    private Set<VirtualRegister> varKill;
 
     public BasicBlock(Function function, String name) {
         this.function = function;
@@ -69,36 +68,27 @@ public class BasicBlock {
         return successors;
     }
 
-    public Set<Register> getLiveOut() {
+    public Set<VirtualRegister> getLiveOut() {
         return liveOut;
     }
 
-    public Set<VirtualRegister> getVRLiveOut() {
-        Set<VirtualRegister> liveOut = new HashSet<>();
-        for (Register register : this.liveOut) {
-            assert register instanceof VirtualRegister;
-            liveOut.add(((VirtualRegister) register));
-        }
-        return liveOut;
-    }
-
-    public void setLiveOut(Set<Register> liveOut) {
+    public void setLiveOut(Set<VirtualRegister> liveOut) {
         this.liveOut = liveOut;
     }
 
-    public Set<Register> getUEVar() {
+    public Set<VirtualRegister> getUEVar() {
         return UEVar;
     }
 
-    public void setUEVar(Set<Register> UEVar) {
+    public void setUEVar(Set<VirtualRegister> UEVar) {
         this.UEVar = UEVar;
     }
 
-    public Set<Register> getVarKill() {
+    public Set<VirtualRegister> getVarKill() {
         return varKill;
     }
 
-    public void setVarKill(Set<Register> varKill) {
+    public void setVarKill(Set<VirtualRegister> varKill) {
         this.varKill = varKill;
     }
 

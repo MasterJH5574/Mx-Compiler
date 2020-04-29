@@ -173,7 +173,7 @@ public class RegisterAllocator extends ASMPass {
     private void build() {
         ArrayList<BasicBlock> dfsOrder = function.getDFSOrder();
         for (BasicBlock block : dfsOrder) {
-            Set<VirtualRegister> live = block.getVRLiveOut();
+            Set<VirtualRegister> live = block.getLiveOut();
             ASMInstruction ptr = block.getInstTail();
             while (ptr != null) {
                 if (ptr instanceof MoveInst) {
@@ -313,8 +313,8 @@ public class RegisterAllocator extends ASMPass {
     private void coalesce() {
         assert !workListMoves.isEmpty();
         MoveInst m = workListMoves.poll();
-        VirtualRegister x = getAlias(((VirtualRegister) m.getRd()));
-        VirtualRegister y = getAlias(((VirtualRegister) m.getRs()));
+        VirtualRegister x = getAlias(m.getRd());
+        VirtualRegister y = getAlias(m.getRs());
 
         VirtualRegister u;
         VirtualRegister v;
@@ -397,8 +397,8 @@ public class RegisterAllocator extends ASMPass {
     // Freeze a virtual register u.
     private void freezeMoves(VirtualRegister u) {
         for (MoveInst m : nodeMoves(u)) {
-            VirtualRegister x = ((VirtualRegister) m.getRd());
-            VirtualRegister y = ((VirtualRegister) m.getRs());
+            VirtualRegister x = m.getRd();
+            VirtualRegister y = m.getRs();
 
             VirtualRegister v;
             if (getAlias(y) == getAlias(u))

@@ -2,15 +2,15 @@ package MxCompiler.RISCV.Instruction;
 
 import MxCompiler.RISCV.ASMVisitor;
 import MxCompiler.RISCV.BasicBlock;
-import MxCompiler.RISCV.Operand.Register.Register;
+import MxCompiler.RISCV.Operand.Register.VirtualRegister;
 
 import java.util.Set;
 
 public class MoveInst extends ASMInstruction {
-    private Register rd;
-    private Register rs;
+    private VirtualRegister rd;
+    private VirtualRegister rs;
 
-    public MoveInst(BasicBlock basicBlock, Register rd, Register rs) {
+    public MoveInst(BasicBlock basicBlock, VirtualRegister rd, VirtualRegister rs) {
         super(basicBlock);
         this.rd = rd;
         this.rs = rs;
@@ -21,16 +21,16 @@ public class MoveInst extends ASMInstruction {
         this.addDef(this.rd);
     }
 
-    public Register getRd() {
+    public VirtualRegister getRd() {
         return rd;
     }
 
-    public Register getRs() {
+    public VirtualRegister getRs() {
         return rs;
     }
 
     @Override
-    public void addToUEVarAndVarKill(Set<Register> UEVar, Set<Register> varKill) {
+    public void addToUEVarAndVarKill(Set<VirtualRegister> UEVar, Set<VirtualRegister> varKill) {
         if (!varKill.contains(rs))
             UEVar.add(rs);
         varKill.add(rd);

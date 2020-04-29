@@ -2,21 +2,21 @@ package MxCompiler.RISCV.Operand.Address;
 
 import MxCompiler.RISCV.Instruction.ASMInstruction;
 import MxCompiler.RISCV.Operand.Immediate.Immediate;
-import MxCompiler.RISCV.Operand.Register.Register;
+import MxCompiler.RISCV.Operand.Register.VirtualRegister;
 
 import java.util.Set;
 
 public class BaseOffsetAddr extends Address {
-    private Register base;
+    private VirtualRegister base;
     private Immediate offset;
 
-    public BaseOffsetAddr(Register base, Immediate offset) {
+    public BaseOffsetAddr(VirtualRegister base, Immediate offset) {
         this.base = base;
         this.offset = offset;
     }
 
     @Override
-    public void addToUEVarAndVarKill(Set<Register> UEVar, Set<Register> varKill) {
+    public void addToUEVarAndVarKill(Set<VirtualRegister> UEVar, Set<VirtualRegister> varKill) {
         if (!varKill.contains(base))
             UEVar.add(base);
     }

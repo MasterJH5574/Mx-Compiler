@@ -3,7 +3,7 @@ package MxCompiler.RISCV.Instruction;
 import MxCompiler.RISCV.ASMVisitor;
 import MxCompiler.RISCV.BasicBlock;
 import MxCompiler.RISCV.Operand.Address.Address;
-import MxCompiler.RISCV.Operand.Register.Register;
+import MxCompiler.RISCV.Operand.Register.VirtualRegister;
 
 import java.util.Set;
 
@@ -12,11 +12,11 @@ public class LoadInst extends ASMInstruction {
         lb, lw
     }
 
-    private Register rd;
+    private VirtualRegister rd;
     private ByteSize byteSize;
     private Address addr;
 
-    public LoadInst(BasicBlock basicBlock, Register rd, ByteSize byteSize, Address addr) {
+    public LoadInst(BasicBlock basicBlock, VirtualRegister rd, ByteSize byteSize, Address addr) {
         super(basicBlock);
         this.rd = rd;
         this.byteSize = byteSize;
@@ -32,7 +32,7 @@ public class LoadInst extends ASMInstruction {
     }
 
     @Override
-    public void addToUEVarAndVarKill(Set<Register> UEVar, Set<Register> varKill) {
+    public void addToUEVarAndVarKill(Set<VirtualRegister> UEVar, Set<VirtualRegister> varKill) {
         addr.addToUEVarAndVarKill(UEVar, varKill);
         varKill.add(rd);
     }

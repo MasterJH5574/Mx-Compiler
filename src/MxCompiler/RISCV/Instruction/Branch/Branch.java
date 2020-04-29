@@ -2,15 +2,15 @@ package MxCompiler.RISCV.Instruction.Branch;
 
 import MxCompiler.RISCV.BasicBlock;
 import MxCompiler.RISCV.Instruction.ASMInstruction;
-import MxCompiler.RISCV.Operand.Register.Register;
+import MxCompiler.RISCV.Operand.Register.VirtualRegister;
 
 import java.util.Set;
 
 abstract public class Branch extends ASMInstruction {
-    private Register rs1;
+    private VirtualRegister rs1;
     private BasicBlock thenBlock;
 
-    public Branch(BasicBlock basicBlock, Register rs1, BasicBlock thenBlock) {
+    public Branch(BasicBlock basicBlock, VirtualRegister rs1, BasicBlock thenBlock) {
         super(basicBlock);
         this.rs1 = rs1;
         this.thenBlock = thenBlock;
@@ -20,7 +20,7 @@ abstract public class Branch extends ASMInstruction {
     }
 
     @Override
-    public void addToUEVarAndVarKill(Set<Register> UEVar, Set<Register> varKill) {
+    public void addToUEVarAndVarKill(Set<VirtualRegister> UEVar, Set<VirtualRegister> varKill) {
         if (!varKill.contains(rs1))
             UEVar.add(rs1);
     }

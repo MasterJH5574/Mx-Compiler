@@ -24,6 +24,8 @@ public class LoopAnalysis extends Pass {
         private LoopNode father;
         private ArrayList<LoopNode> children;
 
+        private int depth;
+
         private BasicBlock preHeader;
 
         public LoopNode(BasicBlock header) {
@@ -33,6 +35,7 @@ public class LoopAnalysis extends Pass {
             this.exitBlocks = null;
             this.father = null;
             this.children = new ArrayList<>();
+            this.depth = 0;
             this.preHeader = null;
         }
 
@@ -70,6 +73,14 @@ public class LoopAnalysis extends Pass {
 
         public ArrayList<LoopNode> getChildren() {
             return children;
+        }
+
+        public int getDepth() {
+            return depth;
+        }
+
+        public void setDepth(int depth) {
+            this.depth = depth;
         }
 
         public boolean hasPreHeader(Map<BasicBlock, LoopNode> blockNodeMap) {
@@ -208,6 +219,12 @@ public class LoopAnalysis extends Pass {
         return preHeaders != null && preHeaders.contains(block);
     }
 
+    public int getBlockDepth(MxCompiler.RISCV.BasicBlock ASMBlock) {
+        BasicBlock irBlock = ((BasicBlock) module.getFunctionMap().
+                get(ASMBlock.getFunction().getName()).getSymbolTable().get(ASMBlock.getName()));
+        return blockNodeMap.get(irBlock).getDepth();
+    }
+
     @Override
     public boolean run() {
         for (Function function : module.getFunctionMap().values()) {
@@ -232,6 +249,7 @@ public class LoopAnalysis extends Pass {
 
         dfsDetectNaturalLoop(function.getEntranceBlock(), new HashSet<>(), root);
         dfsConstructLoopTree(function.getEntranceBlock(), new HashSet<>(), root);
+        root.setDepth(0);
         dfsLoopTree(root);
 
         return root;
@@ -308,8 +326,10 @@ public class LoopAnalysis extends Pass {
         for (BasicBlock block : loop.uniqueLoopBlocks)
             blockNodeMap.put(block, loop);
 
-        for (LoopNode child : loop.children)
+        for (LoopNode child : loop.children) {
+            child.setDepth(loop.getDepth() + 1);
             dfsLoopTree(child);
+        }
         if (loop.hasFather() && !loop.hasPreHeader(blockNodeMap))
             loop.addPreHeader(blockNodeMap);
 

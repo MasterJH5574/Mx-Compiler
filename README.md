@@ -96,7 +96,9 @@
 * 2020.4.27	Add LivenessAnalysis. Add use-def chain.
 * 2020.4.28
 	* Add use-def info of asm instructions.
-	* Modify InstructionSelector to adapt calling convention
+	* Modify InstructionSelector to adapt calling convention.
+* 2020.4.29
+  * Add "getBlockDepth()" to LoopAnalysis for computing spill costs.
 
 
 

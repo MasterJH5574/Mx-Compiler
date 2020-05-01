@@ -82,4 +82,14 @@ public class PhysicalRegister extends Register {
     public String getName() {
         return name;
     }
+
+    @Override
+    public String emitCode() {
+        return null;
+    }
+
+    @Override
+    public String toString() {
+        return null;
+    }
 }

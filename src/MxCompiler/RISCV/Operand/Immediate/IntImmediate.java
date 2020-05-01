@@ -13,6 +13,16 @@ public class IntImmediate extends Immediate {
     }
 
     @Override
+    public String emitCode() {
+        return String.valueOf(value);
+    }
+
+    @Override
+    public String toString() {
+        return String.valueOf(value);
+    }
+
+    @Override
     public boolean equals(Object obj) {
         if (!(obj instanceof IntImmediate))
             return false;

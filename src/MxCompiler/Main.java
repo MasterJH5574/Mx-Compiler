@@ -1,6 +1,7 @@
 package MxCompiler;
 
 import MxCompiler.AST.ProgramNode;
+import MxCompiler.Backend.CodeEmitter;
 import MxCompiler.Backend.InstructionSelector;
 import MxCompiler.Backend.RegisterAllocator;
 import MxCompiler.Frontend.ASTBuilder;
@@ -104,7 +105,8 @@ public class Main {
 
         for (Function function : module.getFunctionMap().values()) {
             if (function.isNotFunctional()) {
-                finalPrint(module, errorHandler);
+                new IRPrinter("test/test.ll").run(module);
+                finalPrint(errorHandler);
                 return;
             }
         }
@@ -141,8 +143,7 @@ public class Main {
         // Print LLVM IR.
         new IRPrinter("test/test.ll").run(module);
 
-        SSADestructor ssaDestructor = new SSADestructor(module);
-        ssaDestructor.run();
+        new SSADestructor(module).run();
 
         // Print IR after SSA destruction.
         new IRPrinter("test/postIR.ll").run(module);
@@ -153,15 +154,16 @@ public class Main {
         MxCompiler.RISCV.Module ASMModule = instructionSelector.getASMModule();
         dominatorTreeConstructor.run();
         loopAnalysis.run();
-        new RegisterAllocator(ASMModule, loopAnalysis).run();
 
-        finalPrint(module, errorHandler);
+        new RegisterAllocator(ASMModule, loopAnalysis).run();
+        new CodeEmitter("test/test.s").run(ASMModule);
+
+        finalPrint(errorHandler);
     }
 
-    static private void finalPrint(Module module, ErrorHandler errorHandler) {
+    static private void finalPrint(ErrorHandler errorHandler) {
         String failed = "Compilation Failed.";
         String success = "Compilation Success!";
-//        new IRPrinter("test/test.ll").run(module);
 
         errorHandler.print();
         if (errorHandler.hasError()) {

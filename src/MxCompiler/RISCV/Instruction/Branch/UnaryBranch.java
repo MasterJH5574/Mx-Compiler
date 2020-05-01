@@ -17,6 +17,16 @@ public class UnaryBranch extends Branch {
     }
 
     @Override
+    public String emitCode() {
+        return "\t" + op.name() + "\t" + getRs1().emitCode() + ", " + getThenBlock().emitCode();
+    }
+
+    @Override
+    public String toString() {
+        return op + " " + getRs1() + ", " + getThenBlock();
+    }
+
+    @Override
     public void accept(ASMVisitor visitor) {
         visitor.visit(this);
     }

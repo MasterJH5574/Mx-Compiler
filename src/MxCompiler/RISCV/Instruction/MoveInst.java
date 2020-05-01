@@ -69,6 +69,16 @@ public class MoveInst extends ASMInstruction {
     }
 
     @Override
+    public String emitCode() {
+        return "\tmv\t" + rd.emitCode() + ", " + rs.emitCode();
+    }
+
+    @Override
+    public String toString() {
+        return "mv " + rd + ", " + rs;
+    }
+
+    @Override
     public void accept(ASMVisitor visitor) {
         visitor.visit(this);
     }

@@ -9,6 +9,7 @@ import java.util.Set;
 public class BasicBlock {
     private Function function;
     private String name;
+    private String asmName;
 
     private MxCompiler.IR.BasicBlock irBlock;
 
@@ -24,9 +25,10 @@ public class BasicBlock {
     private Set<VirtualRegister> UEVar;
     private Set<VirtualRegister> varKill;
 
-    public BasicBlock(Function function, MxCompiler.IR.BasicBlock irBlock, String name) {
+    public BasicBlock(Function function, MxCompiler.IR.BasicBlock irBlock, String name, String asmName) {
         this.function = function;
         this.name = name;
+        this.asmName = asmName;
 
         this.irBlock = irBlock;
 
@@ -51,6 +53,10 @@ public class BasicBlock {
         this.name = name;
     }
 
+    public String getAsmName() {
+        return asmName;
+    }
+
     public MxCompiler.IR.BasicBlock getIrBlock() {
         return irBlock;
     }
@@ -73,6 +79,10 @@ public class BasicBlock {
 
     public void setInstTail(ASMInstruction instTail) {
         this.instTail = instTail;
+    }
+
+    public BasicBlock getNextBlock() {
+        return nextBlock;
     }
 
     public Set<BasicBlock> getPredecessors() {
@@ -122,6 +132,16 @@ public class BasicBlock {
         instTail = instruction;
     }
 
+    public void addInstructionAtFront(ASMInstruction instruction) {
+        if (isEmpty())
+            instTail = instruction;
+        else {
+            instHead.setPrevInst(instruction);
+            instruction.setNextInst(instHead);
+        }
+        instHead = instruction;
+    }
+
     public void addInstructionNext(ASMInstruction inst1, ASMInstruction inst2) {
         // It is ensured that inst1 is in this block.
         if (inst1 == instTail) {
@@ -150,6 +170,15 @@ public class BasicBlock {
             inst1.getPrevInst().setNextInst(inst2);
             inst1.setPrevInst(inst2);
         }
+    }
+
+    public String emitCode() {
+        return asmName;
+    }
+
+    @Override
+    public String toString() {
+        return name;
     }
 
     public void accept(ASMVisitor visitor) {

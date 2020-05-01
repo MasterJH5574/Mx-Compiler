@@ -21,6 +21,14 @@ abstract public class BinaryInst extends ASMInstruction {
         this.addUse(this.rs1);
     }
 
+    public VirtualRegister getRd() {
+        return rd;
+    }
+
+    public VirtualRegister getRs1() {
+        return rs1;
+    }
+
     @Override
     public void addToUEVarAndVarKill(Set<VirtualRegister> UEVar, Set<VirtualRegister> varKill) {
         if (!varKill.contains(rs1))

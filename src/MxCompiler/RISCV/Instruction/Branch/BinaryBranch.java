@@ -39,6 +39,17 @@ public class BinaryBranch extends Branch {
     }
 
     @Override
+    public String emitCode() {
+        return "\t" + op.name() + "\t"
+                + getRs1().emitCode() + ", " + rs2.emitCode() + ", " + getThenBlock().emitCode();
+    }
+
+    @Override
+    public String toString() {
+        return op + " " + getRs1() + ", " + rs2 + ", " + getThenBlock();
+    }
+
+    @Override
     public void accept(ASMVisitor visitor) {
         visitor.visit(this);
     }

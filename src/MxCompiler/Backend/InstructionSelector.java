@@ -597,7 +597,11 @@ public class InstructionSelector implements IRVisitor {
 
     @Override
     public void visit(CallInst inst) {
-        MxCompiler.RISCV.Function callee = ASMModule.getFunctionMap().get(inst.getFunction().getName());
+        MxCompiler.RISCV.Function callee;
+        if (ASMModule.getFunctionMap().containsKey(inst.getFunction().getName()))
+            callee = ASMModule.getFunctionMap().get(inst.getFunction().getName());
+        else
+            callee = ASMModule.getExternalFunctionMap().get(inst.getFunction().getName());
         ArrayList<Operand> parameters = inst.getParameters();
 
         for (int i = 0; i < Integer.min(8, parameters.size()); i++) {

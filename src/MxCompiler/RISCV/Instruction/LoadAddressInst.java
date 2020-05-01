@@ -33,6 +33,16 @@ public class LoadAddressInst extends ASMInstruction {
     }
 
     @Override
+    public String emitCode() {
+        return "\tla\t" + rd.emitCode() + ", " + globalVariable.getName();
+    }
+
+    @Override
+    public String toString() {
+        return "la " + rd + ", " + globalVariable.getName();
+    }
+
+    @Override
     public void accept(ASMVisitor visitor) {
         visitor.visit(this);
     }

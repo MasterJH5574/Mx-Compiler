@@ -167,4 +167,15 @@ public class VirtualRegister extends Register {
         else
             return spillCost / degree;
     }
+
+    @Override
+    public String emitCode() {
+        assert hasAColor();
+        return colorPR.getName();
+    }
+
+    @Override
+    public String toString() {
+        return name;
+    }
 }

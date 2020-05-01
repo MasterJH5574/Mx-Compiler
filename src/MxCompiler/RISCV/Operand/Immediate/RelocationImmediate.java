@@ -16,6 +16,16 @@ public class RelocationImmediate extends Immediate {
     }
 
     @Override
+    public String emitCode() {
+        return "%" + (type == Type.high ? "hi" : "lo") + "(" + globalVariable.getName() + ")";
+    }
+
+    @Override
+    public String toString() {
+        return "%" + (type == Type.high ? "hi" : "lo") + "(" + globalVariable.getName() + ")";
+    }
+
+    @Override
     public boolean equals(Object obj) {
         if (!(obj instanceof RelocationImmediate))
             return false;

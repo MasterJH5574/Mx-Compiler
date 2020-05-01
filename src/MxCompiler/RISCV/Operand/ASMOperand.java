@@ -1,4 +1,8 @@
 package MxCompiler.RISCV.Operand;
 
-public class ASMOperand {
+abstract public class ASMOperand {
+    abstract public String emitCode();
+
+    @Override
+    abstract public String toString();
 }

@@ -33,6 +33,16 @@ public class LoadImmediate extends ASMInstruction {
     }
 
     @Override
+    public String emitCode() {
+        return "\tli\t" + rd.emitCode() + ", " + immediate.emitCode();
+    }
+
+    @Override
+    public String toString() {
+        return "li " + rd + ", " + immediate;
+    }
+
+    @Override
     public void accept(ASMVisitor visitor) {
         visitor.visit(this);
     }

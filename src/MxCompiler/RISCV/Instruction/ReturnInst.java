@@ -9,6 +9,16 @@ public class ReturnInst extends ASMInstruction {
     }
 
     @Override
+    public String emitCode() {
+        return "\tret";
+    }
+
+    @Override
+    public String toString() {
+        return "ret";
+    }
+
+    @Override
     public void accept(ASMVisitor visitor) {
         visitor.visit(this);
     }

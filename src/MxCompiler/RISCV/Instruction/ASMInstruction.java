@@ -133,5 +133,10 @@ abstract public class ASMInstruction {
 
     }
 
+    abstract public String emitCode();
+
+    @Override
+    abstract public String toString();
+
     abstract public void accept(ASMVisitor visitor);
 }

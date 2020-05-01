@@ -5,12 +5,11 @@ package MxCompiler.Backend;
 import MxCompiler.Optim.LoopOptim.LoopAnalysis;
 import MxCompiler.RISCV.BasicBlock;
 import MxCompiler.RISCV.Function;
-import MxCompiler.RISCV.Instruction.ASMInstruction;
-import MxCompiler.RISCV.Instruction.LoadInst;
-import MxCompiler.RISCV.Instruction.MoveInst;
-import MxCompiler.RISCV.Instruction.StoreInst;
+import MxCompiler.RISCV.Instruction.*;
+import MxCompiler.RISCV.Instruction.BinaryInst.ITypeBinary;
 import MxCompiler.RISCV.Module;
 import MxCompiler.RISCV.Operand.Address.StackLocation;
+import MxCompiler.RISCV.Operand.Immediate.IntImmediate;
 import MxCompiler.RISCV.Operand.Register.PhysicalRegister;
 import MxCompiler.RISCV.Operand.Register.VirtualRegister;
 import MxCompiler.Utilities.Pair;
@@ -119,6 +118,8 @@ public class RegisterAllocator extends ASMPass {
 
         checkEveryVRHasAColor();
         removeRedundantMoveInst();
+        function.getStackFrame().computeFrameSize();
+        moveStackPointer();
     }
 
     private void initializeDataStructures() {
@@ -528,6 +529,24 @@ public class RegisterAllocator extends ASMPass {
                     ((MoveInst) ptr).removeFromBlock();
                 }
                 ptr = next;
+            }
+        }
+    }
+
+    private void moveStackPointer() {
+        int frameSize = function.getStackFrame().getSize();
+        if (frameSize == 0)
+            return;
+
+        VirtualRegister sp = PhysicalRegister.vrs.get("sp");
+        function.getEntranceBlock().addInstructionAtFront(new ITypeBinary(function.getEntranceBlock(),
+                ITypeBinary.OpName.addi, sp, new IntImmediate(-frameSize * 4), sp));
+
+        for (BasicBlock block : function.getBlocks()) {
+            if (block.getInstTail() instanceof ReturnInst) {
+                block.addInstructionNext(block.getInstTail(), new ITypeBinary(block,
+                        ITypeBinary.OpName.addi, sp, new IntImmediate(frameSize * 4), sp));
+                break;
             }
         }
     }

@@ -19,6 +19,14 @@ abstract public class Branch extends ASMInstruction {
         this.addUse(this.rs1);
     }
 
+    public VirtualRegister getRs1() {
+        return rs1;
+    }
+
+    public BasicBlock getThenBlock() {
+        return thenBlock;
+    }
+
     @Override
     public void addToUEVarAndVarKill(Set<VirtualRegister> UEVar, Set<VirtualRegister> varKill) {
         if (!varKill.contains(rs1))

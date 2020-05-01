@@ -21,6 +21,17 @@ public class ITypeBinary extends BinaryInst {
     }
 
     @Override
+    public String emitCode() {
+        return "\t" + op.name() + "\t"
+                + getRd().emitCode() + ", " + getRs1().emitCode() + ", " + immediate.emitCode();
+    }
+
+    @Override
+    public String toString() {
+        return op + " " + getRd() + ", " + getRs1() + ", " + immediate;
+    }
+
+    @Override
     public void accept(ASMVisitor visitor) {
         visitor.visit(this);
     }

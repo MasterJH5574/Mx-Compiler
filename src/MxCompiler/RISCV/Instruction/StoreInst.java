@@ -47,6 +47,16 @@ public class StoreInst extends ASMInstruction {
     }
 
     @Override
+    public String emitCode() {
+        return "\t" + byteSize.name() + "\t" + rs.emitCode() + ", " + addr.emitCode();
+    }
+
+    @Override
+    public String toString() {
+        return byteSize + " " + rs + ", " + addr;
+    }
+
+    @Override
     public void accept(ASMVisitor visitor) {
         visitor.visit(this);
     }

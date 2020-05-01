@@ -22,6 +22,16 @@ public class CallInst extends ASMInstruction {
     }
 
     @Override
+    public String emitCode() {
+        return "\tcall\t" + callee.getName();
+    }
+
+    @Override
+    public String toString() {
+        return "call " + callee.getName();
+    }
+
+    @Override
     public void accept(ASMVisitor visitor) {
         visitor.visit(this);
     }

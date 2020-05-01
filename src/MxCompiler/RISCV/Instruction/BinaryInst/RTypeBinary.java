@@ -39,6 +39,16 @@ public class RTypeBinary extends BinaryInst {
     }
 
     @Override
+    public String emitCode() {
+        return "\t" + op.name() + "\t" + getRd().emitCode() + ", " + getRs1().emitCode() + ", " + rs2.emitCode();
+    }
+
+    @Override
+    public String toString() {
+        return op + " " + getRd() + ", " + getRs1() + ", " + rs2;
+    }
+
+    @Override
     public void accept(ASMVisitor visitor) {
         visitor.visit(this);
     }

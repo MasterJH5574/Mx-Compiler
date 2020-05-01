@@ -37,12 +37,16 @@ public class Function {
         gepAddrMap = new HashMap<>();
 
 
+        int functionCnt = module.getFunctionMap().size();
+        int blockCnt = 0;
         blockMap = new HashMap<>();
         ArrayList<MxCompiler.IR.BasicBlock> IRBlocks = IRFunction.getBlocks();
         for (MxCompiler.IR.BasicBlock IRBlock : IRBlocks) {
-            BasicBlock block = new BasicBlock(this, IRBlock, IRBlock.getName());
+            BasicBlock block = new BasicBlock(this, IRBlock, IRBlock.getName(),
+                    ".LBB" + functionCnt + "_" + blockCnt);
             this.addBasicBlock(block);
             blockMap.put(block.getName(), block);
+            blockCnt++;
         }
         for (MxCompiler.IR.BasicBlock IRBlock : IRBlocks) {
             BasicBlock block = blockMap.get(IRBlock.getName());
@@ -109,6 +113,17 @@ public class Function {
 
     public Map<VirtualRegister, BaseOffsetAddr> getGepAddrMap() {
         return gepAddrMap;
+    }
+
+    public ArrayList<BasicBlock> getBlocks() {
+        ArrayList<BasicBlock> blocks = new ArrayList<>();
+
+        BasicBlock ptr = entranceBlock;
+        while (ptr != null) {
+            blocks.add(ptr);
+            ptr = ptr.getNextBlock();
+        }
+        return blocks;
     }
 
     public void addBasicBlock(BasicBlock block) {

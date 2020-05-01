@@ -3,6 +3,7 @@
     <words>
       <w>adce</w>
       <w>alloca</w>
+      <w>asciz</w>
       <w>ashr</w>
       <w>beqz</w>
       <w>bgez</w>
@@ -14,8 +15,10 @@
       <w>callees</w>
       <w>datalayout</w>
       <w>getelementptr</w>
+      <w>globl</w>
       <w>icmp</w>
       <w>idom</w>
+      <w>lfunc</w>
       <w>licm</w>
       <w>liveness</w>
       <w>preds</w>

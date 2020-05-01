@@ -12,6 +12,16 @@ public class JumpInst extends ASMInstruction {
     }
 
     @Override
+    public String emitCode() {
+        return "\tj\t" + dest.emitCode();
+    }
+
+    @Override
+    public String toString() {
+        return "j " + dest;
+    }
+
+    @Override
     public void accept(ASMVisitor visitor) {
         visitor.visit(this);
     }

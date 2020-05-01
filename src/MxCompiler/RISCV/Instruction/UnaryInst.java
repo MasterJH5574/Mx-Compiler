@@ -49,6 +49,16 @@ public class UnaryInst extends ASMInstruction {
     }
 
     @Override
+    public String emitCode() {
+        return "\t" + op.name() + "\t" + rd.emitCode() + rs.emitCode();
+    }
+
+    @Override
+    public String toString() {
+        return op + " " + rd + ", " + rs;
+    }
+
+    @Override
     public void accept(ASMVisitor visitor) {
         visitor.visit(this);
     }

@@ -51,6 +51,16 @@ public class LoadInst extends ASMInstruction {
     }
 
     @Override
+    public String emitCode() {
+        return "\t" + byteSize.name() + "\t" + rd.emitCode() + ", " + addr.emitCode();
+    }
+
+    @Override
+    public String toString() {
+        return byteSize + " " + rd + ", " + addr;
+    }
+
+    @Override
     public void accept(ASMVisitor visitor) {
         visitor.visit(this);
     }

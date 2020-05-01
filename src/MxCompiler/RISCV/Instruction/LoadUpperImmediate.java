@@ -9,12 +9,12 @@ import java.util.Set;
 
 public class LoadUpperImmediate extends ASMInstruction {
     private VirtualRegister rd;
-    private Immediate rs;
+    private Immediate immediate;
 
-    public LoadUpperImmediate(BasicBlock basicBlock, VirtualRegister rd, Immediate rs) {
+    public LoadUpperImmediate(BasicBlock basicBlock, VirtualRegister rd, Immediate immediate) {
         super(basicBlock);
         this.rd = rd;
-        this.rs = rs;
+        this.immediate = immediate;
 
         this.rd.addDef(this);
         this.addDef(this.rd);
@@ -30,6 +30,16 @@ public class LoadUpperImmediate extends ASMInstruction {
         assert rd == oldVR;
         rd = newVR;
         super.replaceDef(oldVR, newVR);
+    }
+
+    @Override
+    public String emitCode() {
+        return "\tlui\t" + rd.emitCode() + ", " + immediate.emitCode();
+    }
+
+    @Override
+    public String toString() {
+        return "lui " + rd + ", " + immediate;
     }
 
     @Override

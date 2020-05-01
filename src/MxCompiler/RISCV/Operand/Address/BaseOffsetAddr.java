@@ -35,6 +35,16 @@ public class BaseOffsetAddr extends Address {
     }
 
     @Override
+    public String emitCode() {
+        return offset.emitCode() + "(" + base.emitCode() + ")";
+    }
+
+    @Override
+    public String toString() {
+        return offset + "(" + base + ")";
+    }
+
+    @Override
     public boolean equals(Object obj) {
         if (!(obj instanceof BaseOffsetAddr))
             return false;

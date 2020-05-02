@@ -58,14 +58,14 @@ public class CodeEmitter implements ASMVisitor {
 
     private void print(String string) {
         if (printRealASM)
-            System.out.print(string);
+            System.err.print(string);
         if (os != null)
             writer.print(string);
     }
 
     private void println(String string) {
         if (printRealASM)
-            System.out.println(string);
+            System.err.println(string);
         if (os != null)
             writer.println(string);
     }

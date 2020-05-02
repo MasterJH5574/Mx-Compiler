@@ -110,7 +110,7 @@ public class Main {
 
         for (Function function : module.getFunctionMap().values()) {
             if (function.isNotFunctional()) {
-                new IRPrinter("test/test.ll").run(module);
+//                new IRPrinter("test/test.ll").run(module);
 //                finalPrint(errorHandler);
                 return;
             }
@@ -146,18 +146,18 @@ public class Main {
         }
 
         // Print LLVM IR.
-        new IRPrinter("test/test.ll").run(module);
+//        new IRPrinter("test/test.ll").run(module);
 
         new SSADestructor(module).run();
 
         // Print IR after SSA destruction.
-        new IRPrinter("test/postIR.ll").run(module);
+//        new IRPrinter("test/postIR.ll").run(module);
 
         InstructionSelector instructionSelector = new InstructionSelector();
         module.accept(instructionSelector);
 
         MxCompiler.RISCV.Module ASMModule = instructionSelector.getASMModule();
-        new CodeEmitter("test/preASM.s", false).run(ASMModule);
+//        new CodeEmitter("test/preASM.s", false).run(ASMModule);
 
         dominatorTreeConstructor.run();
         loopAnalysis.run();

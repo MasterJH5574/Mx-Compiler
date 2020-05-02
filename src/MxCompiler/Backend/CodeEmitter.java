@@ -11,12 +11,14 @@ import MxCompiler.RISCV.Instruction.Branch.UnaryBranch;
 import MxCompiler.RISCV.Module;
 import MxCompiler.RISCV.Operand.GlobalVariable;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 
 public class CodeEmitter implements ASMVisitor {
+    private File outputFile;
     private OutputStream os;
     private PrintWriter writer;
     private String indent;
@@ -28,6 +30,8 @@ public class CodeEmitter implements ASMVisitor {
         this.printRealASM = printRealASM;
         if (filename != null) {
             try {
+                outputFile = new File(filename);
+                assert outputFile.exists() || outputFile.createNewFile();
                 os = new FileOutputStream(filename);
                 writer = new PrintWriter(os);
             } catch (Exception e) {

@@ -7,13 +7,16 @@ import MxCompiler.IR.TypeSystem.*;
 import java.io.*;
 
 public class IRPrinter implements IRVisitor {
+    private File outputFile;
     private OutputStream os;
     private PrintWriter writer;
     private String indent;
 
     public IRPrinter(String filename) {
         try {
-            os = new FileOutputStream(filename);
+            outputFile = new File(filename);
+            assert outputFile.exists() || outputFile.createNewFile();
+            os = new FileOutputStream(filename, false);
             writer = new PrintWriter(os);
         } catch (Exception e) {
             e.printStackTrace();

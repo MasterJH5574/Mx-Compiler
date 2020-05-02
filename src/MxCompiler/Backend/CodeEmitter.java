@@ -104,7 +104,7 @@ public class CodeEmitter implements ASMVisitor {
         for (BasicBlock block : blocks)
             block.accept(this);
 
-        println(".Lfunc_end" + functionCnt + ":");
+//        println(".Lfunc_end" + functionCnt + ":");
         println(" ".repeat(40) + "# -- End function");
         println("");
 

@@ -32,10 +32,10 @@ public class BinaryBranch extends Branch {
     }
 
     @Override
-    public void replaceDef(VirtualRegister oldVR, VirtualRegister newVR) {
+    public void replaceUse(VirtualRegister oldVR, VirtualRegister newVR) {
         if (rs2 == oldVR)
             rs2 = newVR;
-        super.replaceDef(oldVR, newVR);
+        super.replaceUse(oldVR, newVR);
     }
 
     @Override

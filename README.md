@@ -103,7 +103,9 @@
   * Replace the type of defs&uses of ASM instructions(Register) with VirtualRegister.
   * Debug part of RegisterAllocator. Finish "replaceDef", "replaceUse" of each kind of instruction.
 * 2020.5.1	Finish CodeEmitter. Backend is to be debugged.
-* 2020.5.2	Fix some bugs... Confusing errors occur when running local judge.
+* 2020.5.2	
+  * Fix some bugs... Confusing errors occur when running local judge.
+  * Pass codegen tests.
 
 
 
@@ -419,9 +421,19 @@ Step 3: Insert **Phi-function** for each variable to its **Iterated Dominance Fr
 
 Step 4: "Rename". **Replace uses** of load instruction. Remove alloca, load and store instructions.
 
-### Dead Code Elimination
+### Side-Effect Checker
 
-**Aggressive Dead Code Elimination**: Assume a statement is **dead** until proven otherwise.
+Support `ignoreIO` and `ignoreLoad`.
+
+1. I/O.
+2. Storing into outer scopre variables.
+3. Calling functions with side-effect.
+
+### Aggressive Dead Code Elimination
+
+Assume a statement is **dead** until proven otherwise.
+
+Post-dominance analysis is needed for ADCE.
 
 ```java
 public class DeadCodeEliminator extends Pass {
@@ -434,10 +446,12 @@ public class DeadCodeEliminator extends Pass {
         while (!queue.isEmpty()) {
             IRInstruction instruction = queue.poll();
             instruction.markUseAsLive(live, queue);
-            for (BasicBlock predecessor : instruction.getBasicBlock().getPredecessors()) {
-                if (!live.contains(predecessor.getInstTail())) {
-                    live.add(predecessor.getInstTail());
-                    queue.offer(predecessor.getInstTail());
+            for (BasicBlock block : instruction.getBasicBlock().getPostDF()) {
+                // postDF represents post dominance frontier
+                assert block.getInstTail() instanceof BranchInst;
+                if (!live.contains(block.getInstTail())) {
+                    live.add(block.getInstTail());
+                    queue.offer(block.getInstTail());
                 }
             }
         }
@@ -450,7 +464,7 @@ public class DeadCodeEliminator extends Pass {
 }
 ```
 
-#### Conditi+on for "Live" instruction
+#### Condition for "Live" instruction
 
 1. I/O
 2. Store instructions
@@ -477,11 +491,102 @@ Use a map to collect all different expressions appeared.
 
 If instruction k dominates instruction l, and k and l share the same expression, then there is no need to recalculate the expression for k. It is enough to replace the use of the result of instruction l with the result of instruction k.
 
-**Since I don't implement Alias Analysis, load instructions cannot be optimized by CSE.**
+~~**Since I don't implement Alias Analysis, load instructions cannot be optimized by CSE.**~~
+
+Now I have implement Andersen's Points-To Analysis. So CSE can be further performed.
+
+### Function Inline
+
+Maybe it is a very effective optimization.
+
+1. Count number of instructions in each function.
+2. Find direct callees for each caller function. And then find recursive callees for each caller function.
+3. Perform non-recursive inlining first. Conditions for non-recursive inlining:
+   * number of instructions of callee < instructionLimit
+   * callee != caller
+   * Callee won't be recursive called by caller.
+4. Perform recursive inlining. Conditions for recursive inlining:
+   * number of instructions of callee < instructionLimit
+   * callee == calller
+5. When performing inlining, clone a copy of callee is quite troublesome. I override method "clone()" for BasicBlock and every IRInstruction. Be careful when overriding "clone()".
+
+### Anderson's Points-To Analysis
+
+Let `p` be a pointer, and `pts(p)` be the addresses that `p` may point to.
+
+There are four constraints among pointers, according to IR instructions. Each type of constraints is represented as one type of edges.
+
+These four constrains and corresponding edges are:
+
+1. If `&b` is in `pts(a)`, then there is a *points-to edge* from `a` to `b`.
+2. If there is an assignment from `a` to `b`(e.g., `b <- a`), which means that `pts(a)` is a subset of `pts(b)`, so there is an *inclusive edge* from `a` to `b`.
+3. If there is an assignment from `*a` to `b`(e.g., `b <- *a` such as load instructions), which means that `pts(*a)` is a subset of `pts(b)`, so there is a *dereferenceLhs edge* from `a` to `b`.
+4. if there is an assignment from `b` to `*a`(e.g., `*a <- b` such as store instructions), which means that `pts(b)` is a subset of `pts(*a)`, so there is a *dereferenceRhs edge* from `a` to `b`.
+
+Every pointer can be regarded as a *node*, and edges are from a node to another. All edges are directed.
+
+Run the work list algorithm below:
+
+```
+queue := nodes whose points-to edge set is not empty
+while (queue is not empty):
+    node := pop queue
+    for pointTo in node's points-to set:
+        for lhs in node's dereferenceLhs set:
+            if (lhs is not in pointTo's inclusiveEdge set):
+                add lhs to pointTo's inclusiveEdge set
+                push pointTo into queue
+        for rhs in node's dereferenctRhs set:
+            if (pointTo is not in rhs's inclusiveEdge set):
+                add pointTo to rhs's inclusiveEdge set
+                push rhs into queue
+    for inclusive in node's inclusiveEdge set:
+        add all node's points-to set to inclusive's points-to set
+        if (inclusive's points-to set changed)
+            push inclusive into queue
+```
+
+To check whether two pointers are *may-alias*, just check whether the points-to sets of the two pointers have non-empty intersection.
+
+### Loop Analysis
+
+LoopNode class consists of:
+
+* header: header of a natural loop
+* preHeader(already exists, or need to be added manually): a block who is just above the header and is used is LICM
+* loopBlocks: all the blocks that are in this natural loop
+* uniqueLoopBlocks: blocks that are in this loop but not in sub-natural-loop
+* father loop & children loops
+* depth: used for computing spill costs in graph coloring register allocator
+
+How to detect natural loops: If a successor block `successor` dominates block `b`, then there is a natural loop whose header is `successor`. Any block which is dominated by `header` and can reach `b` without passing by `header` is in this loop. So we can start from `b`, using bfs, and each time walk an edge from a block to its predecessor if the predecessor is not `header` and has not been visited. All the blocks we visited are in the natural loop.
+
+Next, we should construct the loop tree and then add preHeader to each loop.
+
+### Loop Invariant Code Motion
+
+A variable `a` is loop invariant if:
+
+* `a` is constant.
+* `a` is defined outside the loop.
+* `a = b op c` and `b`, `c` are loop-invariant.
+
+Perform LICM in loop tree from leaves to root.
+
+### InstructionCombiner
+
+* Binary operations. E.g., `y = x + x` will be modified as `y = x << 1`.
+
+* BitCastTo. If source type equals object type, then this instruction can be removed.
+* Branch. If `cond` is defined by a "not" instruction, then "not" can be inverted.
+* GetElementPtr. Instruction can be simplified if index equals 0.
+* IcmpInst. The condition for combination is too rigorous...
+
+Is it effective? I don't know.
 
 ### Other Optimizations
 
-To do.
+FunctionRemover: remove functions which is never called.
 
 ## Backend
 
@@ -515,3 +620,4 @@ To do.
   * - [ ] Immediate
   * - [ ] Address
   * - [ ] RelocationExpansion
+

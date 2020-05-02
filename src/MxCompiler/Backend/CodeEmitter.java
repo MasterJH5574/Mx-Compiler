@@ -85,7 +85,7 @@ public class CodeEmitter implements ASMVisitor {
 
         println("");
 
-        println(indent + ".section\t.sbss,\"aw\",@nobits");
+        println(indent + ".section\t.sdata,\"aw\",@progbits");
         for (GlobalVariable gv : module.getGlobalVariableMap().values())
             gv.accept(this);
     }

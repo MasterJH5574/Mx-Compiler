@@ -32,7 +32,6 @@ public class GlobalVariable extends ASMOperand {
     public void setString(String string) {
         isString = true;
         this.string = string;
-        this.name = ".L" + this.name;
     }
 
     public boolean isString() {

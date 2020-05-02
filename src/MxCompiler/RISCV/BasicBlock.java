@@ -163,7 +163,7 @@ public class BasicBlock {
             inst2.setNextInst(inst1);
             inst2.setPrevInst(null);
             inst1.setPrevInst(inst2);
-            instHead = null;
+            instHead = inst2;
         } else {
             inst2.setNextInst(inst1);
             inst2.setPrevInst(inst1.getPrevInst());

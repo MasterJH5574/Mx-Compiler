@@ -101,11 +101,11 @@ public class IcmpInst extends IRInstruction {
         if (operator == IcmpName.sle) {
             operator = IcmpName.slt;
             assert ((ConstInt) op2).getValue() != Integer.MAX_VALUE;
-            ((ConstInt) op2).setValue(((ConstInt) op2).getValue() + 1);
+            this.op2 = new ConstInt(IntegerType.BitWidth.int32, ((ConstInt) op2).getValue() + 1);
         } else if (operator == IcmpName.sge) {
             operator = IcmpName.sgt;
             assert ((ConstInt) op2).getValue() != Integer.MIN_VALUE;
-            ((ConstInt) op2).setValue(((ConstInt) op2).getValue() - 1);
+            this.op2 = new ConstInt(IntegerType.BitWidth.int32, ((ConstInt) op2).getValue() - 1);
         }
     }
 

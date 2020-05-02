@@ -280,7 +280,7 @@ public class IRBuilder implements ASTVisitor {
         currentFunction.addBasicBlock(condBlock);
 
         loopBreakBlock.push(mergeBlock);
-        loopContinueBlock.push(bodyBlock);
+        loopContinueBlock.push(condBlock);
         currentBlock = bodyBlock;
         node.getBody().accept(this); // visit StmtNode
         currentBlock.addInstruction(new BranchInst(currentBlock, null, condBlock, null));

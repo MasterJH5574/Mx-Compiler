@@ -79,7 +79,8 @@ public class SymbolTable {
         for (ArrayList<Object> array : symbolTable.values()) {
             assert array.size() == 1;
             assert array.get(0) instanceof VirtualRegister;
-            VRs.add(((VirtualRegister) array.get(0)));
+            if (!((VirtualRegister) array.get(0)).getDef().isEmpty())
+                VRs.add(((VirtualRegister) array.get(0)));
         }
         return VRs;
     }

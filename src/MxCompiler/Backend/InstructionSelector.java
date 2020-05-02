@@ -343,8 +343,14 @@ public class InstructionSelector implements IRVisitor {
             } else {
                 assert inst.getPointer() instanceof Parameter || inst.getPointer() instanceof Register;
                 VirtualRegister pointer = currentFunction.getSymbolTable().getVR(inst.getPointer().getName());
-                currentBlock.addInstruction(new MxCompiler.RISCV.Instruction.LoadInst(currentBlock,
-                        rd, size, new BaseOffsetAddr(pointer, new IntImmediate(0))));
+                if (currentFunction.getGepAddrMap().containsKey(pointer)) {
+                    BaseOffsetAddr addr = currentFunction.getGepAddrMap().get(pointer);
+                    currentBlock.addInstruction(new MxCompiler.RISCV.Instruction.LoadInst(currentBlock,
+                            rd, size, addr));
+                } else {
+                    currentBlock.addInstruction(new MxCompiler.RISCV.Instruction.LoadInst(currentBlock,
+                            rd, size, new BaseOffsetAddr(pointer, new IntImmediate(0))));
+                }
             }
         }
     }
@@ -374,8 +380,14 @@ public class InstructionSelector implements IRVisitor {
             } else {
                 assert inst.getPointer() instanceof Parameter || inst.getPointer() instanceof Register;
                 VirtualRegister pointer = currentFunction.getSymbolTable().getVR(inst.getPointer().getName());
-                currentBlock.addInstruction(new MxCompiler.RISCV.Instruction.StoreInst(currentBlock,
-                        value, size, new BaseOffsetAddr(pointer, new IntImmediate(0))));
+                if (currentFunction.getGepAddrMap().containsKey(pointer)) {
+                    BaseOffsetAddr addr = currentFunction.getGepAddrMap().get(pointer);
+                    currentBlock.addInstruction(new MxCompiler.RISCV.Instruction.StoreInst(currentBlock,
+                            value, size, addr));
+                } else {
+                    currentBlock.addInstruction(new MxCompiler.RISCV.Instruction.StoreInst(currentBlock,
+                            value, size, new BaseOffsetAddr(pointer, new IntImmediate(0))));
+                }
             }
         }
     }

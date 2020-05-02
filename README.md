@@ -103,6 +103,7 @@
   * Replace the type of defs&uses of ASM instructions(Register) with VirtualRegister.
   * Debug part of RegisterAllocator. Finish "replaceDef", "replaceUse" of each kind of instruction.
 * 2020.5.1	Finish CodeEmitter. Backend is to be debugged.
+* 2020.5.2	Fix some bugs... Confusing errors occur when running local judge.
 
 
 

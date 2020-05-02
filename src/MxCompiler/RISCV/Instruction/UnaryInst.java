@@ -50,7 +50,7 @@ public class UnaryInst extends ASMInstruction {
 
     @Override
     public String emitCode() {
-        return "\t" + op.name() + "\t" + rd.emitCode() + rs.emitCode();
+        return "\t" + op.name() + "\t" + rd.emitCode() + ", " + rs.emitCode();
     }
 
     @Override

@@ -34,7 +34,7 @@ public class DominatorTreeConstructor extends Pass {
             constructPostDominatorTree(function);
             constructPostDominanceFrontier(function);
         }
-        print();
+//        print();
         return true;
     }
 

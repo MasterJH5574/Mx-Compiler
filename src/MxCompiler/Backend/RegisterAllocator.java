@@ -20,6 +20,10 @@ public class RegisterAllocator extends ASMPass {
     private static class Edge extends Pair<VirtualRegister, VirtualRegister> {
         public Edge(VirtualRegister first, VirtualRegister second) {
             super(first, second);
+            if (first.hashCode() > second.hashCode()) {
+                setFirst(second);
+                setSecond(first);
+            }
         }
 
         @Override
@@ -40,7 +44,8 @@ public class RegisterAllocator extends ASMPass {
         }
     }
 
-    final private int K = 28; // K represents the number of allocatable physical registers.
+    final private int K = PhysicalRegister.allocatablePRs.size();
+    // K represents the number of allocatable physical registers.
 
     private Function function;
     private final LoopAnalysis loopAnalysis;
@@ -54,9 +59,9 @@ public class RegisterAllocator extends ASMPass {
     // ------ Data Structures ------
     private Set<VirtualRegister> preColored;
     private Set<VirtualRegister> initial;
-    private Queue<VirtualRegister> simplifyWorkList;
-    private Queue<VirtualRegister> freezeWorkList;
-    private Queue<VirtualRegister> spillWorkList;
+    private Set<VirtualRegister> simplifyWorkList;
+    private Set<VirtualRegister> freezeWorkList;
+    private Set<VirtualRegister> spillWorkList;
     private Set<VirtualRegister> spilledNodes;
     private Set<VirtualRegister> coalescedNodes;
     private Set<VirtualRegister> coloredNodes;
@@ -68,7 +73,7 @@ public class RegisterAllocator extends ASMPass {
     private Set<MoveInst> constrainedMoves;
     @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
     private Set<MoveInst> frozenMoves;
-    private Queue<MoveInst> workListMoves;
+    private Set<MoveInst> workListMoves;
     private Set<MoveInst> activeMoves;
 
     private Set<Edge> adjSet;
@@ -125,9 +130,9 @@ public class RegisterAllocator extends ASMPass {
     private void initializeDataStructures() {
         preColored = new HashSet<>();
         initial = new HashSet<>();
-        simplifyWorkList = new LinkedList<>();
-        freezeWorkList = new LinkedList<>();
-        spillWorkList = new LinkedList<>();
+        simplifyWorkList = new LinkedHashSet<>();
+        freezeWorkList = new LinkedHashSet<>();
+        spillWorkList = new LinkedHashSet<>();
         spilledNodes = new HashSet<>();
         coalescedNodes = new HashSet<>();
         coloredNodes = new HashSet<>();
@@ -136,7 +141,7 @@ public class RegisterAllocator extends ASMPass {
         coalescedMoves = new HashSet<>();
         constrainedMoves = new HashSet<>();
         frozenMoves = new HashSet<>();
-        workListMoves = new LinkedList<>();
+        workListMoves = new LinkedHashSet<>();
         activeMoves = new HashSet<>();
 
         adjSet = new HashSet<>();
@@ -181,9 +186,10 @@ public class RegisterAllocator extends ASMPass {
                     live.removeAll(ptr.getUse());
                     for (VirtualRegister n : ptr.getDefUseUnion())
                         n.getMoveList().add(((MoveInst) ptr));
-                    workListMoves.offer(((MoveInst) ptr));
+                    workListMoves.add(((MoveInst) ptr));
                 }
 
+                live.add(PhysicalRegister.zeroVR);
                 live.addAll(ptr.getDef());
                 for (VirtualRegister d : ptr.getDef()) {
                     for (VirtualRegister l : live)
@@ -199,10 +205,7 @@ public class RegisterAllocator extends ASMPass {
 
     // Add edges (u, v) & (v, u) to interference graph.
     private void addEdge(VirtualRegister u, VirtualRegister v) {
-        if (!adjSet.contains(new Edge(u, v))
-                && u != v
-                && u != PhysicalRegister.zeroVR
-                && v != PhysicalRegister.zeroVR) {
+        if (!adjSet.contains(new Edge(u, v)) && u != v) {
             adjSet.add(new Edge(u, v));
             adjSet.add(new Edge(v, u));
             if (!preColored.contains(u)) {
@@ -220,11 +223,11 @@ public class RegisterAllocator extends ASMPass {
     private void makeWorkList() {
         for (VirtualRegister n : initial) {
             if (n.getDegree() >= K)
-                spillWorkList.offer(n);
+                spillWorkList.add(n);
             else if (moveRelated(n))
-                freezeWorkList.offer(n);
+                freezeWorkList.add(n);
             else
-                simplifyWorkList.offer(n);
+                simplifyWorkList.add(n);
         }
         // We don't have to clear "initial".
     }
@@ -253,7 +256,8 @@ public class RegisterAllocator extends ASMPass {
     // Remove a node whose current degree is no more than K from the interference graph.
     private void simplify() {
         assert !simplifyWorkList.isEmpty();
-        VirtualRegister n = simplifyWorkList.poll();
+        VirtualRegister n = simplifyWorkList.iterator().next();
+        simplifyWorkList.remove(n);
         selectStack.push(n);
         for (VirtualRegister m : adjacent(n))
             decrementDegree(m);
@@ -269,9 +273,9 @@ public class RegisterAllocator extends ASMPass {
             enableMoves(union);
             spillWorkList.remove(m);
             if (moveRelated(m))
-                freezeWorkList.offer(m);
+                freezeWorkList.add(m);
             else
-                simplifyWorkList.offer(m);
+                simplifyWorkList.add(m);
         }
     }
 
@@ -281,7 +285,7 @@ public class RegisterAllocator extends ASMPass {
             for (MoveInst m : nodeMoves(n)) {
                 if (activeMoves.contains(m)) {
                     activeMoves.remove(m);
-                    workListMoves.offer(m);
+                    workListMoves.add(m);
                 }
             }
         }
@@ -313,7 +317,8 @@ public class RegisterAllocator extends ASMPass {
     // Try to coalesce rd and rs of a move instruction in workListMoves.
     private void coalesce() {
         assert !workListMoves.isEmpty();
-        MoveInst m = workListMoves.poll();
+        MoveInst m = workListMoves.iterator().next();
+        workListMoves.remove(m);
         VirtualRegister x = getAlias(m.getRd());
         VirtualRegister y = getAlias(m.getRs());
 
@@ -337,7 +342,7 @@ public class RegisterAllocator extends ASMPass {
             addWorkList(u);
             addWorkList(v);
         } else if ((preColored.contains(u) && anyAdjacentNodeIsOK(v, u))
-                && (!preColored.contains(u) && conservative(unionAdjacentNode))) {
+                || (!preColored.contains(u) && conservative(unionAdjacentNode))) {
             coalescedMoves.add(m);
             combine(u, v);
             addWorkList(u);
@@ -390,7 +395,8 @@ public class RegisterAllocator extends ASMPass {
 
     // Try to freeze a virtual register so that coalescing is given up.
     private void freeze() {
-        VirtualRegister u = freezeWorkList.poll();
+        VirtualRegister u = freezeWorkList.iterator().next();
+        freezeWorkList.remove(u);
         simplifyWorkList.add(u);
         freezeMoves(u);
     }
@@ -447,7 +453,7 @@ public class RegisterAllocator extends ASMPass {
             for (VirtualRegister w : n.getAdjList()) {
                 Set<VirtualRegister> union = new HashSet<>(coloredNodes);
                 union.addAll(preColored);
-                if (union.contains(w))
+                if (union.contains(getAlias(w)))
                     okColors.remove(getAlias(w).getColorPR());
             }
 
@@ -460,7 +466,7 @@ public class RegisterAllocator extends ASMPass {
             }
         }
         for (VirtualRegister n : coalescedNodes)
-            n.setColorPR(n.getAlias().getColorPR());
+            n.setColorPR(getAlias(n).getColorPR());
     }
 
     // Select an unused physical register, with caller-save registers always being selected first.
@@ -544,7 +550,7 @@ public class RegisterAllocator extends ASMPass {
 
         for (BasicBlock block : function.getBlocks()) {
             if (block.getInstTail() instanceof ReturnInst) {
-                block.addInstructionNext(block.getInstTail(), new ITypeBinary(block,
+                block.addInstructionPrev(block.getInstTail(), new ITypeBinary(block,
                         ITypeBinary.OpName.addi, sp, new IntImmediate(frameSize * 4), sp));
                 break;
             }

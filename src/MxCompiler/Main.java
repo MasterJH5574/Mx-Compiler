@@ -90,6 +90,11 @@ public class Main {
             System.out.println(failed);
             throw new RuntimeException();
         }
+        if (errorHandler.hasError()) {
+            errorHandler.print();
+            System.out.println(failed);
+            throw new RuntimeException();
+        }
 
 
         // ------ Optimizations ------
@@ -106,7 +111,7 @@ public class Main {
         for (Function function : module.getFunctionMap().values()) {
             if (function.isNotFunctional()) {
                 new IRPrinter("test/test.ll").run(module);
-                finalPrint(errorHandler);
+//                finalPrint(errorHandler);
                 return;
             }
         }
@@ -152,13 +157,16 @@ public class Main {
         module.accept(instructionSelector);
 
         MxCompiler.RISCV.Module ASMModule = instructionSelector.getASMModule();
+        new CodeEmitter("test/preASM.s", false).run(ASMModule);
+
         dominatorTreeConstructor.run();
         loopAnalysis.run();
 
         new RegisterAllocator(ASMModule, loopAnalysis).run();
-        new CodeEmitter("test/test.s").run(ASMModule);
+        new CodeEmitter("test/test.s", true).run(ASMModule);
+//        new CodeEmitter(null, true).run(ASMModule);
 
-        finalPrint(errorHandler);
+//        finalPrint(errorHandler);
     }
 
     static private void finalPrint(ErrorHandler errorHandler) {

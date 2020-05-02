@@ -343,14 +343,8 @@ public class InstructionSelector implements IRVisitor {
             } else {
                 assert inst.getPointer() instanceof Parameter || inst.getPointer() instanceof Register;
                 VirtualRegister pointer = currentFunction.getSymbolTable().getVR(inst.getPointer().getName());
-                if (currentFunction.getGepAddrMap().containsKey(pointer)) {
-                    BaseOffsetAddr addr = currentFunction.getGepAddrMap().get(pointer);
-                    currentBlock.addInstruction(new MxCompiler.RISCV.Instruction.LoadInst(currentBlock,
-                            rd, size, addr));
-                } else {
-                    currentBlock.addInstruction(new MxCompiler.RISCV.Instruction.LoadInst(currentBlock,
-                            rd, size, new BaseOffsetAddr(pointer, new IntImmediate(0))));
-                }
+                currentBlock.addInstruction(new MxCompiler.RISCV.Instruction.LoadInst(currentBlock,
+                        rd, size, new BaseOffsetAddr(pointer, new IntImmediate(0))));
             }
         }
     }
@@ -380,14 +374,8 @@ public class InstructionSelector implements IRVisitor {
             } else {
                 assert inst.getPointer() instanceof Parameter || inst.getPointer() instanceof Register;
                 VirtualRegister pointer = currentFunction.getSymbolTable().getVR(inst.getPointer().getName());
-                if (currentFunction.getGepAddrMap().containsKey(pointer)) {
-                    BaseOffsetAddr addr = currentFunction.getGepAddrMap().get(pointer);
-                    currentBlock.addInstruction(new MxCompiler.RISCV.Instruction.StoreInst(currentBlock,
-                            value, size, addr));
-                } else {
-                    currentBlock.addInstruction(new MxCompiler.RISCV.Instruction.StoreInst(currentBlock,
-                            value, size, new BaseOffsetAddr(pointer, new IntImmediate(0))));
-                }
+                currentBlock.addInstruction(new MxCompiler.RISCV.Instruction.StoreInst(currentBlock,
+                        value, size, new BaseOffsetAddr(pointer, new IntImmediate(0))));
             }
         }
     }
@@ -405,7 +393,14 @@ public class InstructionSelector implements IRVisitor {
             if (index instanceof Constant) {
                 assert index instanceof ConstInt;
                 long value = ((ConstInt) index).getValue() * 4; // 4 is the size of a pointer.
-                currentFunction.getGepAddrMap().put(rd, new BaseOffsetAddr(pointer, new IntImmediate(value)));
+                ASMOperand rs = getOperand(new ConstInt(IntegerType.BitWidth.int32, value));
+                if (rs instanceof Immediate)
+                    currentBlock.addInstruction(new ITypeBinary(currentBlock, addi, pointer, ((Immediate) rs), rd));
+                else {
+                    assert rs instanceof VirtualRegister;
+                    currentBlock.addInstruction(new RTypeBinary(currentBlock, add, pointer,
+                            ((VirtualRegister) rs), rd));
+                }
             } else {
                 VirtualRegister rs1 = currentFunction.getSymbolTable().getVR(index.getName());
                 VirtualRegister rs2 = new VirtualRegister("slli");

@@ -93,7 +93,12 @@ public class BinaryOpInst extends IRInstruction {
     }
 
     public boolean shouldSwapOperands() {
-        return lhs.getPrivilege() < rhs.getPrivilege();
+        // add, sub, mul, sdiv, srem,          // Binary Operations
+        //        shl, ashr, and, or, xor             // Bitwise Binary Operations
+        return (op == BinaryOpName.add
+                || op == BinaryOpName.mul || op == BinaryOpName.and
+                || op == BinaryOpName.or || op == BinaryOpName.xor)
+                && lhs.getPrivilege() < rhs.getPrivilege();
     }
 
     public void swapOperands() {

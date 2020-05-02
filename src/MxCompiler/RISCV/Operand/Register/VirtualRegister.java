@@ -128,6 +128,7 @@ public class VirtualRegister extends Register {
     }
 
     public PhysicalRegister getColorPR() {
+        assert colorPR != null;
         return colorPR;
     }
 

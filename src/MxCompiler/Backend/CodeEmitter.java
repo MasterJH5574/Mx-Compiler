@@ -22,14 +22,21 @@ public class CodeEmitter implements ASMVisitor {
     private String indent;
 
     private int functionCnt;
+    private boolean printRealASM;
 
-    public CodeEmitter(String filename) {
-        try {
-            os = new FileOutputStream(filename);
-            writer = new PrintWriter(os);
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException(e.getMessage());
+    public CodeEmitter(String filename, boolean printRealASM) {
+        this.printRealASM = printRealASM;
+        if (filename != null) {
+            try {
+                os = new FileOutputStream(filename);
+                writer = new PrintWriter(os);
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new RuntimeException(e.getMessage());
+            }
+        } else {
+            os = null;
+            writer = null;
         }
 
         indent = "\t";
@@ -38,21 +45,29 @@ public class CodeEmitter implements ASMVisitor {
     public void run(Module module) {
         module.accept(this);
 
-        try {
-            writer.close();
-            os.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException(e.getMessage());
+        if (os != null) {
+            try {
+                writer.close();
+                os.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new RuntimeException(e.getMessage());
+            }
         }
     }
 
     private void print(String string) {
-        writer.print(string);
+        if (printRealASM)
+            System.out.print(string);
+        if (os != null)
+            writer.print(string);
     }
 
     private void println(String string) {
-        writer.println(string);
+        if (printRealASM)
+            System.out.println(string);
+        if (os != null)
+            writer.println(string);
     }
 
     @Override
@@ -66,6 +81,7 @@ public class CodeEmitter implements ASMVisitor {
 
         println("");
 
+        println(indent + ".section\t.sbss,\"aw\",@nobits");
         for (GlobalVariable gv : module.getGlobalVariableMap().values())
             gv.accept(this);
     }
@@ -98,7 +114,10 @@ public class CodeEmitter implements ASMVisitor {
 
         ASMInstruction ptr = block.getInstHead();
         while (ptr != null) {
-            println(ptr.emitCode());
+            if (printRealASM)
+                println(ptr.emitCode());
+            else
+                println(indent + ptr.toString());
             ptr = ptr.getNextInst();
         }
     }

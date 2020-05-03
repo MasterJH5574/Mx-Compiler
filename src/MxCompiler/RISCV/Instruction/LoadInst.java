@@ -27,8 +27,29 @@ public class LoadInst extends ASMInstruction {
         this.addr.addBaseUse(this);
     }
 
+    public VirtualRegister getRd() {
+        return rd;
+    }
+
     public Address getAddr() {
         return addr;
+    }
+
+    public void removeFromBlock() {
+        this.rd.removeDef(this);
+        this.removeDef(this.rd);
+        this.addr.removeBaseUse(this);
+
+        rd = null;
+        addr = null;
+        if (getPrevInst() == null)
+            getBasicBlock().setInstHead(getNextInst());
+        else
+            getPrevInst().setNextInst(getNextInst());
+        if (getNextInst() == null)
+            getBasicBlock().setInstTail(getPrevInst());
+        else
+            getNextInst().setPrevInst(getPrevInst());
     }
 
     @Override

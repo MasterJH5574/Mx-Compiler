@@ -108,6 +108,7 @@
   * Pass codegen tests.
 * 2020.5.3
   * Add peephole optimization: rearrange blocks.
+  * Add peephole optimization: remove loads following a same-address store.
 
 
 

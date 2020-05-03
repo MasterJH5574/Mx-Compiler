@@ -27,6 +27,10 @@ public class StoreInst extends ASMInstruction {
         this.addr.addBaseUse(this);
     }
 
+    public VirtualRegister getRs() {
+        return rs;
+    }
+
     public Address getAddr() {
         return addr;
     }

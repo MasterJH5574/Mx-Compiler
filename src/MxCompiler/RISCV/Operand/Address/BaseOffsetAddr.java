@@ -28,6 +28,12 @@ public class BaseOffsetAddr extends Address {
     }
 
     @Override
+    public void removeBaseUse(ASMInstruction use) {
+        use.removeUse(base);
+        base.removeUse(use);
+    }
+
+    @Override
     public void replaceUse(VirtualRegister oldVR, VirtualRegister newVR) {
         if (base == oldVR)
             base = newVR;

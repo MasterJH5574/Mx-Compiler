@@ -3,73 +3,47 @@
 ## Timeline
 
 * 2020.1.11	Create repo.
-
 * 2020.1.16	Finish Mx.g4 v1.
-
 * 2020.1.18	It is said that the assignment will be modified a lot🙃.
-
 * 2020.1.21	Start building AST.
-
 * 2020.1.22	Finish code of AST package. Start coding ASTBuilder.java.
-
 * 2020.1.23	Finish building AST(Finish ASTBuilder.java).
-
 * 2020.1.29	Start semantic analysis(so complexed...).
-
 * 2020.1.30	Add ErrorHandler. Add Scope, TypeTable, package Type and package Entity. Start coding Checker.java.
-
 * 2020.1.31	Continue semantic analysis. Finish variable resolver, type resolver and "void" checker in Checker.java.
-
 * 2020.2.1	Continue semantic analysis(type check stage).
-
 * 2020.2.2	Finish the basic code of semantic analysis
   * Built-in method of string unhandled.
   * To be debugged.
   * Update Mx.g4 and package Parser since ";" is required at the end of class definition.
-  
 * 2020.2.3	Continue semantic analysis.
   * Check return statement in functions with non-void return value type.
   * Check "int main()" and its return statement.
   * Handle built-in functions and methods.
   * Update rules of naming a class or entity.
-  
 * 2020.2.4	Debug. Finish semantic analysis.
   * Add MxErrorListener to lexer and parser.
   * Almost pass all the semantic test cases(90.56%). See [Pitfalls](#pitfalls) for detail.
-  
 * 2020.2.6	Learn LLVM.
-
 * 2020.2.7-2020.2.11	Write package IR.
-
 * 2020.2.12	Finish IRBuilder.
   * StringLiteral to be fixed.
   * To be debugged.
-  
 * 2020.2.13	Add interface IRVisitor and method accept(IRVisitor visitor).
-
 * 2020.2.14	Implement IRPrinter. Add some assert statement to ensure correctness.
   * IRBuilder is still to be debugged.
   * Happy Valentine's Day!
-  
 * 2020.2.15	Debug. Pass all the semantic test cases. Fix [Pitfalls](#pitfalls) in semantic stage.
-
 * 2020.2.16	Debug. Generate correct LLVM IR to pass all codegen test cases.
-
 * 2020.2.17	Add class IRObject for use. Add def-use chains and use-def chain.
-
 * 2020.2.18	Add DominatorTreeConstructor and [SSAConstructor](#ssa-constructionmem2reg-in-llvm-ir)(to be debugged).
-
 * 2020.2.19	Add [CFGSimplifier](#cfg-simplification)(to be debugged).
-  
   * I need to spend more time on TA's task of CS158...See you later.
-  
 * 2020.2.22	Debug. Fix bugs in CFGSimplifier.
-
 * 2020.2.23	Debug. 
   * Fix bugs in DominatorTreeConstructor and add a CFG/Dominator Tree/Dominance Frontier printer.
   * Fix bugs in SSAConstructor and CFGSimplifier. Fix bugs when adding instructions and replacing uses. Add default value for return value in a function.
   * It can pass all codegen test with LLVM IR again by far.
-  
 * 2020.2.24	Debug.
   * Store default value to new allocated register so that no exception will be throwed when the use is before the def.
   * Fix a bug when removing a block from a function.
@@ -77,98 +51,64 @@
   * Fix a bug in SSAConstructor to collect all allocate instructions.
   * Fix bugs in NewArrayMalloc and IRBuilder to generate allocate and store instructions with correct BasicBlock.
   * It can generate LLVM IR for all semantic-pass test cases.
-  
 * 2020.2.25	Debug. Add [DeadCodeEliminator](#dead-code-elimination).
   * Replace `Set<IRInstruction> use` with `Map<IRInstruction, Integer> use`.
   * Fix a bug when adding a new branch to PhiInst(add use to operand and block).
-  
 * 2020.2.26	Add [SCCP](#sparse-conditional-constant-propagation). Remove some redundant visits from IRVisitor.
-
 * 2020.2.27	Add something and debug.
   * Remove phi functions with single incoming value in CFGSimplifier.
   * Fix two bugs when merging blocks(removing single incoming value phi functions, remove uses of the merged block).
-  
 * 2020.2.28	Add [CSE](#common-subexpression-elimination)(without Alias Analysis).
-
 * 2020.2.29	Overload `public Object clone()` for BasicBlock, IRInstruction and Register.
-
 * 2020.3.1	Add InlineExpander(to be debugged).
-
 * 2020.3.2	Add something and debug.
   * Add FunctionRemover to remove functions which are never called.
   * Debug. Fix bugs in InlineExpander and not it can pass codegen test cases.
-  
 * 2020.3.4	Revert two boolean methods...
-
 * 2020.3.5	Add Andersen's Point To Analysis(to be debugged).
-
 * 2020.3.8	Debug for Andersen. Add SideEffectChecker.
-
 * 2020.3.9	Debug for Andersen. Use Andersen to improve CSE.
-  
   * Improve Function.isNotFunctional().
-  
 * 2020.3.10	Fix bugs in SideEffectChecker and CFGSimplifier.
-
 * 2020.3.11	Use SideEffectChecker to improve DCE.
-
 * 2020.3.17	Add LoopAnalysis.	
   * Fix a bug when detecting side effect.
   * Fix bugs when replacing use. 
   * Improve SideEffectChecker to support "ignoreLoad".
-  
 * 2020.3.18	Improve LoopAnalysis. Add LICM.
-
 * 2020.3.24	Add post-dominator analysis.
-
 * 2020.3.25	Improve DCE to real ADCE. Update LoopAnalysis.
-
 * 2020.3.26	Try InstructionCombiner.
-
 * 2020.3.27	Improve getNameWithoutDot() for Register and BasicBlock.
-
 * 2020.3.28	Give a lecture to beginner.
-
 * 2020.3.29	Add InstructionCombiner.
-
 * 2020.4.2	Pass semantic tests on OnlineJudge.
-
 * 2020.4.11	Modify IRPrinter. Add SSADestructor.
-
 * 2020.4.12	Add some basic classes of RISC-V ASM.
-
 * 2020.4.14
   * Add basic classes(cont.).
   * Fix a critical bug in IRBuilder(about visit binary expression AND or OR).
   * Start writing InstructionSelector(far from finishing it).
-  
 * 2020.4.15	Add a check for InstructionCombiner.
-
 * 2020.4.16	Finish InstructionSelector(to be debugged).
-
 * 2020.4.17	SSADestructor/InstSelector debug.
-
 * 2020.4.18	SSADestructor/InstSelector debug. Add one more CFGSimplification after DCE.
-
 * 2020.4.27	Add LivenessAnalysis. Add use-def chain.
-
 * 2020.4.28
 	* Add use-def info of asm instructions.
 	* Modify InstructionSelector to adapt calling convention.
-	
 * 2020.4.29
   * Add "getBlockDepth()" to LoopAnalysis for computing spill costs.
   * Almost finish RegisterAllocator(to be debugged).
   * Replace the type of defs&uses of ASM instructions(Register) with VirtualRegister.
   * Debug part of RegisterAllocator. Finish "replaceDef", "replaceUse" of each kind of instruction.
-  
 * 2020.5.1	Finish CodeEmitter. Backend is to be debugged.
-
-* 2020.5.2
-
+* 2020.5.2	
   * Fix some bugs... Confusing errors occur when running local judge.
-
-  * Output to stderr. Try to submit on Online-Judge to check where the confusing problem is.
+  * Pass codegen tests.
+* 2020.5.3
+  * Add peephole optimization: rearrange blocks.
+  * Add peephole optimization: remove loads following a same-address store.
 
 
 
@@ -484,9 +424,19 @@ Step 3: Insert **Phi-function** for each variable to its **Iterated Dominance Fr
 
 Step 4: "Rename". **Replace uses** of load instruction. Remove alloca, load and store instructions.
 
-### Dead Code Elimination
+### Side-Effect Checker
 
-**Aggressive Dead Code Elimination**: Assume a statement is **dead** until proven otherwise.
+Support `ignoreIO` and `ignoreLoad`.
+
+1. I/O.
+2. Storing into outer scopre variables.
+3. Calling functions with side-effect.
+
+### Aggressive Dead Code Elimination
+
+Assume a statement is **dead** until proven otherwise.
+
+Post-dominance analysis is needed for ADCE.
 
 ```java
 public class DeadCodeEliminator extends Pass {
@@ -499,10 +449,12 @@ public class DeadCodeEliminator extends Pass {
         while (!queue.isEmpty()) {
             IRInstruction instruction = queue.poll();
             instruction.markUseAsLive(live, queue);
-            for (BasicBlock predecessor : instruction.getBasicBlock().getPredecessors()) {
-                if (!live.contains(predecessor.getInstTail())) {
-                    live.add(predecessor.getInstTail());
-                    queue.offer(predecessor.getInstTail());
+            for (BasicBlock block : instruction.getBasicBlock().getPostDF()) {
+                // postDF represents post dominance frontier
+                assert block.getInstTail() instanceof BranchInst;
+                if (!live.contains(block.getInstTail())) {
+                    live.add(block.getInstTail());
+                    queue.offer(block.getInstTail());
                 }
             }
         }
@@ -515,7 +467,7 @@ public class DeadCodeEliminator extends Pass {
 }
 ```
 
-#### Conditi+on for "Live" instruction
+#### Condition for "Live" instruction
 
 1. I/O
 2. Store instructions
@@ -542,11 +494,102 @@ Use a map to collect all different expressions appeared.
 
 If instruction k dominates instruction l, and k and l share the same expression, then there is no need to recalculate the expression for k. It is enough to replace the use of the result of instruction l with the result of instruction k.
 
-**Since I don't implement Alias Analysis, load instructions cannot be optimized by CSE.**
+~~**Since I don't implement Alias Analysis, load instructions cannot be optimized by CSE.**~~
+
+Now I have implement Andersen's Points-To Analysis. So CSE can be further performed.
+
+### Function Inline
+
+Maybe it is a very effective optimization.
+
+1. Count number of instructions in each function.
+2. Find direct callees for each caller function. And then find recursive callees for each caller function.
+3. Perform non-recursive inlining first. Conditions for non-recursive inlining:
+   * number of instructions of callee < instructionLimit
+   * callee != caller
+   * Callee won't be recursive called by caller.
+4. Perform recursive inlining. Conditions for recursive inlining:
+   * number of instructions of callee < instructionLimit
+   * callee == calller
+5. When performing inlining, clone a copy of callee is quite troublesome. I override method "clone()" for BasicBlock and every IRInstruction. Be careful when overriding "clone()".
+
+### Anderson's Points-To Analysis
+
+Let `p` be a pointer, and `pts(p)` be the addresses that `p` may point to.
+
+There are four constraints among pointers, according to IR instructions. Each type of constraints is represented as one type of edges.
+
+These four constrains and corresponding edges are:
+
+1. If `&b` is in `pts(a)`, then there is a *points-to edge* from `a` to `b`.
+2. If there is an assignment from `a` to `b`(e.g., `b <- a`), which means that `pts(a)` is a subset of `pts(b)`, so there is an *inclusive edge* from `a` to `b`.
+3. If there is an assignment from `*a` to `b`(e.g., `b <- *a` such as load instructions), which means that `pts(*a)` is a subset of `pts(b)`, so there is a *dereferenceLhs edge* from `a` to `b`.
+4. if there is an assignment from `b` to `*a`(e.g., `*a <- b` such as store instructions), which means that `pts(b)` is a subset of `pts(*a)`, so there is a *dereferenceRhs edge* from `a` to `b`.
+
+Every pointer can be regarded as a *node*, and edges are from a node to another. All edges are directed.
+
+Run the work list algorithm below:
+
+```
+queue := nodes whose points-to edge set is not empty
+while (queue is not empty):
+    node := pop queue
+    for pointTo in node's points-to set:
+        for lhs in node's dereferenceLhs set:
+            if (lhs is not in pointTo's inclusiveEdge set):
+                add lhs to pointTo's inclusiveEdge set
+                push pointTo into queue
+        for rhs in node's dereferenctRhs set:
+            if (pointTo is not in rhs's inclusiveEdge set):
+                add pointTo to rhs's inclusiveEdge set
+                push rhs into queue
+    for inclusive in node's inclusiveEdge set:
+        add all node's points-to set to inclusive's points-to set
+        if (inclusive's points-to set changed)
+            push inclusive into queue
+```
+
+To check whether two pointers are *may-alias*, just check whether the points-to sets of the two pointers have non-empty intersection.
+
+### Loop Analysis
+
+LoopNode class consists of:
+
+* header: header of a natural loop
+* preHeader(already exists, or need to be added manually): a block who is just above the header and is used is LICM
+* loopBlocks: all the blocks that are in this natural loop
+* uniqueLoopBlocks: blocks that are in this loop but not in sub-natural-loop
+* father loop & children loops
+* depth: used for computing spill costs in graph coloring register allocator
+
+How to detect natural loops: If a successor block `successor` dominates block `b`, then there is a natural loop whose header is `successor`. Any block which is dominated by `header` and can reach `b` without passing by `header` is in this loop. So we can start from `b`, using bfs, and each time walk an edge from a block to its predecessor if the predecessor is not `header` and has not been visited. All the blocks we visited are in the natural loop.
+
+Next, we should construct the loop tree and then add preHeader to each loop.
+
+### Loop Invariant Code Motion
+
+A variable `a` is loop invariant if:
+
+* `a` is constant.
+* `a` is defined outside the loop.
+* `a = b op c` and `b`, `c` are loop-invariant.
+
+Perform LICM in loop tree from leaves to root.
+
+### InstructionCombiner
+
+* Binary operations. E.g., `y = x + x` will be modified as `y = x << 1`.
+
+* BitCastTo. If source type equals object type, then this instruction can be removed.
+* Branch. If `cond` is defined by a "not" instruction, then "not" can be inverted.
+* GetElementPtr. Instruction can be simplified if index equals 0.
+* IcmpInst. The condition for combination is too rigorous...
+
+Is it effective? I don't know.
 
 ### Other Optimizations
 
-To do.
+FunctionRemover: remove functions which is never called.
 
 ## Backend
 
@@ -580,3 +623,4 @@ To do.
   * - [ ] Immediate
   * - [ ] Address
   * - [ ] RelocationExpansion
+

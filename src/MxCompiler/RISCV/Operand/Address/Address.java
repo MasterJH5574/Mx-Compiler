@@ -14,6 +14,10 @@ abstract public class Address {
 
     }
 
+    public void removeBaseUse(ASMInstruction use) {
+
+    }
+
     public void replaceUse(VirtualRegister oldVR, VirtualRegister newVR) {
 
     }

@@ -11,8 +11,17 @@ public class JumpInst extends ASMInstruction {
         this.dest = dest;
     }
 
+    public BasicBlock getDest() {
+        return dest;
+    }
+
+    public void setDest(BasicBlock dest) {
+        this.dest = dest;
+    }
+
     @Override
     public String emitCode() {
+        assert dest != null;
         return "\tj\t" + dest.emitCode();
     }
 

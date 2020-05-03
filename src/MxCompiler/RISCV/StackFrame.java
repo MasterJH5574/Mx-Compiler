@@ -47,7 +47,7 @@ public class StackFrame {
         int maxSpilledActualParameter = 0;
         int spilledVRCnt = spillLocations.size();
         for (ArrayList<StackLocation> parameters : parameterLocation.values())
-            maxSpilledActualParameter = Integer.max(maxSpilledActualParameter, parameters.size() - 8);
+            maxSpilledActualParameter = Integer.max(maxSpilledActualParameter, parameters.size());
 
         size = maxSpilledActualParameter + spilledVRCnt;
 

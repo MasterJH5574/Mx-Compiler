@@ -436,7 +436,18 @@ public class InstructionSelector implements IRVisitor {
                         inst.getPointer().getType()).getBaseType());
                 int index = ((int) ((ConstInt) inst.getIndex().get(1)).getValue());
                 int offset = structureType.calcOffset(index);
-                currentFunction.getGepAddrMap().put(rd, new BaseOffsetAddr(pointer, new IntImmediate(offset)));
+                if (!(structureType.getMemberList().get(index) instanceof PointerType))
+                    currentFunction.getGepAddrMap().put(rd, new BaseOffsetAddr(pointer, new IntImmediate(offset)));
+                else {
+                    ASMOperand rs = getOperand(new ConstInt(IntegerType.BitWidth.int32, offset));
+                    if (rs instanceof Immediate)
+                        currentBlock.addInstruction(new ITypeBinary(currentBlock, addi, pointer, ((Immediate) rs), rd));
+                    else {
+                        assert rs instanceof VirtualRegister;
+                        currentBlock.addInstruction(new RTypeBinary(currentBlock, add,
+                                pointer, ((VirtualRegister) rs), rd));
+                    }
+                }
             }
         }
     }

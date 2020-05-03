@@ -42,7 +42,7 @@ public class Main {
         ParseTree parseTreeEntrance;
         try {
             inputStream = new FileInputStream("code.txt");
-            // inputStream = System.in;
+//            inputStream = System.in;
             input = CharStreams.fromStream(inputStream);
         } catch (Exception e) {
             errorHandler.error("Cannot open file \"code.txt\".");
@@ -164,7 +164,7 @@ public class Main {
 
         new RegisterAllocator(ASMModule, loopAnalysis).run();
 //        new CodeEmitter("test/test.s", true).run(ASMModule);
-        new CodeEmitter(null, true).run(ASMModule);
+        new CodeEmitter("output.s", true).run(ASMModule);
 
 //        finalPrint(errorHandler);
     }

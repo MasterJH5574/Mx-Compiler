@@ -332,7 +332,7 @@ public class SCCP extends Pass implements IRVisitor {
                     default:
                         throw new RuntimeException();
                 }
-                result = new ConstInt(IntegerType.BitWidth.int32, value);
+                result = new ConstInt(IntegerType.BitWidth.int32, ((int) value));
             } else if (lhs instanceof ConstBool && rhs instanceof ConstBool) {
                 boolean value;
                 switch (((BinaryOpInst) inst).getOp()) {

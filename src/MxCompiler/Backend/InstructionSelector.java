@@ -477,6 +477,8 @@ public class InstructionSelector implements IRVisitor {
             VirtualRegister rs1 = currentFunction.getSymbolTable().getVR(op1.getName());
             if (op2 instanceof Constant) { // I-type
                 inst.convertLeGeToLtGt();
+                op1 = inst.getOp1();
+                op2 = inst.getOp2();
                 IcmpInst.IcmpName op = inst.getOperator();
 
                 long value = op2 instanceof ConstBool

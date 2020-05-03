@@ -106,6 +106,8 @@
 * 2020.5.2	
   * Fix some bugs... Confusing errors occur when running local judge.
   * Pass codegen tests.
+* 2020.5.3
+  * Add peephole optimization: rearrange blocks.
 
 
 

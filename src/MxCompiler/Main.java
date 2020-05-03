@@ -3,6 +3,7 @@ package MxCompiler;
 import MxCompiler.AST.ProgramNode;
 import MxCompiler.Backend.CodeEmitter;
 import MxCompiler.Backend.InstructionSelector;
+import MxCompiler.Backend.PeepholeOptimization;
 import MxCompiler.Backend.RegisterAllocator;
 import MxCompiler.Frontend.ASTBuilder;
 import MxCompiler.Frontend.Checker;
@@ -163,6 +164,7 @@ public class Main {
         loopAnalysis.run();
 
         new RegisterAllocator(ASMModule, loopAnalysis).run();
+        new PeepholeOptimization(ASMModule).run();
 //        new CodeEmitter("test/test.s", true).run(ASMModule);
         new CodeEmitter("output.s", true).run(ASMModule);
 

@@ -1,6 +1,7 @@
 package MxCompiler.RISCV;
 
 import MxCompiler.RISCV.Instruction.ASMInstruction;
+import MxCompiler.RISCV.Instruction.JumpInst;
 import MxCompiler.RISCV.Operand.Register.VirtualRegister;
 
 import java.util.LinkedHashSet;
@@ -79,6 +80,18 @@ public class BasicBlock {
 
     public void setInstTail(ASMInstruction instTail) {
         this.instTail = instTail;
+    }
+
+    public void setPrevBlock(BasicBlock prevBlock) {
+        this.prevBlock = prevBlock;
+    }
+
+    public BasicBlock getPrevBlock() {
+        return prevBlock;
+    }
+
+    public void setNextBlock(BasicBlock nextBlock) {
+        this.nextBlock = nextBlock;
     }
 
     public BasicBlock getNextBlock() {
@@ -170,6 +183,19 @@ public class BasicBlock {
             inst1.getPrevInst().setNextInst(inst2);
             inst1.setPrevInst(inst2);
         }
+    }
+
+    public void removeTailJump() {
+        assert instTail instanceof JumpInst;
+        JumpInst jump = ((JumpInst) instTail);
+        if (jump.getPrevInst() == null) {
+            instHead = null;
+            instTail = null;
+        } else {
+            jump.getPrevInst().setNextInst(null);
+            instTail = jump.getPrevInst();
+        }
+        jump.setDest(null);
     }
 
     public String emitCode() {

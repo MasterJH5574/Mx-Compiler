@@ -10,6 +10,10 @@ import MxCompiler.IR.TypeSystem.PointerType;
 import java.util.*;
 
 public class Andersen extends Pass {
+    // TOT and CNT are used for calculating may-alias rate.
+    static public int TOT = 0;
+    static public int CNT = 0;
+
     public static class Node {
         private String name;
         private Set<Node> pointsTo;         // a -> b if loc(b) is in pts(a)
@@ -171,10 +175,15 @@ public class Andersen extends Pass {
     public boolean mayAlias(Operand op1, Operand op2) {
         if (op1 instanceof ConstNull || op2 instanceof ConstNull)
             return false;
+//        TOT++;
+        if (!op1.getType().equals(op2.getType()))
+            return false;
         assert nodeMap.containsKey(op1);
         assert nodeMap.containsKey(op2);
         Set<Node> pointsTo1 = nodeMap.get(op1).getPointsTo();
         Set<Node> pointsTo2 = nodeMap.get(op2).getPointsTo();
+//        if (!Collections.disjoint(pointsTo1, pointsTo2))
+//            CNT++;
         return !Collections.disjoint(pointsTo1, pointsTo2);
     }
 }

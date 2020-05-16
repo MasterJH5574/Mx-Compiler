@@ -168,6 +168,8 @@ public class Main {
 //        new CodeEmitter("test/test.s", true).run(ASMModule);
         new CodeEmitter("output.s", true).run(ASMModule);
 
+//        System.out.println(1.0 * Andersen.CNT / Andersen.TOT);
+
 //        finalPrint(errorHandler);
     }
 
